@@ -1,24 +1,26 @@
-import { HttpService } from "../utils/HttpService.js?v=20260615-lobby-mobile";
-import { HeaderModel } from "../model/HeaderModel.js?v=20260615-lobby-mobile";
-import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260615-lobby-mobile";
-import { PublicController } from "./PublicController.js?v=20260615-lobby-mobile";
-import { SuggestTrackController } from "./SuggestTrackController.js?v=20260615-lobby-mobile";
-import { MainController } from "./MainController.js?v=20260615-lobby-mobile";
-import { LobbyController } from "./LobbyController.js?v=20260615-lobby-mobile";
-import { LobbyListController } from "./LobbyListController.js?v=20260615-lobby-mobile";
-import { GameController } from "./GameController.js?v=20260615-lobby-mobile";
-import { ResultController } from "./ResultController.js?v=20260615-lobby-mobile";
-import { TvController } from "./TvController.js?v=20260615-lobby-mobile";
-import { TvLinkController } from "./TvLinkController.js?v=20260615-lobby-mobile";
-import { ManagementController } from "./ManagementController.js?v=20260615-lobby-mobile";
-import { ManagementCategoriesController } from "./ManagementCategoriesController.js?v=20260615-lobby-mobile";
-import { ManagementFamiliesController } from "./ManagementFamiliesController.js?v=20260615-lobby-mobile";
-import { ManagementTracksController } from "./ManagementTracksController.js?v=20260615-lobby-mobile";
-import { ManagementValidationController } from "./ManagementValidationController.js?v=20260615-lobby-mobile";
-import { ManagementSuggestionsController } from "./ManagementSuggestionsController.js?v=20260615-lobby-mobile";
+import { HttpService } from "../utils/HttpService.js?v=20260615-wake-lock";
+import { HeaderModel } from "../model/HeaderModel.js?v=20260615-wake-lock";
+import { WakeLockService } from "../utils/WakeLockService.js?v=20260615-wake-lock";
+import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260615-wake-lock";
+import { PublicController } from "./PublicController.js?v=20260615-wake-lock";
+import { SuggestTrackController } from "./SuggestTrackController.js?v=20260615-wake-lock";
+import { MainController } from "./MainController.js?v=20260615-wake-lock";
+import { LobbyController } from "./LobbyController.js?v=20260615-wake-lock";
+import { LobbyListController } from "./LobbyListController.js?v=20260615-wake-lock";
+import { GameController } from "./GameController.js?v=20260615-wake-lock";
+import { ResultController } from "./ResultController.js?v=20260615-wake-lock";
+import { TvController } from "./TvController.js?v=20260615-wake-lock";
+import { TvLinkController } from "./TvLinkController.js?v=20260615-wake-lock";
+import { ManagementController } from "./ManagementController.js?v=20260615-wake-lock";
+import { ManagementCategoriesController } from "./ManagementCategoriesController.js?v=20260615-wake-lock";
+import { ManagementFamiliesController } from "./ManagementFamiliesController.js?v=20260615-wake-lock";
+import { ManagementTracksController } from "./ManagementTracksController.js?v=20260615-wake-lock";
+import { ManagementValidationController } from "./ManagementValidationController.js?v=20260615-wake-lock";
+import { ManagementSuggestionsController } from "./ManagementSuggestionsController.js?v=20260615-wake-lock";
 
-const ASSET_VERSION = "20260615-lobby-mobile";
+const ASSET_VERSION = "20260615-wake-lock";
 const YOUTUBE_PREWARM_ROUTES = new Set(["lobby", "game", "tv"]);
+const WAKE_LOCK_ROUTES = new Set(["lobby", "game", "result", "tv-link", "tv"]);
 
 let currentUser = null;
 let headerManager = null;
@@ -77,6 +79,7 @@ export class AppController {
     this.selectViewRunId = 0;
 
     window.httpClient = new HttpService();
+    this.wakeLock = new WakeLockService();
     headerManager = new HeaderModel();
 
     document.addEventListener("submit", (e) => e.preventDefault());
@@ -169,6 +172,7 @@ export class AppController {
     }
 
     this.prewarmYouTubeForRoute(requested);
+    this.updateWakeLockForRoute(requested);
 
     const Controller = ROUTES[requested].controller;
     this.ctrl = new Controller();
@@ -182,6 +186,10 @@ export class AppController {
     loadYouTubeIframeApi().catch(() => {
       // Le lecteur affichera une erreur contextualisee si le chargement echoue plus tard.
     });
+  }
+
+  updateWakeLockForRoute(view) {
+    this.wakeLock.setEnabled(WAKE_LOCK_ROUTES.has(view));
   }
 
   async resolveSession() {
