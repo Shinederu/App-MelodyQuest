@@ -1,10 +1,28 @@
 <section class="mq-page">
-  <section class="mq-card mq-card--soft mq-lobby-action-bar">
-    <div class="mq-card-heading mq-card-heading--compact">
-      <div class="mq-kicker">Avant de lancer</div>
-      <h2>Invite tes joueurs, puis démarre</h2>
-      <p class="mq-card-copy">Le créateur règle les manches et les catégories. Les autres peuvent patienter ici.</p>
+  <section class="mq-card mq-card--soft mq-lobby-command">
+    <div class="mq-lobby-command__main">
+      <div class="mq-card-heading mq-card-heading--compact">
+        <div class="mq-kicker">Salon</div>
+        <h2>Inviter et préparer la partie</h2>
+        <p class="mq-card-copy">Partage le code, vérifie les joueurs, puis lance quand les réglages sont prêts.</p>
+      </div>
+
+      <div class="mq-lobby-code-panel" aria-label="Informations du salon">
+        <div>
+          <span>Code</span>
+          <strong id="lobby-code-display">------</strong>
+        </div>
+        <div>
+          <span>Joueurs</span>
+          <strong id="lobby-player-count">-- / --</strong>
+        </div>
+        <div>
+          <span>Visibilité</span>
+          <strong id="lobby-visibility">--</strong>
+        </div>
+      </div>
     </div>
+
     <div class="mq-actions">
       <button id="btn-lobby-share" type="button" class="mq-secondary">Partager le salon</button>
       <button id="btn-lobby-link-tv" type="button" class="mq-secondary">Lier une TV</button>
@@ -13,11 +31,12 @@
     <p id="lobby-status" class="status"></p>
   </section>
 
-  <div class="mq-two-cols--balanced">
-    <section class="mq-card">
+  <div class="mq-lobby-workspace">
+    <section class="mq-card mq-lobby-players-card">
       <div class="mq-card-heading">
         <div class="mq-kicker">Joueurs</div>
-        <h2>Dans le salon</h2>
+        <h2>Prêts à jouer</h2>
+        <p class="mq-card-copy">Les joueurs connectés apparaissent ici. Le créateur peut exclure quelqu'un avant de lancer.</p>
       </div>
       <ul id="lobby-players" class="mq-clean-list"></ul>
     </section>
@@ -46,7 +65,7 @@
         </div>
 
         <div class="mq-lobby-settings-block">
-          <p class="mq-section-label">Rythme</p>
+          <p class="mq-section-label">Rythme de la partie</p>
           <div class="mq-lobby-number-grid">
             <div class="mq-field">
               <label for="lobby-config-rounds">Manches</label>
@@ -60,7 +79,7 @@
         </div>
 
         <div class="mq-lobby-settings-block">
-          <p class="mq-section-label">Options de manche</p>
+          <p class="mq-section-label">Ce que les joueurs voient</p>
           <div class="mq-lobby-options">
             <label class="mq-toggle-row">
               <input id="lobby-config-show-category" type="checkbox" />
@@ -80,7 +99,7 @@
         </div>
 
         <div class="mq-lobby-settings-block">
-          <p class="mq-section-label">Validation</p>
+          <p class="mq-section-label">Tolérance des réponses</p>
           <div class="mq-lobby-threshold">
             <div class="mq-lobby-threshold__head">
               <label for="lobby-config-answer-threshold">Précision des réponses</label>
@@ -97,7 +116,7 @@
         <div class="mq-lobby-settings-block">
           <div class="mq-lobby-category-head">
             <div>
-              <p class="mq-section-label">Catégories jouées</p>
+              <p class="mq-section-label">Musiques utilisées</p>
               <p id="lobby-category-summary" class="mq-muted">Chargement des catégories...</p>
             </div>
             <div class="mq-lobby-category-actions owner-only" style="display:none;">

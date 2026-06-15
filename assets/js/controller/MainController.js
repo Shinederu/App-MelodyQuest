@@ -200,7 +200,7 @@ export class MainController {
 
     if (!items.length) {
       list.innerHTML = `
-        <li class="mq-list-row">
+        <li class="mq-list-row mq-empty-row">
           <div>
             <strong>Aucun salon public</strong>
             <span class="mq-muted">Crée ton salon depuis le départ rapide ou utilise un code privé.</span>
@@ -211,12 +211,13 @@ export class MainController {
     }
 
     list.innerHTML = items.map((lobby) => `
-      <li class="mq-list-row">
-        <div>
+      <li class="mq-list-row mq-lobby-public-row">
+        <div class="mq-lobby-public-row__main">
           <strong>${this.escapeHtml(lobby.name || "Salon")}</strong>
-          <span class="mq-muted">${Number(lobby.players_count || 0)}/${Number(lobby.max_players || 0)} joueurs - Code ${this.escapeHtml(lobby.lobby_code || "")}</span>
+          <span class="mq-muted">${Number(lobby.players_count || 0)}/${Number(lobby.max_players || 0)} joueurs</span>
           ${lobby.owner_username ? `<span class="mq-muted">Créé par ${this.escapeHtml(lobby.owner_username)}</span>` : ""}
         </div>
+        <span class="mq-chip">${this.escapeHtml(lobby.lobby_code || "")}</span>
         <button type="button" data-join-code="${this.escapeAttr(lobby.lobby_code || "")}">Entrer</button>
       </li>
     `).join("");

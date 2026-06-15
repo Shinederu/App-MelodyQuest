@@ -258,15 +258,23 @@ export class LobbyController {
     const meta = document.getElementById("lobby-meta");
     const rounds = document.getElementById("lobby-rounds");
     const timer = document.getElementById("lobby-timer");
+    const codeDisplay = document.getElementById("lobby-code-display");
+    const playerCount = document.getElementById("lobby-player-count");
+    const visibility = document.getElementById("lobby-visibility");
     const displayConfig = this.configDirty ? this.getDraftConfig(lobby) : this.getServerConfig(lobby);
+    const lobbyCode = String(lobby?.lobby_code || "").trim().toUpperCase();
+    const maxPlayers = Number(lobby?.max_players || 0);
+    const visibilityLabel = displayConfig.visibility === "private" ? "Privé" : "Public";
 
     if (header) header.textContent = displayConfig.name || lobby?.name || "Salon";
     if (meta) {
-      const visibilityLabel = displayConfig.visibility === "private" ? "privé" : "public";
-      meta.textContent = `Code ${lobby?.lobby_code || ""} - ${players.length}/${lobby?.max_players || 0} joueurs - Salon ${visibilityLabel}`;
+      meta.textContent = `Code ${lobbyCode || ""} - ${players.length}/${maxPlayers || 0} joueurs - Salon ${visibilityLabel.toLowerCase()}`;
     }
     if (rounds) rounds.textContent = `${Number(lobby?.rounds_finished || 0)} / ${Number(lobby?.total_rounds || 0)} manches`;
     if (timer) timer.textContent = `${Number(lobby?.round_duration_seconds || 0)}s par réponse`;
+    if (codeDisplay) codeDisplay.textContent = lobbyCode || "------";
+    if (playerCount) playerCount.textContent = `${players.length} / ${maxPlayers || "--"}`;
+    if (visibility) visibility.textContent = visibilityLabel;
 
     if (playersHost) {
       playersHost.innerHTML = players.map((player) => {

@@ -405,7 +405,7 @@ input[type="range"] {
   font-size: 0.76rem;
   font-weight: 850;
   line-height: 1.2;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -454,7 +454,7 @@ input[type="range"] {
   color: var(--mq-primary-strong);
   font-size: 0.72rem;
   font-weight: 860;
-  letter-spacing: 0.12em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -480,7 +480,7 @@ input[type="range"] {
   color: var(--mq-text-faint);
   font-size: 0.68rem;
   font-weight: 820;
-  letter-spacing: 0.1em;
+  letter-spacing: 0;
   text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
@@ -619,7 +619,61 @@ input[type="range"] {
   align-items: center;
 }
 
+.mq-lobby-command {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+}
+
+.mq-lobby-command__main {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.mq-lobby-code-panel {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.mq-lobby-code-panel > div {
+  display: grid;
+  gap: 5px;
+  min-height: 70px;
+  padding: 12px;
+  border: 1px solid var(--mq-line);
+  border-radius: var(--mq-radius);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.mq-lobby-code-panel span {
+  color: var(--mq-text-faint);
+  font-size: 0.75rem;
+  font-weight: 820;
+  text-transform: uppercase;
+}
+
+.mq-lobby-code-panel strong {
+  overflow: hidden;
+  color: var(--mq-text);
+  font-size: 1.12rem;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#lobby-code-display {
+  color: var(--mq-primary-strong);
+  font-size: 1.35rem;
+}
+
 .mq-lobby-action-bar .status {
+  grid-column: 1 / -1;
+}
+
+.mq-lobby-command .status {
   grid-column: 1 / -1;
 }
 
@@ -693,6 +747,10 @@ input[type="range"] {
 
 .mq-actions {
   margin-top: 12px;
+}
+
+.mq-actions--compact {
+  margin-top: 8px;
 }
 
 .mq-actions--full > *,
@@ -862,20 +920,83 @@ input[type="range"] {
   align-content: start;
   gap: 12px;
   min-height: 100%;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
+  padding: 13px;
+  border-color: var(--mq-line);
+  background:
+    linear-gradient(145deg, rgba(120, 183, 255, 0.06), rgba(233, 130, 189, 0.025)),
+    rgba(255, 255, 255, 0.035);
   box-shadow: none;
 }
 
 .mq-main-action-block + .mq-main-action-block {
-  padding-top: 14px;
   border-top: 1px solid var(--mq-line);
 }
 
 .mq-play-card .mq-main-action-stack {
   grid-template-columns: 1fr;
+}
+
+.mq-main-action-block__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.mq-main-action-block__head strong {
+  color: var(--mq-text);
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.mq-step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  border: 1px solid rgba(120, 183, 255, 0.26);
+  border-radius: var(--mq-radius);
+  color: var(--mq-primary-strong);
+  font-weight: 850;
+  background: rgba(120, 183, 255, 0.09);
+}
+
+.mq-list-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.mq-lobby-public-row {
+  align-items: center;
+}
+
+.mq-lobby-public-row__main {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.mq-lobby-public-row__main strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mq-empty-row {
+  justify-content: flex-start;
+}
+
+.mq-lobby-workspace {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.72fr) minmax(0, 1.28fr);
+  gap: 14px;
+  align-items: start;
 }
 
 .mq-lobby-options {
@@ -1798,6 +1919,18 @@ input[type="range"] {
   justify-self: start;
 }
 
+.mq-answer-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.mq-answer-row input,
+.mq-answer-row button {
+  min-height: 48px;
+}
+
 .mq-game-page.is-player-only-mode .mq-game-shell {
   grid-template-columns: minmax(0, 720px);
   justify-content: center;
@@ -1834,6 +1967,10 @@ input[type="range"] {
 .mq-game-page.is-player-only-mode #game-answer-shell input {
   min-height: 58px;
   font-size: 1.08rem;
+}
+
+.mq-game-page.is-player-only-mode .mq-answer-row {
+  grid-template-columns: minmax(0, 1fr) auto;
 }
 
 .mq-game-stage h1 {
@@ -1902,7 +2039,7 @@ input[type="range"] {
 }
 
 .mq-game-code.is-masked span {
-  letter-spacing: 0.18em;
+  letter-spacing: 0;
 }
 
 .mq-game-note {
@@ -1945,6 +2082,29 @@ input[type="range"] {
 
 .mq-game-missed-panel {
   margin-top: 12px;
+}
+
+.mq-game-vote-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.mq-game-vote-panel h3 {
+  margin: 2px 0 6px;
+  color: var(--mq-text);
+  font-size: 1.06rem;
+}
+
+.mq-game-tools {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--mq-line);
+}
+
+.mq-game-tools p {
+  margin: 0;
 }
 
 .mq-missed-answer-list {
@@ -2509,12 +2669,11 @@ body:has(.mq-tv-page) #footer {
   }
 
   body:has(.mq-game-page) .mq-game-answer-card .mq-form-stack,
-  body:has(.mq-game-page) .mq-game-answer-card .mq-actions,
+  body:has(.mq-game-page) .mq-answer-row,
   body:has(.mq-game-page) .mq-game-vote-panel .mq-actions {
     gap: 8px;
   }
 
-  body:has(.mq-game-page) .mq-game-answer-card .mq-actions,
   body:has(.mq-game-page) .mq-game-vote-panel .mq-actions {
     margin-top: 6px;
   }
@@ -2815,6 +2974,7 @@ body:has(.mq-tv-page) #footer {
   .mq-two-cols--balanced,
   .mq-player-dashboard,
   .mq-admin-workspace,
+  .mq-lobby-workspace,
   .mq-game-shell {
     grid-template-columns: 1fr;
   }
@@ -2875,6 +3035,7 @@ body:has(.mq-tv-page) #footer {
   .mq-lobby-category-head,
   .mq-lobby-launchbar,
   .mq-lobby-action-bar,
+  .mq-lobby-command,
   .mq-admin-toolbar {
     align-items: stretch;
     flex-direction: column;
@@ -2882,7 +3043,9 @@ body:has(.mq-tv-page) #footer {
 
   .mq-lobby-settings-heading,
   .mq-lobby-category-head,
-  .mq-lobby-launchbar {
+  .mq-lobby-launchbar,
+  .mq-lobby-command,
+  .mq-lobby-code-panel {
     grid-template-columns: 1fr;
   }
 
@@ -3047,33 +3210,39 @@ body:has(.mq-tv-page) #footer {
     padding-top: 10px;
   }
 
-  .mq-lobby-action-bar {
+  .mq-lobby-action-bar,
+  .mq-lobby-command {
     gap: 10px;
     padding: 14px;
   }
 
-  .mq-lobby-action-bar .mq-card-copy {
+  .mq-lobby-action-bar .mq-card-copy,
+  .mq-lobby-command .mq-card-copy {
     display: none;
   }
 
-  .mq-lobby-action-bar .mq-actions {
+  .mq-lobby-action-bar .mq-actions,
+  .mq-lobby-command .mq-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
     margin-top: 0;
   }
 
-  .mq-lobby-action-bar .mq-actions button {
+  .mq-lobby-action-bar .mq-actions button,
+  .mq-lobby-command .mq-actions button {
     width: 100%;
     min-height: 38px;
     padding-inline: 8px;
   }
 
-  .mq-lobby-action-bar .mq-actions .mq-danger {
+  .mq-lobby-action-bar .mq-actions .mq-danger,
+  .mq-lobby-command .mq-actions .mq-danger {
     grid-column: 1 / -1;
   }
 
-  .mq-lobby-action-bar .status:empty {
+  .mq-lobby-action-bar .status:empty,
+  .mq-lobby-command .status:empty {
     display: none;
   }
 
@@ -3086,6 +3255,8 @@ body:has(.mq-tv-page) #footer {
   .mq-stat-grid,
   .mq-main-action-stack,
   .mq-lobby-action-bar,
+  .mq-lobby-command,
+  .mq-lobby-code-panel,
   .mq-admin-filter-bar,
   .mq-admin-form-split,
   .mq-game-info-grid,
@@ -3274,31 +3445,27 @@ body:has(.mq-tv-page) #footer {
 
   body:has(.mq-game-page) #game-answer-shell {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
     gap: 8px;
   }
 
   body:has(.mq-game-page) #game-answer-shell label,
   body:has(.mq-game-page) #game-answer-feedback {
-    grid-column: 1 / -1;
+    grid-column: auto;
   }
 
   body:has(.mq-game-page) #game-answer-feedback:empty {
     display: none;
   }
 
-  body:has(.mq-game-page) #game-answer-shell input {
+  body:has(.mq-game-page) .mq-answer-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  body:has(.mq-game-page) .mq-answer-row input {
     min-height: 48px;
   }
 
-  body:has(.mq-game-page) #game-answer-shell .mq-actions {
-    grid-column: 2;
-    grid-row: 2;
-    margin-top: 0;
-    flex-direction: row;
-  }
-
-  body:has(.mq-game-page) #game-answer-shell .mq-actions button {
+  body:has(.mq-game-page) .mq-answer-row button {
     width: auto;
     min-height: 48px;
     padding: 0 14px;
@@ -3385,5 +3552,17 @@ body:has(.mq-tv-page) #footer {
 
   .mq-chip-row .mq-chip {
     width: 100%;
+  }
+
+  .mq-answer-row {
+    grid-template-columns: 1fr;
+  }
+
+  .mq-answer-row button {
+    width: 100%;
+  }
+
+  .mq-lobby-code-panel > div {
+    min-height: 58px;
   }
 }

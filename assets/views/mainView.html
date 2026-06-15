@@ -1,15 +1,21 @@
 <section class="mq-page">
-  <div class="mq-player-dashboard">
+  <div class="mq-player-dashboard mq-main-dashboard">
     <section class="mq-card mq-card--accent mq-play-card">
       <div class="mq-card-heading">
         <div class="mq-kicker">Départ rapide</div>
-        <h2>Créer ou rejoindre</h2>
-        <p class="mq-card-copy">Si tu organises la partie, crée un salon. Si quelqu'un t'a donné un code, colle-le ici.</p>
+        <h2>Jouer</h2>
+        <p class="mq-card-copy">Crée un salon si tu organises la partie, ou rejoins directement avec un code.</p>
       </div>
 
       <div class="mq-main-action-stack">
-        <div class="mq-main-action-block">
-          <p class="mq-section-label">Je lance la partie</p>
+        <div class="mq-main-action-block mq-main-action-block--primary">
+          <div class="mq-main-action-block__head">
+            <span class="mq-step-badge">1</span>
+            <div>
+              <p class="mq-section-label">Organisateur</p>
+              <strong>Créer un salon</strong>
+            </div>
+          </div>
           <div class="mq-field">
             <label for="main-lobby-name">Nom du salon</label>
             <input id="main-lobby-name" type="text" maxlength="120" placeholder="Blindtest du vendredi" />
@@ -22,7 +28,13 @@
         </div>
 
         <div class="mq-main-action-block">
-          <p class="mq-section-label">J'ai un code</p>
+          <div class="mq-main-action-block__head">
+            <span class="mq-step-badge">2</span>
+            <div>
+              <p class="mq-section-label">Invité</p>
+              <strong>Rejoindre par code</strong>
+            </div>
+          </div>
           <div class="mq-field">
             <label for="main-lobby-code">Code du salon</label>
             <input id="main-lobby-code" type="text" maxlength="16" placeholder="ABC123" />
@@ -33,24 +45,26 @@
 
       <p id="main-status" class="status"></p>
 
-      <div class="mq-actions mq-actions--full">
+      <div class="mq-actions mq-actions--compact mq-actions--full">
         <button id="btn-main-suggest-track" type="button" class="mq-secondary mq-button-block">Proposer une musique</button>
       </div>
 
-      <div id="main-admin-actions" class="mq-actions mq-actions--full">
+      <div id="main-admin-actions" class="mq-actions mq-actions--compact mq-actions--full">
         <button id="btn-main-management" type="button" class="mq-secondary mq-button-block">Gestion du catalogue</button>
       </div>
     </section>
 
-    <section class="mq-card mq-card--soft">
+    <section class="mq-card mq-card--soft mq-public-lobbies-card">
       <div class="mq-card-heading">
         <div class="mq-kicker">Public</div>
-        <h2>Salons ouverts</h2>
-        <p class="mq-card-copy">La liste se met à jour pendant que tu regardes.</p>
+        <h2>Rejoindre une partie ouverte</h2>
+        <p class="mq-card-copy">Choisis un salon public disponible. Les salons privés se rejoignent avec un code.</p>
       </div>
 
-      <div class="mq-row">
-        <span id="main-lobby-count" class="mq-chip">0 salon actif</span>
+      <div class="mq-list-toolbar">
+        <div>
+          <span id="main-lobby-count" class="mq-chip">0 salon actif</span>
+        </div>
         <button id="btn-main-refresh" type="button" class="mq-secondary">Rafraîchir</button>
       </div>
 
