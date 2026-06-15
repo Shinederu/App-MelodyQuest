@@ -3236,8 +3236,7 @@ body:has(.mq-tv-page) #footer {
     padding-inline: 8px;
   }
 
-  .mq-lobby-action-bar .mq-actions .mq-danger,
-  .mq-lobby-command .mq-actions .mq-danger {
+  .mq-lobby-action-bar .mq-actions .mq-danger {
     grid-column: 1 / -1;
   }
 

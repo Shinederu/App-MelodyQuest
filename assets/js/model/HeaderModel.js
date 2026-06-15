@@ -27,10 +27,6 @@ const PAGE_META = {
     titleId: "lobby-title",
     description: "Chargement du salon...",
     descriptionId: "lobby-meta",
-    chips: [
-      { id: "lobby-rounds", text: "--" },
-      { id: "lobby-timer", text: "--" },
-    ],
   },
   game: {
     eyebrow: "Session en cours",

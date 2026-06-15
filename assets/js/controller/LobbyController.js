@@ -256,8 +256,6 @@ export class LobbyController {
     const ownerOnly = document.querySelectorAll(".owner-only");
     const header = document.getElementById("lobby-title");
     const meta = document.getElementById("lobby-meta");
-    const rounds = document.getElementById("lobby-rounds");
-    const timer = document.getElementById("lobby-timer");
     const codeDisplay = document.getElementById("lobby-code-display");
     const playerCount = document.getElementById("lobby-player-count");
     const visibility = document.getElementById("lobby-visibility");
@@ -270,8 +268,6 @@ export class LobbyController {
     if (meta) {
       meta.textContent = `Code ${lobbyCode || ""} - ${players.length}/${maxPlayers || 0} joueurs - Salon ${visibilityLabel.toLowerCase()}`;
     }
-    if (rounds) rounds.textContent = `${Number(lobby?.rounds_finished || 0)} / ${Number(lobby?.total_rounds || 0)} manches`;
-    if (timer) timer.textContent = `${Number(lobby?.round_duration_seconds || 0)}s par réponse`;
     if (codeDisplay) codeDisplay.textContent = lobbyCode || "------";
     if (playerCount) playerCount.textContent = `${players.length} / ${maxPlayers || "--"}`;
     if (visibility) visibility.textContent = visibilityLabel;
