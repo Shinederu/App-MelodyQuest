@@ -1945,7 +1945,8 @@ input[type="range"] {
 .mq-game-page.is-player-only-mode #game-round-category,
 .mq-game-page.is-player-only-mode #game-solution,
 .mq-game-page.is-player-only-mode .mq-game-info-card,
-.mq-game-page.is-player-only-mode .mq-game-missed-panel {
+.mq-game-page.is-player-only-mode .mq-game-missed-panel,
+.mq-game-page.is-player-only-mode .mq-game-answer-history-panel {
   display: none;
 }
 
@@ -2084,6 +2085,10 @@ input[type="range"] {
   margin-top: 12px;
 }
 
+.mq-game-answer-history-panel {
+  margin-top: 12px;
+}
+
 .mq-game-vote-panel {
   display: grid;
   gap: 12px;
@@ -2136,6 +2141,14 @@ input[type="range"] {
   white-space: nowrap;
 }
 
+.mq-missed-answer.is-correct strong {
+  color: var(--mq-success);
+}
+
+.mq-missed-answer--empty {
+  opacity: 0.72;
+}
+
 #game-answer.is-invalid {
   border-color: rgba(255, 111, 141, 0.68);
   box-shadow: 0 0 0 4px rgba(255, 111, 141, 0.12);
@@ -2150,6 +2163,18 @@ input[type="range"] {
   color: var(--mq-cyan);
   border-color: rgba(111, 212, 246, 0.22);
   background: rgba(111, 212, 246, 0.08);
+}
+
+.mq-chip--presence {
+  color: var(--mq-warning);
+  border-color: rgba(255, 199, 112, 0.28);
+  background: rgba(255, 199, 112, 0.09);
+}
+
+.mq-chip--presence-active {
+  color: var(--mq-success);
+  border-color: rgba(111, 246, 182, 0.24);
+  background: rgba(111, 246, 182, 0.08);
 }
 
 #main-admin-actions {

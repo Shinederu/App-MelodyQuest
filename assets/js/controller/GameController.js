@@ -1,7 +1,7 @@
 import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
-import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260613-backend-late-sync";
-import { escapeAttribute, escapeHtml, formatPlayerRole, formatRank, renderAvatar } from "../utils/ui.js?v=20260613-backend-late-sync";
-import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=20260613-backend-late-sync";
+import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260615-playtest-improvements";
+import { escapeAttribute, escapeHtml, formatPlayerRole, formatRank, renderAvatar } from "../utils/ui.js?v=20260615-playtest-improvements";
+import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=20260615-playtest-improvements";
 
 const PLAYER_VOLUME_STORAGE_KEY = "mq_game_volume";
 const PLAYER_ONLY_MODE_STORAGE_KEY = "mq_game_player_only_mode";
@@ -72,11 +72,17 @@ export class GameController {
     this.suggestionModalOpen = false;
     this.suggestionSubmitInFlight = false;
     this.suggestionHoldRoundId = 0;
+    this.presenceStatus = "active";
+    this.answerFocusBlockedRoundId = 0;
+    this.answerFocusAppliedRoundId = 0;
+    this.answerFocusBlockedUntilMs = 0;
+    this.solutionTrackByRoundId = new Map();
 
     document.getElementById("btn-game-submit")?.addEventListener("click", () => this.submitAnswer());
     document.getElementById("btn-game-next")?.addEventListener("click", () => this.voteNextRound(false));
     document.getElementById("btn-game-reveal")?.addEventListener("click", () => this.voteRevealRound());
     document.getElementById("btn-game-leave")?.addEventListener("click", () => this.leaveLobby());
+    document.getElementById("btn-game-away")?.addEventListener("click", () => this.toggleAwayMode());
     document.getElementById("btn-game-player-mode")?.addEventListener("click", () => this.togglePlayerOnlyMode());
     document.getElementById("btn-game-toggle-code")?.addEventListener("click", () => this.toggleLobbyCodeVisibility());
     document.getElementById("btn-game-share-lobby")?.addEventListener("click", () => this.shareLobby());
@@ -86,12 +92,20 @@ export class GameController {
     document.getElementById("btn-game-suggestion-close")?.addEventListener("click", () => this.closeSuggestionModal());
     document.getElementById("btn-game-suggestion-cancel")?.addEventListener("click", () => this.closeSuggestionModal());
     document.querySelector("[data-game-suggestion-close]")?.addEventListener("click", () => this.closeSuggestionModal());
-    document.getElementById("game-answer")?.addEventListener("keydown", (event) => {
+    const answerInput = document.getElementById("game-answer");
+    answerInput?.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         event.preventDefault();
         this.submitAnswer();
       }
     });
+    answerInput?.addEventListener("blur", () => this.blockAnswerFocusForCurrentRound(0));
+    this.pointerFocusHandler = (event) => this.handlePointerFocusBlock(event);
+    this.scrollFocusHandler = () => this.blockAnswerFocusTemporarily(2500);
+    this.pageHideHandler = () => this.markInactiveOnPageExit();
+    document.addEventListener("pointerdown", this.pointerFocusHandler, true);
+    document.addEventListener("touchmove", this.scrollFocusHandler, { passive: true });
+    window.addEventListener("pagehide", this.pageHideHandler);
     document.getElementById("game-auto-next")?.addEventListener("change", (event) => {
       this.autoNextEnabled = Boolean(event?.target?.checked);
       this.updateRoundPresentation();
@@ -159,6 +173,7 @@ export class GameController {
     }
     if (Array.isArray(snapshot?.players)) {
       this.players = snapshot.players;
+      this.syncPresenceStatusFromPlayers(snapshot.players);
     }
     if (Array.isArray(snapshot?.scoreboard?.items)) {
       this.scoreboard = snapshot.scoreboard.items;
@@ -166,13 +181,14 @@ export class GameController {
     if (snapshot?.round) {
       this.updateClockFromRoundState(snapshot.round, roundMeta);
       this.trackRoundChange(snapshot.round.round);
-      this.roundState = snapshot.round;
+      this.roundState = this.mergeUnlockedRoundState(snapshot.round);
     }
     if (snapshot?.realtime) {
       this.realtimeConfig = snapshot.realtime;
     }
 
     this.renderLobbyHeader();
+    this.renderAwayButton();
     this.renderScoreboard();
     this.updateRoundPresentation();
     this.startTimerLoop();
@@ -183,6 +199,40 @@ export class GameController {
     if (serverTimeUnix > 0) {
       this.clockSync.updateFromServerTime(serverTimeUnix, responseMeta?.timing || null);
     }
+  }
+
+  mergeUnlockedRoundState(roundState) {
+    const round = roundState?.round;
+    const roundId = Number(round?.id || 0);
+    if (!roundId) {
+      return roundState;
+    }
+
+    const track = round?.track;
+    if (this.hasSolutionTrackData(track)) {
+      this.solutionTrackByRoundId.set(roundId, { ...track });
+      return roundState;
+    }
+
+    const savedTrack = this.solutionTrackByRoundId.get(roundId);
+    if (!savedTrack) {
+      return roundState;
+    }
+
+    return {
+      ...roundState,
+      round: {
+        ...round,
+        track: {
+          ...savedTrack,
+          ...(track || {}),
+        },
+      },
+    };
+  }
+
+  hasSolutionTrackData(track) {
+    return Boolean(String(track?.family_name || track?.title || "").trim());
   }
 
   trackRoundChange(round) {
@@ -200,6 +250,9 @@ export class GameController {
     this.nextVoteRequestInFlight = false;
     this.revealVoteRequestInFlight = false;
     this.videoRenderKey = "";
+    this.answerFocusAppliedRoundId = 0;
+    this.answerFocusBlockedRoundId = 0;
+    this.answerFocusBlockedUntilMs = 0;
     this.resultNavigationTriggered = false;
     this.playerAudioReleasedRoundId = 0;
     this.playerLastPlayAttemptAtMs = 0;
@@ -226,7 +279,7 @@ export class GameController {
     }
 
     if (roundId) {
-      window.setTimeout(() => this.focusAnswerInput(), 80);
+      window.setTimeout(() => this.focusAnswerInput("round-start"), 140);
     }
 
     this.setAnswerFeedback("");
@@ -431,6 +484,7 @@ export class GameController {
       avatar_url: String(player.avatar_url || ""),
       role: String(player.role || "player"),
       score: Number(player.score || 0),
+      presence_status: String(player.presence_status || "active"),
       _order: index,
     }));
     const source = (this.scoreboard?.length ? this.scoreboard : fallbackEntries)
@@ -440,6 +494,7 @@ export class GameController {
         avatar_url: String(entry.avatar_url || ""),
         role: String(entry.role || "player"),
         score: Number(entry.score || 0),
+        presence_status: String(entry.presence_status || "active"),
         _order: index,
       }))
       .sort((a, b) => {
@@ -447,7 +502,10 @@ export class GameController {
         return a._order - b._order;
       });
 
-    const solvedUsers = new Set((this.roundState?.answers || [])
+    const solvedSource = Array.isArray(this.roundState?.solved_players) && this.roundState.solved_players.length
+      ? this.roundState.solved_players
+      : (this.roundState?.answers || []);
+    const solvedUsers = new Set(solvedSource
       .filter((answer) => Number(answer?.score_awarded || 0) > 0)
       .map((answer) => Number(answer.user_id || 0)));
 
@@ -462,10 +520,22 @@ export class GameController {
             <span class="mq-muted">${this.escapeHtml(this.formatPlayerRole(entry.role))}</span>
           </div>
         </div>
+        ${this.renderPresenceBadge(entry)}
         <span class="mq-chip">${Number(entry.score || 0)} pt</span>
       </li>
     `;
     }).join("");
+  }
+
+  renderPresenceBadge(player) {
+    const status = String(player?.presence_status || "active").toLowerCase();
+    if (status === "away") {
+      return `<span class="mq-chip mq-chip--presence">Absent</span>`;
+    }
+    if (status === "inactive") {
+      return `<span class="mq-chip mq-chip--presence">Inactif</span>`;
+    }
+    return `<span class="mq-chip mq-chip--presence mq-chip--presence-active">Présent</span>`;
   }
 
   updateRoundPresentation() {
@@ -508,6 +578,7 @@ export class GameController {
     }
     this.renderAnswerPhase(round, userAnswer, hasCorrectAnswer, answerClosed);
     this.renderMissedAnswerPhase(round);
+    this.renderAnswerHistoryPhase(round, answerClosed, hasCorrectAnswer);
     this.renderRevealVotePhase(round, earlyRevealAvailable);
     this.renderVotePhase(round, answerClosed, nextVoteAvailable);
 
@@ -714,7 +785,6 @@ export class GameController {
       if (suggestButton) suggestButton.hidden = true;
       input.disabled = false;
       submit.disabled = false;
-      this.focusAnswerInput();
       return;
     }
 
@@ -723,7 +793,7 @@ export class GameController {
     input.disabled = true;
     submit.disabled = true;
     input.classList.remove("is-invalid");
-    if (suggestButton) suggestButton.hidden = !round?.track;
+    if (suggestButton) suggestButton.hidden = !answerClosed || !round?.track;
 
     if (hasCorrectAnswer && !answerClosed) {
       const awardedScore = Number(userAnswer?.score_awarded || this.correctUnlockedScore || 0);
@@ -731,8 +801,8 @@ export class GameController {
       const remaining = Math.max(0, Math.ceil(remainingMs / 1000));
       lockedTitle.textContent = "Bonne réponse";
       lockedCopy.textContent = awardedScore > 0
-        ? `+${awardedScore} pt. Il reste ${remaining}s aux autres.`
-        : `Il reste ${remaining}s aux autres.`;
+        ? `${solutionText || "Réponse validée"} - +${awardedScore} pt. Il reste ${remaining}s aux autres.`
+        : `${solutionText || "Réponse validée"} - Il reste ${remaining}s aux autres.`;
       return;
     }
 
@@ -743,6 +813,14 @@ export class GameController {
     }
 
     lockedTitle.textContent = "Solution";
+    if (hasCorrectAnswer) {
+      const awardedScore = Number(userAnswer?.score_awarded || this.correctUnlockedScore || 0);
+      lockedCopy.textContent = awardedScore > 0
+        ? `${solutionText || "Réponse validée"} - +${awardedScore} pt`
+        : (solutionText || "Réponse validée");
+      return;
+    }
+
     lockedCopy.textContent = solutionText || "Le chrono est terminé pour cette manche.";
   }
 
@@ -752,25 +830,70 @@ export class GameController {
     if (!panel || !list) return;
 
     const roundId = Number(round?.id || 0);
-    const misses = (this.roundState?.answers || [])
-      .filter((answer) => Number(answer?.score_awarded || 0) <= 0)
+    const attempts = this.getVisibleAnswerAttempts();
+    const misses = attempts
+      .filter((answer) => Number(answer?.is_correct || 0) !== 1 && Number(answer?.score_awarded || 0) <= 0)
       .filter((answer) => String(answer?.guess_title || answer?.guess_artist || "").trim())
       .slice(-5)
       .reverse();
 
-    if (!roundId || !misses.length) {
+    if (!roundId) {
       panel.hidden = true;
       list.innerHTML = "";
       return;
     }
 
     panel.hidden = false;
-    list.innerHTML = misses.map((answer) => `
+    list.innerHTML = misses.length ? misses.map((answer) => `
       <li class="mq-missed-answer">
         <span>${this.escapeHtml(answer.username || "Joueur")}</span>
         <strong>${this.escapeHtml(answer.guess_title || answer.guess_artist || "Réponse vide")}</strong>
       </li>
-    `).join("");
+    `).join("") : `
+      <li class="mq-missed-answer mq-missed-answer--empty">
+        <span>Encore aucun essai raté visible</span>
+        <strong>--</strong>
+      </li>
+    `;
+  }
+
+  renderAnswerHistoryPhase(round, answerClosed, hasCorrectAnswer) {
+    const panel = document.getElementById("game-answer-history-panel");
+    const list = document.getElementById("game-answer-history");
+    if (!panel || !list) return;
+
+    const attempts = this.getVisibleAnswerAttempts()
+      .filter((answer) => String(answer?.guess_title || answer?.guess_artist || "").trim())
+      .slice(-12)
+      .reverse();
+    const canShow = Number(round?.id || 0) > 0 && attempts.length > 0 && (answerClosed || hasCorrectAnswer);
+
+    panel.hidden = !canShow;
+    if (!canShow) {
+      list.innerHTML = "";
+      return;
+    }
+
+    list.innerHTML = attempts.map((answer) => {
+      const isCorrect = Number(answer?.is_correct || 0) === 1 || Number(answer?.score_awarded || 0) > 0;
+      return `
+        <li class="mq-missed-answer ${isCorrect ? "is-correct" : ""}">
+          <span>${this.escapeHtml(answer.username || "Joueur")}</span>
+          <strong>${this.escapeHtml(answer.guess_title || answer.guess_artist || "Réponse vide")}</strong>
+        </li>
+      `;
+    }).join("");
+  }
+
+  getVisibleAnswerAttempts() {
+    const attempts = Array.isArray(this.roundState?.answer_attempts)
+      ? this.roundState.answer_attempts
+      : [];
+    if (attempts.length) {
+      return attempts;
+    }
+
+    return Array.isArray(this.roundState?.answers) ? this.roundState.answers : [];
   }
 
   renderRevealVotePhase(round, isAvailable) {
@@ -787,7 +910,7 @@ export class GameController {
 
     panel.hidden = false;
 
-    const playersCount = Math.max(1, this.players.length);
+    const playersCount = Math.max(1, this.getEligiblePlayers().length);
     const requiredCount = playersCount;
     const voteCount = this.getEarlyRevealVoteCount(round);
     const hasVoted = this.hasCurrentUserVotedReveal(round);
@@ -817,11 +940,11 @@ export class GameController {
 
     panel.hidden = false;
 
-    const playersCount = Math.max(1, this.players.length);
+    const playersCount = Math.max(1, this.getEligiblePlayers().length);
     const requiredCount = Math.max(1, Math.ceil(playersCount * 0.5));
     const currentUserId = Number(this.user?.id || 0);
     const serverHasCurrentVote = this.players.some((player) => Number(player.user_id || 0) === currentUserId && Number(player.is_ready || 0) === 1);
-    const readyCount = this.players.filter((player) => Number(player.is_ready || 0) === 1).length
+    const readyCount = this.getEligiblePlayers().filter((player) => Number(player.is_ready || 0) === 1).length
       + (!serverHasCurrentVote && this.localNextVoteRoundId === Number(round?.id || 0) ? 1 : 0);
     const hasVoted = this.hasCurrentUserVoted(round);
     const suggestionHold = this.getActiveSuggestionHold();
@@ -1040,7 +1163,18 @@ export class GameController {
   }
 
   hasAnyCorrectAnswer() {
+    if (Array.isArray(this.roundState?.solved_players) && this.roundState.solved_players.length > 0) {
+      return true;
+    }
+
     return (this.roundState?.answers ?? []).some((answer) => Number(answer.score_awarded || 0) > 0);
+  }
+
+  getEligiblePlayers() {
+    return (this.players || []).filter((player) => {
+      const status = String(player?.presence_status || "active").toLowerCase();
+      return status === "active";
+    });
   }
 
   isEarlyRevealVoteAvailable(round, answerClosed) {
@@ -1200,10 +1334,24 @@ export class GameController {
     if (res.data?.is_correct) {
       this.correctUnlockedRoundId = Number(round.id || 0);
       this.correctUnlockedScore = Number(res.data?.score_awarded || 0);
+      if (res.data?.track) {
+        this.solutionTrackByRoundId.set(Number(round.id || 0), res.data.track);
+        this.roundState = this.mergeUnlockedRoundState({
+          ...(this.roundState || {}),
+          round: {
+            ...(this.roundState?.round || round),
+            track: {
+              ...(this.roundState?.round?.track || {}),
+              ...res.data.track,
+            },
+          },
+        });
+      }
       this.setAnswerFeedback(`Bonne réponse, +${this.correctUnlockedScore} pt`, "success");
       this.setStatus("Bonne réponse", true);
       this.clearAnswerInput();
       this.updateRoundPresentation();
+      this.refreshGameState();
       return;
     }
 
@@ -2155,15 +2303,72 @@ export class GameController {
     input.value = "";
   }
 
-  focusAnswerInput() {
+  handlePointerFocusBlock(event) {
+    const target = event?.target;
+    if (!(target instanceof Element)) {
+      return;
+    }
+
+    if (target.closest("#game-answer-shell")) {
+      return;
+    }
+
+    if (target.closest("#game-suggestion-modal")) {
+      this.blockAnswerFocusForCurrentRound(0);
+      return;
+    }
+
+    if (target.closest("button, a, input, select, textarea, label, .mq-game-side, .mq-game-stage")) {
+      this.blockAnswerFocusTemporarily(2500);
+    }
+  }
+
+  blockAnswerFocusForCurrentRound(durationMs = 0) {
+    const roundId = Number(this.roundState?.round?.id || 0);
+    if (roundId > 0) {
+      this.answerFocusBlockedRoundId = roundId;
+    }
+    this.blockAnswerFocusTemporarily(durationMs);
+  }
+
+  blockAnswerFocusTemporarily(durationMs = 2500) {
+    if (durationMs <= 0) {
+      return;
+    }
+    this.answerFocusBlockedUntilMs = Math.max(this.answerFocusBlockedUntilMs, Date.now() + durationMs);
+  }
+
+  focusAnswerInput(reason = "soft") {
     const input = document.getElementById("game-answer");
     if (!input || input.disabled || input.hidden || document.hidden) {
       return;
     }
 
+    const roundId = Number(this.roundState?.round?.id || 0);
+    if (!roundId || this.isRoundPendingStart(this.roundState?.round) || this.isAnswerWindowClosed(this.roundState?.round)) {
+      return;
+    }
+
+    if (this.answerFocusBlockedRoundId === roundId || Date.now() < this.answerFocusBlockedUntilMs) {
+      return;
+    }
+
+    if (this.answerFocusAppliedRoundId === roundId && reason !== "force") {
+      return;
+    }
+
+    const active = document.activeElement;
+    if (active && active !== document.body && active !== input) {
+      const tag = String(active.tagName || "").toLowerCase();
+      if (["input", "textarea", "select", "button", "a"].includes(tag) || active.isContentEditable) {
+        return;
+      }
+    }
+
     window.setTimeout(() => {
-      if (!input.disabled && !this.isDestroyed && document.activeElement !== input) {
+      if (!input.disabled && !this.isDestroyed && document.activeElement !== input && this.answerFocusBlockedRoundId !== roundId) {
         input.focus();
+        this.answerFocusAppliedRoundId = roundId;
       }
     }, 0);
   }
@@ -2186,6 +2391,54 @@ export class GameController {
       return;
     }
     el.className = kind === "success" ? "status success" : kind === "error" ? "status error" : "status";
+  }
+
+  syncPresenceStatusFromPlayers(players = []) {
+    const currentUserId = Number(this.user?.id || 0);
+    const currentPlayer = players.find((player) => Number(player.user_id || 0) === currentUserId);
+    const status = String(currentPlayer?.presence_status || this.presenceStatus || "active").toLowerCase();
+    this.presenceStatus = ["away", "inactive"].includes(status) ? status : "active";
+  }
+
+  renderAwayButton() {
+    const button = document.getElementById("btn-game-away");
+    if (!button) return;
+
+    const isAway = this.presenceStatus === "away" || this.presenceStatus === "inactive";
+    button.textContent = isAway ? "Je suis de retour" : "Me mettre absent";
+    button.setAttribute("aria-pressed", isAway ? "true" : "false");
+    button.classList.toggle("is-active", isAway);
+  }
+
+  async toggleAwayMode() {
+    const nextStatus = this.presenceStatus === "away" || this.presenceStatus === "inactive" ? "active" : "away";
+    await this.sendPresenceStatus(nextStatus);
+  }
+
+  async sendPresenceStatus(status) {
+    const lobbyId = this.getLobbyId();
+    if (!lobbyId) return;
+
+    this.presenceStatus = status === "away" ? "away" : "active";
+    this.renderAwayButton();
+    const res = await window.httpClient.touchLobby(lobbyId, this.presenceStatus);
+    if (!res.success) {
+      if (this.shouldExitLobby(res.error)) {
+        this.exitLobbyIfActive();
+        return;
+      }
+      this.setStatus(res.error || "Impossible de mettre à jour la présence", false);
+      return;
+    }
+
+    this.setStatus(this.presenceStatus === "away" ? "Mode absent activé" : "Tu es de retour dans la partie", true);
+    this.refreshGameState();
+  }
+
+  markInactiveOnPageExit() {
+    const lobbyId = this.getLobbyId();
+    if (!lobbyId) return;
+    window.httpClient.touchLobbyKeepalive(lobbyId, "inactive");
   }
 
   async leaveLobby() {
@@ -2224,7 +2477,7 @@ export class GameController {
     const lobbyId = this.getLobbyId();
     if (!lobbyId) return;
 
-    const res = await window.httpClient.touchLobby(lobbyId);
+    const res = await window.httpClient.touchLobby(lobbyId, this.presenceStatus);
     if (!res.success && this.shouldExitLobby(res.error)) {
       this.exitLobbyIfActive();
     }
@@ -2294,6 +2547,9 @@ export class GameController {
     this.destroyPlayer();
     this.destroyPreloadPlayer();
     document.removeEventListener("visibilitychange", this.visibilityHandler);
+    document.removeEventListener("pointerdown", this.pointerFocusHandler, true);
+    document.removeEventListener("touchmove", this.scrollFocusHandler);
+    window.removeEventListener("pagehide", this.pageHideHandler);
     if (this.roundRefreshTimeout) {
       clearTimeout(this.roundRefreshTimeout);
       this.roundRefreshTimeout = null;

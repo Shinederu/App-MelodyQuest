@@ -1,5 +1,5 @@
 import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
-import { escapeAttribute, escapeHtml, formatPlayerRole, renderAvatar } from "../utils/ui.js?v=20260610-shared-utils";
+import { escapeAttribute, escapeHtml, formatPlayerRole, renderAvatar } from "../utils/ui.js?v=20260615-playtest-improvements";
 
 const MIN_TOTAL_ROUNDS = 1;
 const MAX_TOTAL_ROUNDS = 1000;
@@ -25,20 +25,24 @@ export class LobbyController {
     this.configSaveTimeout = null;
     this.configSaveInFlight = false;
     this.pendingConfigSave = false;
+    this.presenceStatus = "active";
 
     this.visibilityHandler = () => {
       if (!document.hidden) {
         this.refreshNow();
       }
     };
+    this.pageHideHandler = () => this.markInactiveOnPageExit();
 
     document.getElementById("btn-lobby-leave")?.addEventListener("click", () => this.leaveLobby());
     document.getElementById("btn-lobby-delete")?.addEventListener("click", () => this.deleteLobby());
     document.getElementById("btn-lobby-start")?.addEventListener("click", () => this.startGame());
     document.getElementById("btn-lobby-share")?.addEventListener("click", () => this.shareLobby());
     document.getElementById("btn-lobby-link-tv")?.addEventListener("click", () => this.linkTv());
+    document.getElementById("btn-lobby-away")?.addEventListener("click", () => this.toggleAwayMode());
 
     document.addEventListener("visibilitychange", this.visibilityHandler);
+    window.addEventListener("pagehide", this.pageHideHandler);
 
     this.bootstrap();
   }
@@ -264,6 +268,9 @@ export class LobbyController {
     const maxPlayers = Number(lobby?.max_players || 0);
     const visibilityLabel = displayConfig.visibility === "private" ? "Privé" : "Public";
 
+    this.syncPresenceStatusFromPlayers(players);
+    this.renderAwayButton();
+
     if (header) header.textContent = displayConfig.name || lobby?.name || "Salon";
     if (meta) {
       meta.textContent = `Code ${lobbyCode || ""} - ${players.length}/${maxPlayers || 0} joueurs - Salon ${visibilityLabel.toLowerCase()}`;
@@ -284,6 +291,7 @@ export class LobbyController {
                 <span class="mq-muted">${this.escapeHtml(this.formatPlayerRole(player.role))} - ${Number(player.score || 0)} pt</span>
               </div>
             </div>
+            ${this.renderPresenceBadge(player)}
             ${canKick ? `<button type="button" class="mq-danger mq-inline-btn" data-kick-user="${Number(player.user_id || 0)}">Exclure</button>` : ""}
           </li>
         `;
@@ -435,6 +443,65 @@ export class LobbyController {
       input.checked = Boolean(checked);
     });
     this.handleConfigInput(lobby, true);
+  }
+
+  syncPresenceStatusFromPlayers(players = []) {
+    const currentUserId = Number(this.user?.id || 0);
+    const currentPlayer = players.find((player) => Number(player.user_id || 0) === currentUserId);
+    const status = String(currentPlayer?.presence_status || this.presenceStatus || "active").toLowerCase();
+    this.presenceStatus = ["away", "inactive"].includes(status) ? status : "active";
+  }
+
+  renderAwayButton() {
+    const button = document.getElementById("btn-lobby-away");
+    if (!button) return;
+
+    const isAway = this.presenceStatus === "away" || this.presenceStatus === "inactive";
+    button.textContent = isAway ? "Je suis de retour" : "Me mettre absent";
+    button.setAttribute("aria-pressed", isAway ? "true" : "false");
+    button.classList.toggle("is-active", isAway);
+  }
+
+  renderPresenceBadge(player) {
+    const status = String(player?.presence_status || "active").toLowerCase();
+    if (status === "away") {
+      return `<span class="mq-chip mq-chip--presence">Absent</span>`;
+    }
+    if (status === "inactive") {
+      return `<span class="mq-chip mq-chip--presence">Inactif</span>`;
+    }
+    return `<span class="mq-chip mq-chip--presence mq-chip--presence-active">Présent</span>`;
+  }
+
+  async toggleAwayMode() {
+    const nextStatus = this.presenceStatus === "away" || this.presenceStatus === "inactive" ? "active" : "away";
+    await this.sendPresenceStatus(nextStatus);
+  }
+
+  async sendPresenceStatus(status) {
+    const lobbyId = this.getLobbyId();
+    if (!lobbyId) return;
+
+    this.presenceStatus = status === "away" ? "away" : "active";
+    this.renderAwayButton();
+    const res = await window.httpClient.touchLobby(lobbyId, this.presenceStatus);
+    if (!res.success) {
+      if (this.shouldExitLobby(res.error)) {
+        this.exitLobbyIfActive();
+        return;
+      }
+      this.setStatus(res.error || "Impossible de mettre à jour la présence", false);
+      return;
+    }
+
+    this.setStatus(this.presenceStatus === "away" ? "Mode absent activé" : "Tu es de retour dans la partie", true);
+    this.refreshNow();
+  }
+
+  markInactiveOnPageExit() {
+    const lobbyId = this.getLobbyId();
+    if (!lobbyId) return;
+    window.httpClient.touchLobbyKeepalive(lobbyId, "inactive");
   }
 
   queueConfigSave(delay = 350) {
@@ -668,12 +735,17 @@ export class LobbyController {
     const lobbyId = this.getLobbyId();
     if (!lobbyId) return;
 
-    const res = await window.httpClient.touchLobby(lobbyId);
+    const res = await window.httpClient.touchLobby(lobbyId, this.presenceStatus);
     if (res.success) return;
 
     if (/lobby introuvable/i.test(String(res.error || "")) || /utilisateur non pr[eé]sent/i.test(String(res.error || ""))) {
       this.exitLobbyIfActive();
     }
+  }
+
+  shouldExitLobby(error) {
+    const text = String(error || "");
+    return /lobby introuvable/i.test(text) || /utilisateur non pr[eé]sent/i.test(text);
   }
 
   exitLobbyIfActive() {
@@ -886,5 +958,6 @@ export class LobbyController {
       this.configSaveTimeout = null;
     }
     document.removeEventListener("visibilitychange", this.visibilityHandler);
+    window.removeEventListener("pagehide", this.pageHideHandler);
   }
 }

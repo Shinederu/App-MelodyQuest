@@ -1,5 +1,5 @@
-import { extractYouTubeVideoId } from "../utils/youtube.js?v=20260613-player-warmup";
-import { escapeAttribute, escapeHtml, normalizeSearch } from "../utils/ui.js?v=20260610-shared-utils";
+import { extractYouTubeVideoId } from "../utils/youtube.js?v=20260615-playtest-improvements";
+import { escapeAttribute, escapeHtml, normalizeSearch } from "../utils/ui.js?v=20260615-playtest-improvements";
 
 export class ManagementTracksController {
   constructor() {
@@ -364,6 +364,7 @@ export class ManagementTracksController {
     const title = document.getElementById("track-title");
     const artist = document.getElementById("track-artist");
     const url = document.getElementById("track-youtube-url");
+    const startOffset = document.getElementById("track-start-offset");
 
     if (form) form.hidden = false;
     if (category) category.value = String(Number(item.category_id || 0));
@@ -371,6 +372,7 @@ export class ManagementTracksController {
     if (title) title.value = item.title || "";
     if (artist) artist.value = item.artist || "";
     if (url) url.value = item.youtube_video_id || item.youtube_url || "";
+    if (startOffset) startOffset.value = String(Math.max(0, Number(item.start_offset_seconds || 0)));
 
     this.draftCategoryId = Number(item.category_id || 0) || null;
     this.draftFamilyName = item.family_name || "";
@@ -400,6 +402,7 @@ export class ManagementTracksController {
     const title = document.getElementById("track-title");
     const artist = document.getElementById("track-artist");
     const url = document.getElementById("track-youtube-url");
+    const startOffset = document.getElementById("track-start-offset");
 
     this.selectedId = null;
 
@@ -415,6 +418,7 @@ export class ManagementTracksController {
     if (title) title.value = "";
     if (artist) artist.value = "";
     if (url) url.value = "";
+    if (startOffset) startOffset.value = "0";
 
     this.isFamilySuggestionOpen = false;
     this.activeFamilySuggestionIndex = -1;
@@ -468,6 +472,7 @@ export class ManagementTracksController {
     const artist = String(document.getElementById("track-artist")?.value || "").trim();
     const youtube_input = String(document.getElementById("track-youtube-url")?.value || "").trim();
     const youtube_video_id = extractYouTubeVideoId(youtube_input);
+    const start_offset_seconds = this.getStartOffsetSeconds();
 
     if (!youtube_video_id) {
       this.setStatus("ID ou URL YouTube invalide", false);
@@ -480,6 +485,7 @@ export class ManagementTracksController {
       title,
       artist,
       youtube_video_id,
+      start_offset_seconds,
     });
 
     this.setStatus(res.success ? "Musique créée en attente de validation" : (res.error || "Erreur"), res.success);
@@ -500,6 +506,7 @@ export class ManagementTracksController {
     const artist = String(document.getElementById("track-artist")?.value || "").trim();
     const youtube_input = String(document.getElementById("track-youtube-url")?.value || "").trim();
     const youtube_video_id = extractYouTubeVideoId(youtube_input);
+    const start_offset_seconds = this.getStartOffsetSeconds();
 
     if (!youtube_video_id) {
       this.setStatus("ID ou URL YouTube invalide", false);
@@ -513,6 +520,7 @@ export class ManagementTracksController {
       title,
       artist,
       youtube_video_id,
+      start_offset_seconds,
     });
 
     this.setStatus(res.success ? "Musique mise à jour et repassée en attente de validation" : (res.error || "Erreur"), res.success);
@@ -550,6 +558,11 @@ export class ManagementTracksController {
 
   getFamilyName() {
     return String(document.getElementById("track-family-name")?.value || "").trim();
+  }
+
+  getStartOffsetSeconds() {
+    const value = Number.parseInt(String(document.getElementById("track-start-offset")?.value || "0").trim(), 10);
+    return Number.isFinite(value) ? Math.max(0, value) : 0;
   }
 
   setStatus(text, ok) {

@@ -6,6 +6,23 @@ clarifier le besoin avant une prochaine passe frontend/API/DB.
 
 Date des notes: 2026-06-15.
 
+Passe appliquee le 2026-06-15 (`20260615-playtest-improvements`):
+
+- auto-focus du champ reponse rendu moins agressif;
+- mode absent/inactif ajoute, avec joueurs absents exclus des votes;
+- exclusion/quitte non destructif cote score;
+- solution renvoyee au joueur qui a trouve avant revelation globale;
+- historique des essais enregistre en DB et affiche selon les droits de vision;
+- bloc des essais rates stabilise;
+- debut de lecture des pistes expose en management/validation;
+- equilibrage categories confirme cote API existante.
+
+Points encore a affiner apres nouveaux tests reels:
+
+- qualite exacte des delais d'inactivite (`MQ_PLAYER_INACTIVE_TIMEOUT_SECONDS`);
+- ergonomie finale du panneau des reponses proposees selon le volume d'essais;
+- exploitation admin des essais comme source d'alias ou statistiques.
+
 ## Priorite haute - confort de jeu
 
 ### Auto-focus du champ reponse trop agressif

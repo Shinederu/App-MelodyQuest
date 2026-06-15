@@ -73,14 +73,24 @@ export function extractYouTubeVideoId(value) {
   return "";
 }
 
-export function buildYouTubeWatchUrl(videoId) {
+export function buildYouTubeWatchUrl(videoId, startSeconds = 0) {
   const normalizedVideoId = extractYouTubeVideoId(videoId);
   if (!normalizedVideoId) return "";
-  return `https://www.youtube.com/watch?v=${encodeURIComponent(normalizedVideoId)}`;
+  const url = new URL(`https://www.youtube.com/watch?v=${encodeURIComponent(normalizedVideoId)}`);
+  const start = Math.max(0, Number.parseInt(String(startSeconds || 0), 10) || 0);
+  if (start > 0) {
+    url.searchParams.set("t", `${start}s`);
+  }
+  return url.toString();
 }
 
-export function buildYouTubeEmbedUrl(videoId) {
+export function buildYouTubeEmbedUrl(videoId, startSeconds = 0) {
   const normalizedVideoId = extractYouTubeVideoId(videoId);
   if (!normalizedVideoId) return "";
-  return `https://www.youtube.com/embed/${encodeURIComponent(normalizedVideoId)}`;
+  const url = new URL(`https://www.youtube.com/embed/${encodeURIComponent(normalizedVideoId)}`);
+  const start = Math.max(0, Number.parseInt(String(startSeconds || 0), 10) || 0);
+  if (start > 0) {
+    url.searchParams.set("start", String(start));
+  }
+  return url.toString();
 }

@@ -135,10 +135,32 @@ export class HttpService {
     });
   }
 
-  async touchLobby(lobbyId) {
+  async touchLobby(lobbyId, presenceStatus = "active") {
     return this.request(MELODY_BASE_URL, "POST", "touchLobby", {
       lobby_id: lobbyId,
+      presence_status: presenceStatus,
     });
+  }
+
+  touchLobbyKeepalive(lobbyId, presenceStatus = "inactive") {
+    const id = Number(lobbyId || 0);
+    if (!id || typeof fetch !== "function") {
+      return;
+    }
+
+    const url = new URL(MELODY_BASE_URL);
+    url.searchParams.set("action", "touchLobby");
+    fetch(url, {
+      method: "POST",
+      credentials: "include",
+      keepalive: true,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "touchLobby",
+        lobby_id: id,
+        presence_status: presenceStatus,
+      }),
+    }).catch(() => {});
   }
 
   async kickPlayer(lobbyId, targetUserId) {

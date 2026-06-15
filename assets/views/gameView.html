@@ -5,6 +5,7 @@
         <p id="game-status" class="status"></p>
         <div class="mq-actions">
           <button id="btn-game-player-mode" type="button" class="mq-secondary" aria-pressed="false">Mode joueur</button>
+          <button id="btn-game-away" type="button" class="mq-secondary">Me mettre absent</button>
           <button id="btn-game-leave" type="button" class="mq-danger">Quitter le salon</button>
         </div>
       </div>
@@ -85,6 +86,11 @@
         <div id="game-missed-panel" class="mq-game-note mq-game-missed-panel" hidden>
           <strong>Derniers essais ratés</strong>
           <ul id="game-missed-answers" class="mq-clean-list mq-missed-answer-list"></ul>
+        </div>
+
+        <div id="game-answer-history-panel" class="mq-game-note mq-game-answer-history-panel" hidden>
+          <strong>Réponses proposées</strong>
+          <ul id="game-answer-history" class="mq-clean-list mq-missed-answer-list"></ul>
         </div>
       </section>
 

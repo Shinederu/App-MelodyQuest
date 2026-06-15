@@ -10,8 +10,8 @@ Ce depot contient uniquement le client navigateur. Le backend source vit dans `P
 
 Le projet est mis en pause dans un etat stable de reprise. Les changements applicatifs de reference ont restaure le mode TV sur un lecteur YouTube iframe simple, puis une passe player a reduit le buffering sans retenter le double lecteur:
 
-- cache-bust JS courant: `20260615-wake-lock`;
-- cache-bust CSS courant: `20260615-wake-lock`;
+- cache-bust JS courant: `20260615-playtest-improvements`;
+- cache-bust CSS courant: `20260615-playtest-improvements`;
 - commit frontend applicatif de reference: `295dd11 Restore basic MelodyQuest TV player`;
 - commit API applicatif de reference: `28dbdda Remove MelodyQuest TV ready playback flow`;
 - fichiers deployes dans `P:\PROD\MelodyQuest` et `P:\PROD\API\melodyquest`.
@@ -24,12 +24,14 @@ Passe lobby mobile 2026-06-15: le cache-bust `20260615-lobby-mobile` deplace l'a
 
 Passe wake lock 2026-06-15: le cache-bust `20260615-wake-lock` ajoute un verrou d'ecran best-effort via `navigator.wakeLock` sur les routes `lobby`, `game`, `result`, `tv-link` et `tv`. Les navigateurs qui ne supportent pas l'API continuent de fonctionner normalement, mais peuvent encore laisser le telephone se mettre en veille selon leurs reglages systeme.
 
+Passe retours de partie 2026-06-15: le cache-bust `20260615-playtest-improvements` ajoute le mode absent, rend l'auto-focus du champ reponse moins agressif, conserve l'affichage des essais rates, affiche les reponses proposees quand elles sont autorisees, garde la solution/les points visibles pour les joueurs ayant trouve, expose le debut de lecture des pistes en management/validation et s'appuie sur l'API `012` pour conserver les scores des joueurs retires.
+
 Dernieres verifications connues:
 
 - `Get-ChildItem .\assets\js -Recurse -Filter *.js | % { node --check $_.FullName }`
 - `git -c safe.directory=* diff --check`
 - `rg -n "console\.|alert\(|debugger" assets`
-- smoke test `/tv`: QR affiche, script `20260615-wake-lock`, CSS `20260615-wake-lock`, aucun conteneur `tv-video-preload-player`, aucune erreur console.
+- smoke test `/tv`: QR affiche, script `20260615-playtest-improvements`, CSS `20260615-playtest-improvements`, aucun conteneur `tv-video-preload-player`, aucune erreur console.
 
 ## Reprise rapide agent
 
@@ -130,13 +132,16 @@ Les routes principales sont gerees par `assets/js/controller/AppController.js`.
 - Blindtest multijoueur en ligne.
 - Authentification centralisee via le package `@shinederu/auth-core` fourni par `Module-Auth-Core`.
 - Salons publics ou prives, rejoignables par code ou URL partagee.
+- Presence joueur avec mode absent: les joueurs absents/inactifs restent visibles, mais ne bloquent plus les votes et transitions.
 - Reglages de lobby: nombre de manches, timer, categories, visibilite de la categorie, vote de revelation, precision de validation des reponses.
 - Validation souple des reponses geree cote API selon le seuil du lobby.
 - Jeu responsive desktop/mobile avec lecteur YouTube cache avant revelation.
+- Auto-focus du champ reponse limite au debut de manche, sans reprendre le focus quand le joueur scrolle, masque le clavier ou interagit avec l'interface.
 - Verrou d'ecran best-effort sur les routes de partie pour limiter la mise en veille des telephones quand le navigateur le supporte.
 - Mode joueur de salon: interface reponse seule quand une TV est liee.
 - Mode TV: QR code, liaison depuis mobile, affichage plein ecran sans navigation et lecteur YouTube actif simple. Le lecteur d'avance et le signal "TV prete" sont des pistes abandonnees pour revenir a un comportement stable.
 - Suggestions joueurs: alias, correction URL/libelle/artiste/licence, proposition publique de nouvelle musique.
+- Historique d'essais de reponse affiche selon le niveau de revelation autorise par l'API.
 - Administration catalogue: categories, oeuvres, musiques, validation, suggestions.
 
 ## Authentification et permissions
@@ -217,7 +222,7 @@ Les assets sont servis avec cache long. En cas de changement frontend, mettre a 
 
 Convention conseillee: `YYYYMMDD-sujet-court`, par exemple `20260610-agent-audit`.
 
-Le cache-bust `20260612-tv-basic-player` marque le rollback volontaire du mode TV vers un lecteur YouTube actif simple. Le cache-bust `20260613-player-warmup` garde ce lecteur simple, retire le 1080p force, prechauffe YouTube et ajoute les erreurs player explicites. Le cache-bust JS `20260613-tv-preload-loop` reduit la charge de la vue TV et ajoute le prechargement de la piste suivante via le lecteur unique. Le cache-bust JS `20260613-tv-reveal-fix` corrige l'affichage de la solution TV quand les champs de reponse arrivent dans un snapshot sans nouvelle revision. Le cache-bust JS `20260613-tv-no-reveal-cue` empeche le lecteur TV de cue la piste suivante pendant la phase solution/vote. Le cache-bust JS `20260613-player-clock-sync` ajoute la correction RTT de l'horloge client et rend les seeks de recuperation buffer-aware. Le cache-bust JS `20260613-player-subsecond-sync` resserre les seuils de recalage sous la seconde. Le cache-bust JS `20260613-mobile-catchup` autorise un rattrapage dur cote joueur quand le telephone reste nettement en retard. Le cache-bust JS `20260613-backend-late-sync` fixe le seuil de retard maximum a `0.65s` par rapport au timing backend. Le cache-bust CSS `20260613-tv-hidden-video` force le rafraichissement du style qui reduit la surface de l'iframe TV quand la video est masquee. Le cache-bust `20260615-ui-flow` ne modifie pas le lecteur et sert uniquement les optimisations de placement/responsive des interfaces. Le cache-bust `20260615-lobby-mobile` garde cette passe et ajuste uniquement le lobby mobile. Le cache-bust `20260615-wake-lock` ajoute le verrou d'ecran best-effort sur les routes de partie.
+Le cache-bust `20260612-tv-basic-player` marque le rollback volontaire du mode TV vers un lecteur YouTube actif simple. Le cache-bust `20260613-player-warmup` garde ce lecteur simple, retire le 1080p force, prechauffe YouTube et ajoute les erreurs player explicites. Le cache-bust JS `20260613-tv-preload-loop` reduit la charge de la vue TV et ajoute le prechargement de la piste suivante via le lecteur unique. Le cache-bust JS `20260613-tv-reveal-fix` corrige l'affichage de la solution TV quand les champs de reponse arrivent dans un snapshot sans nouvelle revision. Le cache-bust JS `20260613-tv-no-reveal-cue` empeche le lecteur TV de cue la piste suivante pendant la phase solution/vote. Le cache-bust JS `20260613-player-clock-sync` ajoute la correction RTT de l'horloge client et rend les seeks de recuperation buffer-aware. Le cache-bust JS `20260613-player-subsecond-sync` resserre les seuils de recalage sous la seconde. Le cache-bust JS `20260613-mobile-catchup` autorise un rattrapage dur cote joueur quand le telephone reste nettement en retard. Le cache-bust JS `20260613-backend-late-sync` fixe le seuil de retard maximum a `0.65s` par rapport au timing backend. Le cache-bust CSS `20260613-tv-hidden-video` force le rafraichissement du style qui reduit la surface de l'iframe TV quand la video est masquee. Le cache-bust `20260615-ui-flow` ne modifie pas le lecteur et sert uniquement les optimisations de placement/responsive des interfaces. Le cache-bust `20260615-lobby-mobile` garde cette passe et ajuste uniquement le lobby mobile. Le cache-bust `20260615-wake-lock` ajoute le verrou d'ecran best-effort sur les routes de partie. Le cache-bust `20260615-playtest-improvements` ajoute les retours de partie sans modifier la strategie de synchronisation du lecteur.
 
 ## Diagnostics player
 

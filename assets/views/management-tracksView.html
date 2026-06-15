@@ -93,8 +93,13 @@
           <input id="track-youtube-url" type="text" placeholder="Ex: dQw4w9WgXcQ ou https://www.youtube.com/watch?v=..." />
         </div>
 
+        <div class="mq-field">
+          <label for="track-start-offset">Début de lecture (secondes)</label>
+          <input id="track-start-offset" type="number" min="0" step="1" placeholder="0" />
+        </div>
+
         <p id="track-family-hint" class="mq-muted">Sélectionne d'abord une catégorie pour voir les œuvres existantes réutilisables.</p>
-        <p class="mq-muted">Tu peux coller une URL complète ou uniquement l'identifiant de la vidéo.</p>
+        <p class="mq-muted">Tu peux coller une URL complète ou uniquement l'identifiant de la vidéo. Le début de lecture permet de sauter une intro.</p>
       </div>
       <div class="mq-admin-form-actions">
         <button id="btn-track-create" type="button">Ajouter</button>

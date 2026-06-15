@@ -1,5 +1,5 @@
-import { buildYouTubeEmbedUrl, buildYouTubeWatchUrl, extractYouTubeVideoId } from "../utils/youtube.js?v=20260613-player-warmup";
-import { escapeAttribute, escapeHtml, formatDate, normalizeSearch } from "../utils/ui.js?v=20260610-shared-utils";
+import { buildYouTubeEmbedUrl, buildYouTubeWatchUrl, extractYouTubeVideoId } from "../utils/youtube.js?v=20260615-playtest-improvements";
+import { escapeAttribute, escapeHtml, formatDate, normalizeSearch } from "../utils/ui.js?v=20260615-playtest-improvements";
 
 export class ManagementValidationController {
   constructor() {
@@ -25,6 +25,7 @@ export class ManagementValidationController {
     document.getElementById("validation-family-name")?.addEventListener("change", () => this.syncAliasesFromSelectedFamily());
     document.getElementById("validation-alias-input")?.addEventListener("keydown", (event) => this.handleAliasInputKeydown(event));
     document.getElementById("validation-youtube-url")?.addEventListener("input", () => this.updatePreviewFromForm());
+    document.getElementById("validation-start-offset")?.addEventListener("input", () => this.updatePreviewFromForm());
     document.getElementById("validation-track-title")?.addEventListener("input", () => this.updateTitleFromForm());
 
     this.refresh();
@@ -198,12 +199,14 @@ export class ManagementValidationController {
     const title = document.getElementById("validation-track-title");
     const artist = document.getElementById("validation-track-artist");
     const youtube = document.getElementById("validation-youtube-url");
+    const startOffset = document.getElementById("validation-start-offset");
 
     if (category) category.value = String(Number(item.category_id || 0) || "");
     if (family) family.value = item.family_name || "";
     if (title) title.value = item.title || "";
     if (artist) artist.value = item.artist || "";
     if (youtube) youtube.value = item.youtube_url || item.youtube_video_id || "";
+    if (startOffset) startOffset.value = String(Math.max(0, Number(item.start_offset_seconds || 0)));
 
     this.aliasDirty = false;
     this.setAliases(this.getAliasesForTrack(item), { markDirty: false });
@@ -216,12 +219,14 @@ export class ManagementValidationController {
     const title = document.getElementById("validation-track-title");
     const artist = document.getElementById("validation-track-artist");
     const youtube = document.getElementById("validation-youtube-url");
+    const startOffset = document.getElementById("validation-start-offset");
 
     if (category) category.value = "";
     if (family) family.value = "";
     if (title) title.value = "";
     if (artist) artist.value = "";
     if (youtube) youtube.value = "";
+    if (startOffset) startOffset.value = "0";
 
     this.aliasDirty = false;
     this.setAliases([], { markDirty: false });
@@ -236,6 +241,7 @@ export class ManagementValidationController {
       "validation-track-title",
       "validation-track-artist",
       "validation-youtube-url",
+      "validation-start-offset",
     ].forEach((id) => {
       const el = document.getElementById(id);
       if (el) el.disabled = disabled;
@@ -262,8 +268,9 @@ export class ManagementValidationController {
     const url = document.getElementById("validation-track-url");
     const openYoutube = document.getElementById("btn-validation-open-youtube");
     const videoId = extractYouTubeVideoId(this.getYoutubeInput());
-    const embedUrl = buildYouTubeEmbedUrl(videoId);
-    const youtubeUrl = buildYouTubeWatchUrl(videoId);
+    const startOffset = this.getStartOffsetSeconds();
+    const embedUrl = buildYouTubeEmbedUrl(videoId, startOffset);
+    const youtubeUrl = buildYouTubeWatchUrl(videoId, startOffset);
 
     if (frame) {
       frame.hidden = !embedUrl;
@@ -327,6 +334,7 @@ export class ManagementValidationController {
     const title = String(document.getElementById("validation-track-title")?.value || "").trim();
     const artist = String(document.getElementById("validation-track-artist")?.value || "").trim();
     const youtubeVideoId = extractYouTubeVideoId(this.getYoutubeInput());
+    const startOffset = this.getStartOffsetSeconds();
 
     if (categoryId <= 0) {
       this.setStatus("Catégorie requise avant validation", false);
@@ -352,6 +360,7 @@ export class ManagementValidationController {
       title,
       artist,
       youtube_video_id: youtubeVideoId,
+      start_offset_seconds: startOffset,
     };
 
     if (this.aliasesAvailable) {
@@ -493,7 +502,7 @@ export class ManagementValidationController {
   }
 
   openSelectedTrackOnYouTube() {
-    const youtubeUrl = buildYouTubeWatchUrl(extractYouTubeVideoId(this.getYoutubeInput()));
+    const youtubeUrl = buildYouTubeWatchUrl(extractYouTubeVideoId(this.getYoutubeInput()), this.getStartOffsetSeconds());
     if (!youtubeUrl) return;
     window.open(youtubeUrl, "_blank", "noopener,noreferrer");
   }
@@ -504,6 +513,11 @@ export class ManagementValidationController {
 
   getYoutubeInput() {
     return String(document.getElementById("validation-youtube-url")?.value || "").trim();
+  }
+
+  getStartOffsetSeconds() {
+    const value = Number.parseInt(String(document.getElementById("validation-start-offset")?.value || "0").trim(), 10);
+    return Number.isFinite(value) ? Math.max(0, value) : 0;
   }
 
   getSelectedItem() {
