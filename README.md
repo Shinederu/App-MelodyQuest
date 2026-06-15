@@ -55,7 +55,9 @@ rg -n "console\.|alert\(|debugger" assets
 ```
 
 5. Si le changement touche l'API, lire aussi `P:\DEV\GitHub\App-MelodyQuest-API\README.md`.
-6. Deployer uniquement les fichiers runtime publics (`index.html` et `assets\`) vers `P:\PROD\MelodyQuest`, puis commit/push sur `main`.
+6. Lire `AMELIORATIONS-PARTIE.md` si la reprise concerne l'ergonomie de partie,
+   le lobby ou la selection musicale.
+7. Deployer uniquement les fichiers runtime publics (`index.html` et `assets\`) vers `P:\PROD\MelodyQuest`, puis commit/push sur `main`.
 
 ## Organisation du depot
 
@@ -267,6 +269,7 @@ Get-ChildItem P:\PROD\MelodyQuest -Force |
 - Tester `/tv` + `#/tv-link` uniquement avec le lecteur TV simple actuel, sans recreer de lecteur d'avance.
 - Garder `#/lobby-list` pour compatibilite, meme si la liste publique est maintenant visible depuis `#/main`.
 - Les optimisations de chargement YouTube TV restent ouvertes, mais doivent etre traitees comme une nouvelle recherche technique, pas comme une restauration du double lecteur precedent.
+- Les retours de partie du 2026-06-15 sont clarifies dans `AMELIORATIONS-PARTIE.md`.
 
 ## Nginx attendu
 
