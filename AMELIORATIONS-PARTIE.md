@@ -48,6 +48,13 @@ Passe appliquee le 2026-06-16 (`20260616-answer-visibility`):
 - joueurs absents credites de 10% des points du premier joueur qui trouve la manche;
 - aucune modification de strategie player.
 
+Passe appliquee le 2026-06-16 (`20260616-game-action-layout`):
+
+- zone `Ta reponse` deplacee sous la video pour garder l'action principale au centre de la manche;
+- la meme zone devient le panneau de solution quand le joueur trouve ou quand la reponse est revelee;
+- colonne droite allegee: elle garde le vote de manche suivante, les infos du salon, le classement et les outils;
+- aucune modification de strategie player.
+
 Points encore a affiner apres nouveaux tests reels:
 
 - qualite exacte des delais d'inactivite (`MQ_PLAYER_INACTIVE_TIMEOUT_SECONDS`);

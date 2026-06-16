@@ -1843,8 +1843,8 @@ input[type="range"] {
 .mq-game-solution {
   display: grid;
   justify-items: center;
-  gap: 4px;
-  padding: 10px 12px;
+  gap: 6px;
+  padding: 12px;
   border: 1px solid rgba(120, 183, 255, 0.22);
   border-radius: var(--mq-radius);
   text-align: center;
@@ -1860,7 +1860,7 @@ input[type="range"] {
 
 .mq-game-solution strong {
   color: var(--mq-text);
-  font-size: clamp(1.35rem, 2.4vw, 2.45rem);
+  font-size: clamp(1.4rem, 2.3vw, 2.6rem);
   line-height: 1.08;
   overflow-wrap: anywhere;
 }
@@ -1995,6 +1995,37 @@ input[type="range"] {
 .mq-game-info-card,
 .mq-game-vote-panel {
   padding: 18px;
+}
+
+.mq-game-stage-action {
+  display: grid;
+  gap: 12px;
+}
+
+.mq-game-stage-action .mq-card-heading {
+  margin-bottom: 0;
+}
+
+.mq-game-stage-action[data-answer-phase="found"],
+.mq-game-stage-action[data-answer-phase="solution"] {
+  border-color: rgba(120, 183, 255, 0.34);
+  background:
+    linear-gradient(135deg, rgba(120, 183, 255, 0.1), rgba(233, 130, 189, 0.08)),
+    rgba(255, 255, 255, 0.055);
+}
+
+.mq-game-stage-action #game-answer-locked {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.mq-game-stage-action #game-answer-locked > .mq-muted {
+  margin: 0;
+}
+
+.mq-game-stage-action #game-answer-locked > .mq-actions {
+  margin-top: 4px;
 }
 
 .mq-game-info-grid {
@@ -2683,7 +2714,7 @@ body:has(.mq-tv-page) #footer {
   }
 
   body:has(.mq-game-page) .mq-video-shell {
-    height: clamp(280px, calc(100dvh - 410px), 560px);
+    height: clamp(280px, calc(100dvh - 500px), 520px);
   }
 
   body:has(.mq-game-page) .mq-game-answer-card,
@@ -2698,6 +2729,28 @@ body:has(.mq-tv-page) #footer {
 
   body:has(.mq-game-page) .mq-game-answer-card .mq-card-copy {
     display: none;
+  }
+
+  body:has(.mq-game-page) .mq-game-stage-action:has(#game-answer-shell:not([hidden])) {
+    grid-template-columns: minmax(180px, 0.42fr) minmax(320px, 1fr);
+    align-items: end;
+  }
+
+  body:has(.mq-game-page) .mq-game-stage-action:has(#game-answer-shell:not([hidden])) .mq-card-heading {
+    align-self: center;
+  }
+
+  body:has(.mq-game-page) .mq-game-stage-action #game-player-mode-summary,
+  body:has(.mq-game-page) .mq-game-stage-action #game-answer-shell,
+  body:has(.mq-game-page) .mq-game-stage-action #game-answer-locked,
+  body:has(.mq-game-page) .mq-game-stage-action #game-reveal-vote,
+  body:has(.mq-game-page) .mq-game-stage-action #game-missed-panel,
+  body:has(.mq-game-page) .mq-game-stage-action #game-answer-history-panel {
+    grid-column: 1 / -1;
+  }
+
+  body:has(.mq-game-page) .mq-game-stage-action:has(#game-answer-shell:not([hidden])) #game-answer-shell {
+    grid-column: 2;
   }
 
   body:has(.mq-game-page) .mq-game-answer-card .mq-form-stack,
@@ -2811,7 +2864,7 @@ body:has(.mq-tv-page) #footer {
   }
 
   body:has(.mq-game-page) .mq-video-shell {
-    height: clamp(250px, calc(100dvh - 390px), 520px);
+    height: clamp(240px, calc(100dvh - 470px), 480px);
   }
 
   body:has(.mq-game-page) .mq-video-overlay {
@@ -2889,6 +2942,10 @@ body:has(.mq-tv-page) #footer {
 
   body:has(.mq-game-page) #game-answer-shell {
     gap: 6px;
+  }
+
+  body:has(.mq-game-page) .mq-game-stage-action:has(#game-answer-shell:not([hidden])) {
+    grid-template-columns: minmax(130px, 0.34fr) minmax(260px, 1fr);
   }
 
   body:has(.mq-game-page) #game-answer-shell label {
@@ -3382,6 +3439,7 @@ body:has(.mq-tv-page) #footer {
 
   body:has(.mq-game-page) .mq-video-shell {
     max-height: min(42dvh, 260px);
+    order: 1;
     width: 100%;
   }
 
@@ -3420,6 +3478,7 @@ body:has(.mq-tv-page) #footer {
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 8px;
     margin-top: 4px;
+    order: 4;
   }
 
   body:has(.mq-game-page) .mq-volume-control {
@@ -3433,6 +3492,7 @@ body:has(.mq-tv-page) #footer {
   }
 
   body:has(.mq-game-page) .mq-game-category {
+    order: 2;
     padding: 5px 9px;
     font-size: 0.78rem;
   }
@@ -3447,7 +3507,7 @@ body:has(.mq-tv-page) #footer {
   }
 
   body:has(.mq-game-page) .mq-game-answer-card {
-    order: 2;
+    order: 3;
     padding: 12px;
   }
 

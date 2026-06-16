@@ -877,6 +877,9 @@ export class GameController {
   }
 
   renderAnswerPhase(round, userAnswer, hasCorrectAnswer, answerClosed) {
+    const card = document.querySelector(".mq-game-answer-card");
+    const cardTitle = document.getElementById("game-answer-title");
+    const cardCopy = document.getElementById("game-answer-copy");
     const shell = document.getElementById("game-answer-shell");
     const locked = document.getElementById("game-answer-locked");
     const lockedTitle = document.getElementById("game-answer-locked-title");
@@ -888,7 +891,20 @@ export class GameController {
     if (!shell || !locked || !lockedTitle || !lockedCopy || !input || !submit) return;
 
     const solutionText = this.buildSolutionText(round?.track);
+    const setCardState = (phase, title, copy) => {
+      if (card) {
+        card.dataset.answerPhase = phase;
+      }
+      if (cardTitle) {
+        cardTitle.textContent = title;
+      }
+      if (cardCopy) {
+        cardCopy.textContent = copy;
+      }
+    };
+
     if (this.isRoundPendingStart(round)) {
+      setCardState("pending", "Prépare-toi", "La manche démarre dans quelques secondes.");
       shell.hidden = true;
       locked.hidden = false;
       if (suggestButton) suggestButton.hidden = true;
@@ -900,6 +916,7 @@ export class GameController {
     }
 
     if (!answerClosed && !hasCorrectAnswer) {
+      setCardState("answer", "Ta réponse", "Écris ici pendant que la vidéo reste cachée.");
       shell.hidden = false;
       locked.hidden = true;
       if (suggestButton) suggestButton.hidden = true;
@@ -916,32 +933,35 @@ export class GameController {
     if (suggestButton) suggestButton.hidden = !answerClosed || !round?.track;
 
     if (hasCorrectAnswer && !answerClosed) {
+      setCardState("found", "Bonne réponse", "La solution remplace le champ pendant que les autres continuent.");
       const awardedScore = Number(userAnswer?.score_awarded || this.correctUnlockedScore || 0);
       const remainingMs = Math.max(0, this.getAnswerDeadlineMs(round) - this.getNowMs());
       const remaining = Math.max(0, Math.ceil(remainingMs / 1000));
-      lockedTitle.textContent = "Bonne réponse";
+      lockedTitle.textContent = solutionText ? "Trouvé" : "Bonne réponse";
       lockedCopy.textContent = awardedScore > 0
-        ? `${solutionText || "Réponse validée"} - +${awardedScore} pt. Il reste ${remaining}s aux autres.`
-        : `${solutionText || "Réponse validée"} - Il reste ${remaining}s aux autres.`;
+        ? `+${awardedScore} pt. Il reste ${remaining}s aux autres.`
+        : `Il reste ${remaining}s aux autres.`;
       return;
     }
 
     if (this.playerOnlyMode) {
+      setCardState("player-only", "Solution sur l'écran", "La vidéo n'est pas chargée sur cet appareil.");
       lockedTitle.textContent = "Solution sur l'écran";
       lockedCopy.textContent = "Regarde la TV ou l'écran partagé pour la réponse.";
       return;
     }
 
-    lockedTitle.textContent = "Solution";
+    setCardState("solution", "Solution", "La réponse reste affichée ici jusqu'à la manche suivante.");
+    lockedTitle.textContent = solutionText ? "Réponse révélée" : "Solution";
     if (hasCorrectAnswer) {
       const awardedScore = Number(userAnswer?.score_awarded || this.correctUnlockedScore || 0);
       lockedCopy.textContent = awardedScore > 0
-        ? `${solutionText || "Réponse validée"} - +${awardedScore} pt`
+        ? `Réponse validée · +${awardedScore} pt`
         : (solutionText || "Réponse validée");
       return;
     }
 
-    lockedCopy.textContent = solutionText || "Le chrono est terminé pour cette manche.";
+    lockedCopy.textContent = "Le chrono est terminé pour cette manche.";
   }
 
   renderMissedAnswerPhase(round) {

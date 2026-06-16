@@ -32,27 +32,11 @@
 
       <div id="game-round-category" class="mq-game-category" hidden></div>
 
-      <div class="mq-video-toolbar">
-        <label class="mq-volume-control" for="game-volume">
-          <span>Volume</span>
-          <input id="game-volume" type="range" min="0" max="100" step="1" value="70" />
-        </label>
-        <span id="game-volume-value" class="mq-chip">70%</span>
-      </div>
-
-      <div id="game-solution" class="mq-game-solution" hidden>
-        <span id="game-solution-category" class="mq-chip" hidden></span>
-        <strong id="game-solution-family"></strong>
-        <span id="game-solution-track"></span>
-      </div>
-    </section>
-
-    <aside class="mq-game-side">
-      <section class="mq-card mq-game-answer-card">
+      <section class="mq-card mq-game-answer-card mq-game-stage-action">
         <div class="mq-card-heading">
           <div class="mq-kicker">Action principale</div>
-          <h2>Ta réponse</h2>
-          <p class="mq-card-copy">Tape ta réponse ici. Le champ reprend le focus à chaque manche.</p>
+          <h2 id="game-answer-title">Ta réponse</h2>
+          <p id="game-answer-copy" class="mq-card-copy">Tape ta réponse ici pendant que la vidéo reste cachée.</p>
         </div>
 
         <div id="game-player-mode-summary" class="mq-game-player-summary" hidden></div>
@@ -69,6 +53,11 @@
         <div id="game-answer-locked" class="mq-game-note" hidden>
           <strong id="game-answer-locked-title">Solution</strong>
           <p id="game-answer-locked-copy" class="mq-muted"></p>
+          <div id="game-solution" class="mq-game-solution" hidden>
+            <span id="game-solution-category" class="mq-chip" hidden></span>
+            <strong id="game-solution-family"></strong>
+            <span id="game-solution-track"></span>
+          </div>
           <div class="mq-actions">
             <button id="btn-game-suggest-correction" type="button" class="mq-secondary">Proposer une correction</button>
           </div>
@@ -94,6 +83,16 @@
         </div>
       </section>
 
+      <div class="mq-video-toolbar">
+        <label class="mq-volume-control" for="game-volume">
+          <span>Volume</span>
+          <input id="game-volume" type="range" min="0" max="100" step="1" value="70" />
+        </label>
+        <span id="game-volume-value" class="mq-chip">70%</span>
+      </div>
+    </section>
+
+    <aside class="mq-game-side">
       <section id="game-next-panel" class="mq-card mq-game-vote-panel" hidden>
         <div>
           <p class="mq-section-label">Suite de la partie</p>
