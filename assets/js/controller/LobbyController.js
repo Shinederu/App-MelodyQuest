@@ -1,5 +1,5 @@
 import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
-import { escapeAttribute, escapeHtml, formatPlayerRole, renderAvatar } from "../utils/ui.js?v=20260615-playtest-improvements";
+import { escapeAttribute, escapeHtml, formatPlayerRole, renderAvatar } from "../utils/ui.js?v=20260616-game-flow-fixes";
 
 const MIN_TOTAL_ROUNDS = 1;
 const MAX_TOTAL_ROUNDS = 1000;
@@ -32,8 +32,6 @@ export class LobbyController {
         this.refreshNow();
       }
     };
-    this.pageHideHandler = () => this.markInactiveOnPageExit();
-
     document.getElementById("btn-lobby-leave")?.addEventListener("click", () => this.leaveLobby());
     document.getElementById("btn-lobby-delete")?.addEventListener("click", () => this.deleteLobby());
     document.getElementById("btn-lobby-start")?.addEventListener("click", () => this.startGame());
@@ -42,7 +40,6 @@ export class LobbyController {
     document.getElementById("btn-lobby-away")?.addEventListener("click", () => this.toggleAwayMode());
 
     document.addEventListener("visibilitychange", this.visibilityHandler);
-    window.addEventListener("pagehide", this.pageHideHandler);
 
     this.bootstrap();
   }
@@ -241,6 +238,10 @@ export class LobbyController {
     if (snapshot.lobby) {
       this.currentLobby = snapshot.lobby;
       setCurrentLobby(snapshot.lobby);
+      if (Array.isArray(snapshot.players) && !this.isCurrentUserInPlayers(snapshot.players)) {
+        this.exitLobbyIfActive();
+        return;
+      }
       this.renderLobby({ lobby: snapshot.lobby, players: snapshot.players || [] });
     }
 
@@ -449,14 +450,14 @@ export class LobbyController {
     const currentUserId = Number(this.user?.id || 0);
     const currentPlayer = players.find((player) => Number(player.user_id || 0) === currentUserId);
     const status = String(currentPlayer?.presence_status || this.presenceStatus || "active").toLowerCase();
-    this.presenceStatus = ["away", "inactive"].includes(status) ? status : "active";
+    this.presenceStatus = status === "away" ? "away" : "active";
   }
 
   renderAwayButton() {
     const button = document.getElementById("btn-lobby-away");
     if (!button) return;
 
-    const isAway = this.presenceStatus === "away" || this.presenceStatus === "inactive";
+    const isAway = this.presenceStatus === "away";
     button.textContent = isAway ? "Je suis de retour" : "Me mettre absent";
     button.setAttribute("aria-pressed", isAway ? "true" : "false");
     button.classList.toggle("is-active", isAway);
@@ -467,14 +468,11 @@ export class LobbyController {
     if (status === "away") {
       return `<span class="mq-chip mq-chip--presence">Absent</span>`;
     }
-    if (status === "inactive") {
-      return `<span class="mq-chip mq-chip--presence">Inactif</span>`;
-    }
     return `<span class="mq-chip mq-chip--presence mq-chip--presence-active">Présent</span>`;
   }
 
   async toggleAwayMode() {
-    const nextStatus = this.presenceStatus === "away" || this.presenceStatus === "inactive" ? "active" : "away";
+    const nextStatus = this.presenceStatus === "away" ? "active" : "away";
     await this.sendPresenceStatus(nextStatus);
   }
 
@@ -496,12 +494,6 @@ export class LobbyController {
 
     this.setStatus(this.presenceStatus === "away" ? "Mode absent activé" : "Tu es de retour dans la partie", true);
     this.refreshNow();
-  }
-
-  markInactiveOnPageExit() {
-    const lobbyId = this.getLobbyId();
-    if (!lobbyId) return;
-    window.httpClient.touchLobbyKeepalive(lobbyId, "inactive");
   }
 
   queueConfigSave(delay = 350) {
@@ -754,6 +746,12 @@ export class LobbyController {
     window.appCtrl.changeView("main");
   }
 
+  isCurrentUserInPlayers(players = []) {
+    const currentUserId = Number(this.user?.id || 0);
+    if (currentUserId <= 0) return true;
+    return players.some((player) => Number(player?.user_id || 0) === currentUserId);
+  }
+
   isOwner() {
     return Number(this.currentLobby?.owner_user_id || 0) === Number(this.user?.id || 0);
   }
@@ -958,6 +956,5 @@ export class LobbyController {
       this.configSaveTimeout = null;
     }
     document.removeEventListener("visibilitychange", this.visibilityHandler);
-    window.removeEventListener("pagehide", this.pageHideHandler);
   }
 }

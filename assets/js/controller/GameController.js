@@ -1,7 +1,7 @@
 import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
-import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260616-answer-history";
-import { escapeAttribute, escapeHtml, formatPlayerRole, formatRank, renderAvatar } from "../utils/ui.js?v=20260616-answer-history";
-import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=20260616-answer-history";
+import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260616-game-flow-fixes";
+import { escapeAttribute, escapeHtml, formatPlayerRole, formatRank, renderAvatar } from "../utils/ui.js?v=20260616-game-flow-fixes";
+import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=20260616-game-flow-fixes";
 
 const PLAYER_VOLUME_STORAGE_KEY = "mq_game_volume";
 const PLAYER_ONLY_MODE_STORAGE_KEY = "mq_game_player_only_mode";
@@ -78,6 +78,8 @@ export class GameController {
     this.answerFocusBlockedRoundId = 0;
     this.answerFocusAppliedRoundId = 0;
     this.answerFocusBlockedUntilMs = 0;
+    this.answerFocusTimeout = null;
+    this.personalRoundRefreshTimeout = null;
     this.solutionTrackByRoundId = new Map();
     this.answerHistory = this.loadAnswerHistory();
     this.answerHistoryIndex = this.answerHistory.length;
@@ -103,10 +105,8 @@ export class GameController {
     answerInput?.addEventListener("blur", () => this.blockAnswerFocusForCurrentRound(0));
     this.pointerFocusHandler = (event) => this.handlePointerFocusBlock(event);
     this.scrollFocusHandler = () => this.blockAnswerFocusTemporarily(2500);
-    this.pageHideHandler = () => this.markInactiveOnPageExit();
     document.addEventListener("pointerdown", this.pointerFocusHandler, true);
     document.addEventListener("touchmove", this.scrollFocusHandler, { passive: true });
-    window.addEventListener("pagehide", this.pageHideHandler);
     document.getElementById("game-auto-next")?.addEventListener("change", (event) => {
       this.autoNextEnabled = Boolean(event?.target?.checked);
       this.updateRoundPresentation();
@@ -180,9 +180,13 @@ export class GameController {
       this.scoreboard = snapshot.scoreboard.items;
     }
     if (snapshot?.round) {
+      const previousRoundState = this.roundState;
       this.updateClockFromRoundState(snapshot.round, roundMeta);
       this.trackRoundChange(snapshot.round.round);
-      this.roundState = this.mergeUnlockedRoundState(snapshot.round);
+      this.roundState = this.mergeUnlockedRoundState(snapshot.round, previousRoundState);
+      if (this.shouldRefreshPersonalRoundState(previousRoundState, this.roundState)) {
+        this.schedulePersonalRoundRefresh();
+      }
     }
     if (snapshot?.realtime) {
       this.realtimeConfig = snapshot.realtime;
@@ -202,34 +206,111 @@ export class GameController {
     }
   }
 
-  mergeUnlockedRoundState(roundState) {
+  mergeUnlockedRoundState(roundState, previousRoundState = this.roundState) {
     const round = roundState?.round;
     const roundId = Number(round?.id || 0);
     if (!roundId) {
       return roundState;
     }
 
+    let mergedRoundState = roundState;
     const track = round?.track;
     if (this.hasSolutionTrackData(track)) {
       this.solutionTrackByRoundId.set(roundId, { ...track });
-      return roundState;
+    } else {
+      const savedTrack = this.solutionTrackByRoundId.get(roundId);
+      if (savedTrack) {
+        mergedRoundState = {
+          ...mergedRoundState,
+          round: {
+            ...round,
+            track: {
+              ...savedTrack,
+              ...(track || {}),
+            },
+          },
+        };
+      }
     }
 
-    const savedTrack = this.solutionTrackByRoundId.get(roundId);
-    if (!savedTrack) {
-      return roundState;
+    if (Number(previousRoundState?.round?.id || 0) !== roundId) {
+      return mergedRoundState;
     }
 
     return {
-      ...roundState,
-      round: {
-        ...round,
-        track: {
-          ...savedTrack,
-          ...(track || {}),
-        },
-      },
+      ...mergedRoundState,
+      answers: this.mergeRoundItems(previousRoundState?.answers, mergedRoundState?.answers),
+      answer_attempts: this.mergeRoundItems(previousRoundState?.answer_attempts, mergedRoundState?.answer_attempts),
     };
+  }
+
+  mergeRoundItems(previousItems, nextItems) {
+    const previous = Array.isArray(previousItems) ? previousItems : [];
+    const next = Array.isArray(nextItems) ? nextItems : [];
+    if (!previous.length) return next;
+    if (!next.length) return previous;
+
+    const byKey = new Map();
+    [...previous, ...next].forEach((item, index) => {
+      const key = item?.id
+        ? `id:${item.id}`
+        : `fallback:${item?.user_id || 0}:${item?.guess_title || ""}:${item?.guess_artist || ""}:${item?.created_at || item?.answered_at || index}`;
+      byKey.set(key, item);
+    });
+
+    return Array.from(byKey.values());
+  }
+
+  shouldRefreshPersonalRoundState(previousRoundState, nextRoundState) {
+    const roundId = Number(nextRoundState?.round?.id || 0);
+    if (!roundId || Number(previousRoundState?.round?.id || 0) !== roundId) {
+      return false;
+    }
+
+    const previousSolvedCount = this.countSolvedPlayers(previousRoundState);
+    const nextSolvedCount = this.countSolvedPlayers(nextRoundState);
+    return nextSolvedCount > previousSolvedCount
+      && (
+        this.hasCurrentUserSolvedRoundState(previousRoundState)
+        || this.correctUnlockedRoundId === roundId
+      );
+  }
+
+  countSolvedPlayers(roundState) {
+    const solved = Array.isArray(roundState?.solved_players) ? roundState.solved_players : [];
+    if (solved.length) {
+      return solved.length;
+    }
+
+    return (Array.isArray(roundState?.answers) ? roundState.answers : [])
+      .filter((answer) => Number(answer?.score_awarded || 0) > 0)
+      .length;
+  }
+
+  hasCurrentUserSolvedRoundState(roundState) {
+    const currentUserId = Number(this.user?.id || 0);
+    if (currentUserId <= 0) {
+      return false;
+    }
+
+    const answers = Array.isArray(roundState?.answers) ? roundState.answers : [];
+    if (answers.some((answer) => Number(answer?.user_id || 0) === currentUserId && Number(answer?.score_awarded || 0) > 0)) {
+      return true;
+    }
+
+    return Array.isArray(roundState?.solved_players)
+      && roundState.solved_players.some((player) => Number(player?.user_id || 0) === currentUserId);
+  }
+
+  schedulePersonalRoundRefresh() {
+    if (this.personalRoundRefreshTimeout || this.isDestroyed) {
+      return;
+    }
+
+    this.personalRoundRefreshTimeout = window.setTimeout(() => {
+      this.personalRoundRefreshTimeout = null;
+      this.refreshGameState();
+    }, 120);
   }
 
   hasSolutionTrackData(track) {
@@ -264,9 +345,17 @@ export class GameController {
       clearTimeout(this.roundRefreshTimeout);
       this.roundRefreshTimeout = null;
     }
+    if (this.personalRoundRefreshTimeout) {
+      clearTimeout(this.personalRoundRefreshTimeout);
+      this.personalRoundRefreshTimeout = null;
+    }
     if (this.advanceRefreshTimeout) {
       clearTimeout(this.advanceRefreshTimeout);
       this.advanceRefreshTimeout = null;
+    }
+    if (this.answerFocusTimeout) {
+      clearTimeout(this.answerFocusTimeout);
+      this.answerFocusTimeout = null;
     }
     if (this.playerSyncTimeout) {
       clearTimeout(this.playerSyncTimeout);
@@ -280,7 +369,7 @@ export class GameController {
     }
 
     if (roundId) {
-      window.setTimeout(() => this.focusAnswerInput("round-start"), 140);
+      this.scheduleAnswerFocusForRound(round);
     }
 
     this.setAnswerFeedback("");
@@ -512,6 +601,7 @@ export class GameController {
 
     list.innerHTML = source.map((entry, index) => {
       const hasSolved = solvedUsers.has(Number(entry.user_id || 0));
+      const canKick = this.isOwner() && Number(entry.user_id || 0) !== Number(this.user?.id || 0);
       return `
       <li class="mq-list-row${hasSolved ? " mq-list-row--solved" : ""}">
         <div class="mq-player-line">
@@ -523,18 +613,20 @@ export class GameController {
         </div>
         ${this.renderPresenceBadge(entry)}
         <span class="mq-chip">${Number(entry.score || 0)} pt</span>
+        ${canKick ? `<button type="button" class="mq-danger mq-inline-btn" data-game-kick-user="${Number(entry.user_id || 0)}">Exclure</button>` : ""}
       </li>
     `;
     }).join("");
+
+    list.querySelectorAll("[data-game-kick-user]").forEach((button) => {
+      button.addEventListener("click", () => this.kickPlayer(Number(button.dataset.gameKickUser || 0)));
+    });
   }
 
   renderPresenceBadge(player) {
     const status = String(player?.presence_status || "active").toLowerCase();
     if (status === "away") {
       return `<span class="mq-chip mq-chip--presence">Absent</span>`;
-    }
-    if (status === "inactive") {
-      return `<span class="mq-chip mq-chip--presence">Inactif</span>`;
     }
     return `<span class="mq-chip mq-chip--presence mq-chip--presence-active">Présent</span>`;
   }
@@ -578,6 +670,7 @@ export class GameController {
       this.ensureUpcomingPlayer(this.roundState?.next_track, round);
     }
     this.renderAnswerPhase(round, userAnswer, hasCorrectAnswer, answerClosed);
+    this.focusAnswerInputAtRoundStart(round);
     this.renderMissedAnswerPhase(round);
     this.renderAnswerHistoryPhase(round, answerClosed, hasCorrectAnswer);
     this.renderRevealVotePhase(round, earlyRevealAvailable);
@@ -1174,7 +1267,7 @@ export class GameController {
   getEligiblePlayers() {
     return (this.players || []).filter((player) => {
       const status = String(player?.presence_status || "active").toLowerCase();
-      return status === "active";
+      return status !== "away";
     });
   }
 
@@ -1462,6 +1555,7 @@ export class GameController {
     this.setStatus("Mauvaise réponse", false);
     this.clearAnswerInput();
     this.flashWrongAnswer();
+    this.refreshGameState();
   }
 
   async voteRevealRound() {
@@ -2442,6 +2536,42 @@ export class GameController {
     this.answerFocusBlockedUntilMs = Math.max(this.answerFocusBlockedUntilMs, Date.now() + durationMs);
   }
 
+  scheduleAnswerFocusForRound(round) {
+    if (this.answerFocusTimeout) {
+      clearTimeout(this.answerFocusTimeout);
+      this.answerFocusTimeout = null;
+    }
+
+    const roundId = Number(round?.id || 0);
+    if (!roundId) {
+      return;
+    }
+
+    const delayMs = this.isRoundPendingStart(round)
+      ? Math.max(120, this.getMsUntilRoundStart(round) + 140)
+      : 140;
+
+    this.answerFocusTimeout = window.setTimeout(() => {
+      this.answerFocusTimeout = null;
+      if (this.isDestroyed || Number(this.roundState?.round?.id || 0) !== roundId) {
+        return;
+      }
+
+      this.updateRoundPresentation();
+      this.focusAnswerInput("round-start");
+    }, delayMs);
+  }
+
+  focusAnswerInputAtRoundStart(round) {
+    if (!round?.id || this.isRoundPendingStart(round) || this.isAnswerWindowClosed(round)) {
+      return;
+    }
+
+    if (this.answerFocusAppliedRoundId !== Number(round.id || 0)) {
+      this.focusAnswerInput("round-start");
+    }
+  }
+
   focusAnswerInput(reason = "soft") {
     const input = document.getElementById("game-answer");
     if (!input || input.disabled || input.hidden || document.hidden) {
@@ -2501,21 +2631,21 @@ export class GameController {
     const currentUserId = Number(this.user?.id || 0);
     const currentPlayer = players.find((player) => Number(player.user_id || 0) === currentUserId);
     const status = String(currentPlayer?.presence_status || this.presenceStatus || "active").toLowerCase();
-    this.presenceStatus = ["away", "inactive"].includes(status) ? status : "active";
+    this.presenceStatus = status === "away" ? "away" : "active";
   }
 
   renderAwayButton() {
     const button = document.getElementById("btn-game-away");
     if (!button) return;
 
-    const isAway = this.presenceStatus === "away" || this.presenceStatus === "inactive";
+    const isAway = this.presenceStatus === "away";
     button.textContent = isAway ? "Je suis de retour" : "Me mettre absent";
     button.setAttribute("aria-pressed", isAway ? "true" : "false");
     button.classList.toggle("is-active", isAway);
   }
 
   async toggleAwayMode() {
-    const nextStatus = this.presenceStatus === "away" || this.presenceStatus === "inactive" ? "active" : "away";
+    const nextStatus = this.presenceStatus === "away" ? "active" : "away";
     await this.sendPresenceStatus(nextStatus);
   }
 
@@ -2539,10 +2669,25 @@ export class GameController {
     this.refreshGameState();
   }
 
-  markInactiveOnPageExit() {
+  async kickPlayer(targetUserId) {
     const lobbyId = this.getLobbyId();
-    if (!lobbyId) return;
-    window.httpClient.touchLobbyKeepalive(lobbyId, "inactive");
+    if (!this.isOwner() || !lobbyId || targetUserId <= 0 || targetUserId === Number(this.user?.id || 0)) {
+      return;
+    }
+
+    const res = await window.httpClient.kickPlayer(lobbyId, targetUserId);
+    this.setStatus(res.success ? "Joueur retiré du salon" : (res.error || "Erreur"), res.success);
+    if (res.success && res.data?.lobby) {
+      this.applySnapshot({
+        lobby: res.data.lobby,
+        players: res.data.players ?? this.players,
+        scoreboard: { items: this.scoreboard },
+        round: this.roundState,
+        realtime: this.realtimeConfig,
+      });
+    } else if (res.success) {
+      this.refreshGameState();
+    }
   }
 
   async leaveLobby() {
@@ -2596,6 +2741,10 @@ export class GameController {
     if (this.isDestroyed) return;
     clearCurrentLobby();
     window.appCtrl.changeView("main");
+  }
+
+  isOwner() {
+    return Number(this.currentLobby?.owner_user_id || 0) === Number(this.user?.id || 0);
   }
 
   formatRank(rank) {
@@ -2653,7 +2802,6 @@ export class GameController {
     document.removeEventListener("visibilitychange", this.visibilityHandler);
     document.removeEventListener("pointerdown", this.pointerFocusHandler, true);
     document.removeEventListener("touchmove", this.scrollFocusHandler);
-    window.removeEventListener("pagehide", this.pageHideHandler);
     if (this.roundRefreshTimeout) {
       clearTimeout(this.roundRefreshTimeout);
       this.roundRefreshTimeout = null;

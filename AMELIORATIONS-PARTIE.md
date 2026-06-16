@@ -19,6 +19,15 @@ Passe appliquee le 2026-06-15 (`20260615-playtest-improvements`):
 - debut de lecture des pistes expose en management/validation;
 - equilibrage categories confirme cote API existante.
 
+Passe appliquee le 2026-06-16 (`20260616-game-flow-fixes`):
+
+- focus du champ reponse replace au vrai debut des manches apres synchronisation;
+- essais rates visibles pendant la manche apres mauvaise reponse;
+- reponses/essais entre joueurs ayant trouve rafraichis via etat personnel;
+- presence automatique `inactive` retiree: seul le joueur bascule present/absent;
+- exclusion joueur disponible depuis le lobby et depuis le classement de partie;
+- ecran resultat redirige automatiquement vers le jeu si le createur relance une partie.
+
 Points encore a affiner apres nouveaux tests reels:
 
 - qualite exacte des delais d'inactivite (`MQ_PLAYER_INACTIVE_TIMEOUT_SECONDS`);

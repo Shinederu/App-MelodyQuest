@@ -142,7 +142,7 @@ export class HttpService {
     });
   }
 
-  touchLobbyKeepalive(lobbyId, presenceStatus = "inactive") {
+  touchLobbyKeepalive(lobbyId, presenceStatus = "active") {
     const id = Number(lobbyId || 0);
     if (!id || typeof fetch !== "function") {
       return;

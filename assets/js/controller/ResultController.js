@@ -1,5 +1,5 @@
 import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
-import { escapeHtml } from "../utils/ui.js?v=20260610-shared-utils";
+import { escapeHtml } from "../utils/ui.js?v=20260616-game-flow-fixes";
 
 const AUTO_RETURN_DELAY_SECONDS = 15;
 
@@ -7,6 +7,7 @@ export class ResultController {
   constructor() {
     this.currentLobby = getCurrentLobby();
     this.heartbeatInterval = null;
+    this.roundMonitorInterval = null;
     this.countdownInterval = null;
     this.isDestroyed = false;
     this.returnInFlight = false;
@@ -50,6 +51,7 @@ export class ResultController {
     `).join("");
 
     this.startHeartbeat();
+    this.startRoundMonitor();
     this.startAutoReturnCountdown();
   }
 
@@ -143,9 +145,45 @@ export class ResultController {
     }
   }
 
+  startRoundMonitor() {
+    this.stopRoundMonitor();
+    this.roundMonitorInterval = setInterval(() => this.checkForRestartedGame(), 2500);
+    this.checkForRestartedGame();
+  }
+
+  stopRoundMonitor() {
+    if (this.roundMonitorInterval) {
+      clearInterval(this.roundMonitorInterval);
+      this.roundMonitorInterval = null;
+    }
+  }
+
+  async checkForRestartedGame() {
+    if (this.isDestroyed || this.returnInFlight) {
+      return;
+    }
+
+    const lobbyId = Number(this.currentLobby?.id || 0);
+    if (!lobbyId) return;
+
+    const res = await window.httpClient.getRoundState(lobbyId);
+    if (!res.success) {
+      if (this.shouldExitLobby(res.error)) {
+        this.exitLobbyIfActive();
+      }
+      return;
+    }
+
+    const status = String(res.data?.round?.status || "").toLowerCase();
+    if (status === "running" || status === "reveal") {
+      localStorage.removeItem("mq_last_scoreboard");
+      window.appCtrl.changeView("game");
+    }
+  }
+
   shouldExitLobby(error) {
     const text = String(error || "");
-    return /lobby introuvable/i.test(text) || /utilisateur non present/i.test(text);
+    return /lobby introuvable/i.test(text) || /utilisateur non pr[eÃ©]sent/i.test(text);
   }
 
   exitLobbyIfActive() {
@@ -176,6 +214,7 @@ export class ResultController {
   destroy() {
     this.isDestroyed = true;
     this.stopHeartbeat();
+    this.stopRoundMonitor();
     this.stopAutoReturnCountdown();
   }
 }
