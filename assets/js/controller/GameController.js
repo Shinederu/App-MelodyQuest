@@ -601,8 +601,9 @@ export class GameController {
 
     list.innerHTML = source.map((entry, index) => {
       const hasSolved = solvedUsers.has(Number(entry.user_id || 0));
+      const actions = this.renderOwnerPlayerActions(entry);
       return `
-      <li class="mq-list-row${hasSolved ? " mq-list-row--solved" : ""}">
+      <li class="mq-list-row${hasSolved ? " mq-list-row--solved" : ""}${actions ? " mq-list-row--manageable" : ""}"${actions ? ` data-game-player-menu-row="${Number(entry.user_id || 0)}"` : ""}>
         <div class="mq-player-line">
           ${this.renderAvatar(entry)}
           <div>
@@ -612,13 +613,14 @@ export class GameController {
         </div>
         ${this.renderPresenceBadge(entry)}
         <span class="mq-chip">${Number(entry.score || 0)} pt</span>
-        ${this.renderOwnerPlayerActions(entry)}
+        ${actions}
       </li>
     `;
     }).join("");
 
     list.querySelectorAll("[data-game-presence-user]").forEach((button) => {
       button.addEventListener("click", () => {
+        button.closest("details")?.removeAttribute("open");
         this.setPlayerPresence(
           Number(button.dataset.gamePresenceUser || 0),
           String(button.dataset.gamePresenceStatus || "active")
@@ -626,7 +628,28 @@ export class GameController {
       });
     });
     list.querySelectorAll("[data-game-kick-user]").forEach((button) => {
-      button.addEventListener("click", () => this.kickPlayer(Number(button.dataset.gameKickUser || 0)));
+      button.addEventListener("click", () => {
+        button.closest("details")?.removeAttribute("open");
+        this.kickPlayer(Number(button.dataset.gameKickUser || 0));
+      });
+    });
+    list.querySelectorAll(".mq-player-actions-menu").forEach((menu) => {
+      menu.addEventListener("toggle", () => {
+        if (!menu.open) return;
+        list.querySelectorAll(".mq-player-actions-menu[open]").forEach((otherMenu) => {
+          if (otherMenu !== menu) {
+            otherMenu.removeAttribute("open");
+          }
+        });
+      });
+    });
+    list.querySelectorAll("[data-game-player-menu-row]").forEach((row) => {
+      row.addEventListener("click", (event) => {
+        if (event.target.closest("button, a, input, select, textarea, summary, details")) return;
+        const menu = row.querySelector(".mq-player-actions-menu");
+        if (!menu) return;
+        menu.open = !menu.open;
+      });
     });
   }
 
@@ -650,10 +673,15 @@ export class GameController {
     const presenceLabel = isAway ? "Remettre présent" : "Mettre absent";
 
     return `
-      <div class="mq-player-actions">
+      <details class="mq-player-actions-menu">
+        <summary aria-label="Actions pour ${this.escapeAttr(player?.username || "joueur")}" title="Actions joueur">
+          <span aria-hidden="true">...</span>
+        </summary>
+        <div class="mq-player-actions mq-player-actions--menu">
         <button type="button" class="mq-secondary mq-inline-btn" data-game-presence-user="${playerId}" data-game-presence-status="${this.escapeAttr(nextStatus)}">${this.escapeHtml(presenceLabel)}</button>
         <button type="button" class="mq-danger mq-inline-btn" data-game-kick-user="${playerId}">Exclure</button>
-      </div>
+        </div>
+      </details>
     `;
   }
 
@@ -904,9 +932,14 @@ export class GameController {
         cardCopy.textContent = copy;
       }
     };
+    const setLockedMetaVisibility = (showTitle = true, showCopy = true) => {
+      lockedTitle.hidden = !showTitle;
+      lockedCopy.hidden = !showCopy;
+    };
 
     if (this.isRoundPendingStart(round)) {
       setCardState("pending", "Prépare-toi", "La manche démarre dans quelques secondes.");
+      setLockedMetaVisibility(true, true);
       shell.hidden = true;
       locked.hidden = false;
       if (suggestButton) suggestButton.hidden = true;
@@ -919,6 +952,7 @@ export class GameController {
 
     if (!answerClosed && !hasCorrectAnswer) {
       setCardState("answer", "Ta réponse", "Écris ici pendant que la vidéo reste cachée.");
+      setLockedMetaVisibility(true, true);
       shell.hidden = false;
       locked.hidden = true;
       if (suggestButton) suggestButton.hidden = true;
@@ -929,6 +963,7 @@ export class GameController {
 
     shell.hidden = true;
     locked.hidden = false;
+    setLockedMetaVisibility(true, true);
     input.disabled = true;
     submit.disabled = true;
     input.classList.remove("is-invalid");
@@ -955,15 +990,17 @@ export class GameController {
 
     setCardState("solution", "Solution", "La réponse reste affichée ici jusqu'à la manche suivante.");
     lockedTitle.textContent = solutionText ? "Réponse révélée" : "Solution";
+    lockedTitle.hidden = true;
     if (hasCorrectAnswer) {
       const awardedScore = Number(userAnswer?.score_awarded || this.correctUnlockedScore || 0);
-      lockedCopy.textContent = awardedScore > 0
-        ? `Réponse validée · +${awardedScore} pt`
-        : (solutionText || "Réponse validée");
+      const scoreCopy = awardedScore > 0 ? `+${awardedScore} pt` : "";
+      lockedCopy.hidden = !scoreCopy;
+      lockedCopy.textContent = scoreCopy;
       return;
     }
 
-    lockedCopy.textContent = "Le chrono est terminé pour cette manche.";
+    lockedCopy.hidden = true;
+    lockedCopy.textContent = "";
   }
 
   renderMissedAnswerPhase(round) {

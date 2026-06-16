@@ -1271,6 +1271,10 @@ input[type="range"] {
   box-shadow: none;
 }
 
+.mq-list-row--manageable {
+  cursor: pointer;
+}
+
 .mq-list-row--solved {
   border-color: rgba(105, 224, 157, 0.34);
   background: rgba(105, 224, 157, 0.08);
@@ -1298,6 +1302,60 @@ input[type="range"] {
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 8px;
+}
+
+.mq-player-actions-menu {
+  position: relative;
+  flex: 0 0 auto;
+  cursor: default;
+}
+
+.mq-player-actions-menu summary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--mq-line);
+  border-radius: var(--mq-radius);
+  color: var(--mq-text-soft);
+  font-size: 1.15rem;
+  font-weight: 900;
+  line-height: 1;
+  list-style: none;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+}
+
+.mq-player-actions-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.mq-player-actions-menu[open] summary,
+.mq-player-actions-menu summary:hover {
+  border-color: rgba(120, 183, 255, 0.42);
+  color: var(--mq-text);
+  background: rgba(120, 183, 255, 0.12);
+}
+
+.mq-player-actions--menu {
+  position: absolute;
+  top: calc(100% + 7px);
+  right: 0;
+  z-index: 35;
+  display: grid;
+  min-width: 168px;
+  padding: 8px;
+  border: 1px solid rgba(120, 183, 255, 0.24);
+  border-radius: var(--mq-radius);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025)),
+    rgba(13, 20, 32, 0.98);
+  box-shadow: var(--mq-shadow);
+}
+
+.mq-player-actions--menu button {
+  width: 100%;
 }
 
 .mq-avatar {
@@ -2016,6 +2074,10 @@ input[type="range"] {
     rgba(255, 255, 255, 0.055);
 }
 
+.mq-game-stage-action[data-answer-phase="solution"] > .mq-card-heading {
+  display: none;
+}
+
 .mq-game-stage-action #game-answer-locked {
   padding: 0;
   border: 0;
@@ -2111,6 +2173,10 @@ input[type="range"] {
 
 #game-scoreboard .mq-list-row {
   padding: 10px 11px;
+}
+
+#game-scoreboard .mq-player-line {
+  flex: 1 1 auto;
 }
 
 #game-scoreboard .mq-avatar {

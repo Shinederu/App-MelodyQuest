@@ -283,8 +283,9 @@ export class LobbyController {
 
     if (playersHost) {
       playersHost.innerHTML = players.map((player) => {
+        const actions = this.renderOwnerPlayerActions(player);
         return `
-          <li class="mq-list-row">
+          <li class="mq-list-row${actions ? " mq-list-row--manageable" : ""}"${actions ? ` data-lobby-player-menu-row="${Number(player.user_id || 0)}"` : ""}>
             <div class="mq-player-line">
               ${this.renderAvatar(player)}
               <div>
@@ -293,13 +294,14 @@ export class LobbyController {
               </div>
             </div>
             ${this.renderPresenceBadge(player)}
-            ${this.renderOwnerPlayerActions(player)}
+            ${actions}
           </li>
         `;
       }).join("");
 
       playersHost.querySelectorAll("[data-presence-user]").forEach((button) => {
         button.addEventListener("click", () => {
+          button.closest("details")?.removeAttribute("open");
           this.setPlayerPresence(
             Number(button.dataset.presenceUser || 0),
             String(button.dataset.presenceStatus || "active")
@@ -307,7 +309,28 @@ export class LobbyController {
         });
       });
       playersHost.querySelectorAll("[data-kick-user]").forEach((button) => {
-        button.addEventListener("click", () => this.kickPlayer(Number(button.dataset.kickUser || 0)));
+        button.addEventListener("click", () => {
+          button.closest("details")?.removeAttribute("open");
+          this.kickPlayer(Number(button.dataset.kickUser || 0));
+        });
+      });
+      playersHost.querySelectorAll(".mq-player-actions-menu").forEach((menu) => {
+        menu.addEventListener("toggle", () => {
+          if (!menu.open) return;
+          playersHost.querySelectorAll(".mq-player-actions-menu[open]").forEach((otherMenu) => {
+            if (otherMenu !== menu) {
+              otherMenu.removeAttribute("open");
+            }
+          });
+        });
+      });
+      playersHost.querySelectorAll("[data-lobby-player-menu-row]").forEach((row) => {
+        row.addEventListener("click", (event) => {
+          if (event.target.closest("button, a, input, select, textarea, summary, details")) return;
+          const menu = row.querySelector(".mq-player-actions-menu");
+          if (!menu) return;
+          menu.open = !menu.open;
+        });
       });
     }
 
@@ -491,10 +514,15 @@ export class LobbyController {
     const presenceLabel = isAway ? "Remettre présent" : "Mettre absent";
 
     return `
-      <div class="mq-player-actions">
+      <details class="mq-player-actions-menu">
+        <summary aria-label="Actions pour ${this.escapeAttr(player?.username || "joueur")}" title="Actions joueur">
+          <span aria-hidden="true">...</span>
+        </summary>
+        <div class="mq-player-actions mq-player-actions--menu">
         <button type="button" class="mq-secondary mq-inline-btn" data-presence-user="${playerId}" data-presence-status="${this.escapeAttr(nextStatus)}">${this.escapeHtml(presenceLabel)}</button>
         <button type="button" class="mq-danger mq-inline-btn" data-kick-user="${playerId}">Exclure</button>
-      </div>
+        </div>
+      </details>
     `;
   }
 
