@@ -1,5 +1,5 @@
 import { setCurrentLobby } from "../utils/LobbyState.js";
-import { escapeAttribute, escapeHtml } from "../utils/ui.js?v=20260616-answer-default-80";
+import { escapeAttribute, escapeHtml } from "../utils/ui.js?v=20260616-owner-presence";
 
 export class MainController {
   constructor() {

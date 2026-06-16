@@ -1,5 +1,5 @@
 import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
-import { escapeAttribute, escapeHtml, formatPlayerRole, renderAvatar } from "../utils/ui.js?v=20260616-answer-default-80";
+import { escapeAttribute, escapeHtml, formatPlayerRole, renderAvatar } from "../utils/ui.js?v=20260616-owner-presence";
 
 const MIN_TOTAL_ROUNDS = 1;
 const MAX_TOTAL_ROUNDS = 1000;
@@ -283,7 +283,6 @@ export class LobbyController {
 
     if (playersHost) {
       playersHost.innerHTML = players.map((player) => {
-        const canKick = this.isOwner() && Number(player.user_id || 0) !== Number(this.user?.id || 0);
         return `
           <li class="mq-list-row">
             <div class="mq-player-line">
@@ -294,11 +293,19 @@ export class LobbyController {
               </div>
             </div>
             ${this.renderPresenceBadge(player)}
-            ${canKick ? `<button type="button" class="mq-danger mq-inline-btn" data-kick-user="${Number(player.user_id || 0)}">Exclure</button>` : ""}
+            ${this.renderOwnerPlayerActions(player)}
           </li>
         `;
       }).join("");
 
+      playersHost.querySelectorAll("[data-presence-user]").forEach((button) => {
+        button.addEventListener("click", () => {
+          this.setPlayerPresence(
+            Number(button.dataset.presenceUser || 0),
+            String(button.dataset.presenceStatus || "active")
+          );
+        });
+      });
       playersHost.querySelectorAll("[data-kick-user]").forEach((button) => {
         button.addEventListener("click", () => this.kickPlayer(Number(button.dataset.kickUser || 0)));
       });
@@ -472,6 +479,25 @@ export class LobbyController {
     return `<span class="mq-chip mq-chip--presence mq-chip--presence-active">Présent</span>`;
   }
 
+  renderOwnerPlayerActions(player) {
+    const playerId = Number(player?.user_id || 0);
+    const canManage = this.isOwner() && playerId > 0 && playerId !== Number(this.user?.id || 0);
+    if (!canManage) {
+      return "";
+    }
+
+    const isAway = String(player?.presence_status || "active").toLowerCase() === "away";
+    const nextStatus = isAway ? "active" : "away";
+    const presenceLabel = isAway ? "Remettre présent" : "Mettre absent";
+
+    return `
+      <div class="mq-player-actions">
+        <button type="button" class="mq-secondary mq-inline-btn" data-presence-user="${playerId}" data-presence-status="${this.escapeAttr(nextStatus)}">${this.escapeHtml(presenceLabel)}</button>
+        <button type="button" class="mq-danger mq-inline-btn" data-kick-user="${playerId}">Exclure</button>
+      </div>
+    `;
+  }
+
   async toggleAwayMode() {
     const nextStatus = this.presenceStatus === "away" ? "active" : "away";
     await this.sendPresenceStatus(nextStatus);
@@ -495,6 +521,21 @@ export class LobbyController {
 
     this.setStatus(this.presenceStatus === "away" ? "Mode absent activé" : "Tu es de retour dans la partie", true);
     this.refreshNow();
+  }
+
+  async setPlayerPresence(targetUserId, status) {
+    const lobbyId = this.getLobbyId();
+    if (!this.isOwner() || !lobbyId || targetUserId <= 0 || targetUserId === Number(this.user?.id || 0)) {
+      return;
+    }
+
+    const nextStatus = status === "away" ? "away" : "active";
+    const res = await window.httpClient.touchLobby(lobbyId, nextStatus, targetUserId);
+    const message = nextStatus === "away" ? "Joueur marqué absent" : "Joueur remis présent";
+    this.setStatus(res.success ? message : (res.error || "Erreur"), res.success);
+    if (res.success) {
+      this.refreshNow();
+    }
   }
 
   queueConfigSave(delay = 350) {

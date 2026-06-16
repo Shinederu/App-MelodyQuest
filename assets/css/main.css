@@ -1293,6 +1293,13 @@ input[type="range"] {
   min-width: 0;
 }
 
+.mq-player-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .mq-avatar {
   width: 38px;
   height: 38px;

@@ -34,6 +34,12 @@ Passe appliquee le 2026-06-16 (`20260616-answer-default-80`):
 - fallback de l'ecran de reglages aligne sur `80%`;
 - aucune modification de strategie player.
 
+Passe appliquee le 2026-06-16 (`20260616-owner-presence`):
+
+- le createur peut mettre un autre joueur absent ou present depuis le lobby;
+- la meme action est disponible depuis le classement de partie;
+- aucune modification de strategie player.
+
 Points encore a affiner apres nouveaux tests reels:
 
 - qualite exacte des delais d'inactivite (`MQ_PLAYER_INACTIVE_TIMEOUT_SECONDS`);

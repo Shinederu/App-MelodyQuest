@@ -1,7 +1,7 @@
 import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
-import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260616-game-flow-fixes";
-import { escapeAttribute, escapeHtml, formatPlayerRole, formatRank, renderAvatar } from "../utils/ui.js?v=20260616-game-flow-fixes";
-import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=20260616-game-flow-fixes";
+import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260616-owner-presence";
+import { escapeAttribute, escapeHtml, formatPlayerRole, formatRank, renderAvatar } from "../utils/ui.js?v=20260616-owner-presence";
+import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=20260616-owner-presence";
 
 const PLAYER_VOLUME_STORAGE_KEY = "mq_game_volume";
 const PLAYER_ONLY_MODE_STORAGE_KEY = "mq_game_player_only_mode";
@@ -601,7 +601,6 @@ export class GameController {
 
     list.innerHTML = source.map((entry, index) => {
       const hasSolved = solvedUsers.has(Number(entry.user_id || 0));
-      const canKick = this.isOwner() && Number(entry.user_id || 0) !== Number(this.user?.id || 0);
       return `
       <li class="mq-list-row${hasSolved ? " mq-list-row--solved" : ""}">
         <div class="mq-player-line">
@@ -613,11 +612,19 @@ export class GameController {
         </div>
         ${this.renderPresenceBadge(entry)}
         <span class="mq-chip">${Number(entry.score || 0)} pt</span>
-        ${canKick ? `<button type="button" class="mq-danger mq-inline-btn" data-game-kick-user="${Number(entry.user_id || 0)}">Exclure</button>` : ""}
+        ${this.renderOwnerPlayerActions(entry)}
       </li>
     `;
     }).join("");
 
+    list.querySelectorAll("[data-game-presence-user]").forEach((button) => {
+      button.addEventListener("click", () => {
+        this.setPlayerPresence(
+          Number(button.dataset.gamePresenceUser || 0),
+          String(button.dataset.gamePresenceStatus || "active")
+        );
+      });
+    });
     list.querySelectorAll("[data-game-kick-user]").forEach((button) => {
       button.addEventListener("click", () => this.kickPlayer(Number(button.dataset.gameKickUser || 0)));
     });
@@ -629,6 +636,25 @@ export class GameController {
       return `<span class="mq-chip mq-chip--presence">Absent</span>`;
     }
     return `<span class="mq-chip mq-chip--presence mq-chip--presence-active">Présent</span>`;
+  }
+
+  renderOwnerPlayerActions(player) {
+    const playerId = Number(player?.user_id || 0);
+    const canManage = this.isOwner() && playerId > 0 && playerId !== Number(this.user?.id || 0);
+    if (!canManage) {
+      return "";
+    }
+
+    const isAway = String(player?.presence_status || "active").toLowerCase() === "away";
+    const nextStatus = isAway ? "active" : "away";
+    const presenceLabel = isAway ? "Remettre présent" : "Mettre absent";
+
+    return `
+      <div class="mq-player-actions">
+        <button type="button" class="mq-secondary mq-inline-btn" data-game-presence-user="${playerId}" data-game-presence-status="${this.escapeAttr(nextStatus)}">${this.escapeHtml(presenceLabel)}</button>
+        <button type="button" class="mq-danger mq-inline-btn" data-game-kick-user="${playerId}">Exclure</button>
+      </div>
+    `;
   }
 
   updateRoundPresentation() {
@@ -2686,6 +2712,21 @@ export class GameController {
         realtime: this.realtimeConfig,
       });
     } else if (res.success) {
+      this.refreshGameState();
+    }
+  }
+
+  async setPlayerPresence(targetUserId, status) {
+    const lobbyId = this.getLobbyId();
+    if (!this.isOwner() || !lobbyId || targetUserId <= 0 || targetUserId === Number(this.user?.id || 0)) {
+      return;
+    }
+
+    const nextStatus = status === "away" ? "away" : "active";
+    const res = await window.httpClient.touchLobby(lobbyId, nextStatus, targetUserId);
+    const message = nextStatus === "away" ? "Joueur marqué absent" : "Joueur remis présent";
+    this.setStatus(res.success ? message : (res.error || "Erreur"), res.success);
+    if (res.success) {
       this.refreshGameState();
     }
   }

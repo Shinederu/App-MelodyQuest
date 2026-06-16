@@ -135,11 +135,17 @@ export class HttpService {
     });
   }
 
-  async touchLobby(lobbyId, presenceStatus = "active") {
-    return this.request(MELODY_BASE_URL, "POST", "touchLobby", {
+  async touchLobby(lobbyId, presenceStatus = "active", targetUserId = null) {
+    const payload = {
       lobby_id: lobbyId,
       presence_status: presenceStatus,
-    });
+    };
+    const targetId = Number(targetUserId || 0);
+    if (targetId > 0) {
+      payload.target_user_id = targetId;
+    }
+
+    return this.request(MELODY_BASE_URL, "POST", "touchLobby", payload);
   }
 
   touchLobbyKeepalive(lobbyId, presenceStatus = "active") {
