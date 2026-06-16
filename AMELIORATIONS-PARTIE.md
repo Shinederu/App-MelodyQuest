@@ -13,6 +13,8 @@ Passe appliquee le 2026-06-15 (`20260615-playtest-improvements`):
 - exclusion/quitte non destructif cote score;
 - solution renvoyee au joueur qui a trouve avant revelation globale;
 - historique des essais enregistre en DB et affiche selon les droits de vision;
+- historique local de saisie ajoute: fleche haut/bas reprend les dernieres
+  reponses envoyees depuis ce navigateur;
 - bloc des essais rates stabilise;
 - debut de lecture des pistes expose en management/validation;
 - equilibrage categories confirme cote API existante.

@@ -1,10 +1,12 @@
 import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
-import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260615-playtest-improvements";
-import { escapeAttribute, escapeHtml, formatPlayerRole, formatRank, renderAvatar } from "../utils/ui.js?v=20260615-playtest-improvements";
-import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=20260615-playtest-improvements";
+import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260616-answer-history";
+import { escapeAttribute, escapeHtml, formatPlayerRole, formatRank, renderAvatar } from "../utils/ui.js?v=20260616-answer-history";
+import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=20260616-answer-history";
 
 const PLAYER_VOLUME_STORAGE_KEY = "mq_game_volume";
 const PLAYER_ONLY_MODE_STORAGE_KEY = "mq_game_player_only_mode";
+const ANSWER_HISTORY_STORAGE_KEY = "mq_game_answer_history";
+const ANSWER_HISTORY_LIMIT = 50;
 const DEFAULT_PLAYER_VOLUME = 70;
 const TIMER_RING_RADIUS = 44;
 const TIMER_RING_CIRCUMFERENCE = 2 * Math.PI * TIMER_RING_RADIUS;
@@ -77,6 +79,9 @@ export class GameController {
     this.answerFocusAppliedRoundId = 0;
     this.answerFocusBlockedUntilMs = 0;
     this.solutionTrackByRoundId = new Map();
+    this.answerHistory = this.loadAnswerHistory();
+    this.answerHistoryIndex = this.answerHistory.length;
+    this.answerHistoryDraft = "";
 
     document.getElementById("btn-game-submit")?.addEventListener("click", () => this.submitAnswer());
     document.getElementById("btn-game-next")?.addEventListener("click", () => this.voteNextRound(false));
@@ -93,12 +98,8 @@ export class GameController {
     document.getElementById("btn-game-suggestion-cancel")?.addEventListener("click", () => this.closeSuggestionModal());
     document.querySelector("[data-game-suggestion-close]")?.addEventListener("click", () => this.closeSuggestionModal());
     const answerInput = document.getElementById("game-answer");
-    answerInput?.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        this.submitAnswer();
-      }
-    });
+    answerInput?.addEventListener("keydown", (event) => this.handleAnswerInputKeydown(event));
+    answerInput?.addEventListener("input", () => this.resetAnswerHistoryNavigation());
     answerInput?.addEventListener("blur", () => this.blockAnswerFocusForCurrentRound(0));
     this.pointerFocusHandler = (event) => this.handlePointerFocusBlock(event);
     this.scrollFocusHandler = () => this.blockAnswerFocusTemporarily(2500);
@@ -1284,6 +1285,106 @@ export class GameController {
     return remainingMs > 0;
   }
 
+  handleAnswerInputKeydown(event) {
+    if (event?.isComposing) {
+      return;
+    }
+
+    if (event.key === "Enter") {
+      event.preventDefault();
+      this.submitAnswer();
+      return;
+    }
+
+    if (event.key === "ArrowUp") {
+      this.navigateAnswerHistory(-1, event);
+      return;
+    }
+
+    if (event.key === "ArrowDown") {
+      this.navigateAnswerHistory(1, event);
+    }
+  }
+
+  navigateAnswerHistory(direction, event) {
+    if (!this.answerHistory.length || this.suggestionModalOpen) {
+      return;
+    }
+
+    const input = event?.target instanceof HTMLInputElement ? event.target : document.getElementById("game-answer");
+    if (!input || input.disabled) {
+      return;
+    }
+
+    event?.preventDefault();
+
+    if (this.answerHistoryIndex >= this.answerHistory.length) {
+      this.answerHistoryDraft = String(input.value || "");
+    }
+
+    const nextIndex = Math.max(0, Math.min(this.answerHistory.length, this.answerHistoryIndex + direction));
+    this.answerHistoryIndex = nextIndex;
+
+    const value = nextIndex >= this.answerHistory.length ? this.answerHistoryDraft : this.answerHistory[nextIndex];
+    input.value = value || "";
+    input.setSelectionRange?.(input.value.length, input.value.length);
+  }
+
+  resetAnswerHistoryNavigation() {
+    this.answerHistoryIndex = this.answerHistory.length;
+    this.answerHistoryDraft = "";
+  }
+
+  rememberAnswer(answer) {
+    const normalized = String(answer || "").trim();
+    if (!normalized) {
+      return;
+    }
+
+    const lower = normalized.toLowerCase();
+    this.answerHistory = this.answerHistory.filter((entry) => String(entry || "").trim().toLowerCase() !== lower);
+    this.answerHistory.push(normalized);
+    if (this.answerHistory.length > ANSWER_HISTORY_LIMIT) {
+      this.answerHistory = this.answerHistory.slice(this.answerHistory.length - ANSWER_HISTORY_LIMIT);
+    }
+    this.saveAnswerHistory();
+    this.resetAnswerHistoryNavigation();
+  }
+
+  loadAnswerHistory() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(ANSWER_HISTORY_STORAGE_KEY) || "[]");
+      if (!Array.isArray(raw)) {
+        return [];
+      }
+
+      const unique = [];
+      const seen = new Set();
+      raw.forEach((entry) => {
+        const value = String(entry || "").trim();
+        const key = value.toLowerCase();
+        if (!value || seen.has(key)) {
+          return;
+        }
+
+        seen.add(key);
+        unique.push(value);
+      });
+
+      return unique.slice(-ANSWER_HISTORY_LIMIT);
+    } catch {
+      return [];
+    }
+  }
+
+  saveAnswerHistory() {
+    try {
+      localStorage.setItem(ANSWER_HISTORY_STORAGE_KEY, JSON.stringify(this.answerHistory.slice(-ANSWER_HISTORY_LIMIT)));
+    } catch {
+      // L'historique est un confort local: le jeu doit continuer si le stockage est bloque.
+    }
+  }
+
   async submitAnswer() {
     const round = this.roundState?.round;
     if (!round) {
@@ -1313,6 +1414,8 @@ export class GameController {
       this.setAnswerFeedback("Réponse requise", "error");
       return;
     }
+
+    this.rememberAnswer(answer);
 
     const res = await window.httpClient.submitAnswer(this.getLobbyId(), answer, answer);
     if (!res.success) {
@@ -2301,6 +2404,7 @@ export class GameController {
     const input = document.getElementById("game-answer");
     if (!input) return;
     input.value = "";
+    this.resetAnswerHistoryNavigation();
   }
 
   handlePointerFocusBlock(event) {
