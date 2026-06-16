@@ -40,6 +40,14 @@ Passe appliquee le 2026-06-16 (`20260616-owner-presence`):
 - la meme action est disponible depuis le classement de partie;
 - aucune modification de strategie player.
 
+Passe appliquee le 2026-06-16 (`20260616-answer-visibility`):
+
+- derniers essais rates visibles limites a 5;
+- affichage joueur des reponses limite aux reponses validees ayant donne des points;
+- historique complet des tentatives conserve cote API/DB pour un futur usage admin/statistiques;
+- joueurs absents credites de 10% des points du premier joueur qui trouve la manche;
+- aucune modification de strategie player.
+
 Points encore a affiner apres nouveaux tests reels:
 
 - qualite exacte des delais d'inactivite (`MQ_PLAYER_INACTIVE_TIMEOUT_SECONDS`);

@@ -1,7 +1,7 @@
 import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
-import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260616-owner-presence";
-import { escapeAttribute, escapeHtml, formatPlayerRole, formatRank, renderAvatar } from "../utils/ui.js?v=20260616-owner-presence";
-import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=20260616-owner-presence";
+import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260616-answer-visibility";
+import { escapeAttribute, escapeHtml, formatPlayerRole, formatRank, renderAvatar } from "../utils/ui.js?v=20260616-answer-visibility";
+import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=20260616-answer-visibility";
 
 const PLAYER_VOLUME_STORAGE_KEY = "mq_game_volume";
 const PLAYER_ONLY_MODE_STORAGE_KEY = "mq_game_player_only_mode";
@@ -982,11 +982,8 @@ export class GameController {
     const list = document.getElementById("game-answer-history");
     if (!panel || !list) return;
 
-    const attempts = this.getVisibleAnswerAttempts()
-      .filter((answer) => String(answer?.guess_title || answer?.guess_artist || "").trim())
-      .slice(-12)
-      .reverse();
-    const canShow = Number(round?.id || 0) > 0 && attempts.length > 0 && (answerClosed || hasCorrectAnswer);
+    const winningAnswers = this.getVisibleWinningAnswers().reverse();
+    const canShow = Number(round?.id || 0) > 0 && winningAnswers.length > 0 && (answerClosed || hasCorrectAnswer);
 
     panel.hidden = !canShow;
     if (!canShow) {
@@ -994,15 +991,12 @@ export class GameController {
       return;
     }
 
-    list.innerHTML = attempts.map((answer) => {
-      const isCorrect = Number(answer?.is_correct || 0) === 1 || Number(answer?.score_awarded || 0) > 0;
-      return `
-        <li class="mq-missed-answer ${isCorrect ? "is-correct" : ""}">
-          <span>${this.escapeHtml(answer.username || "Joueur")}</span>
-          <strong>${this.escapeHtml(answer.guess_title || answer.guess_artist || "Réponse vide")}</strong>
-        </li>
-      `;
-    }).join("");
+    list.innerHTML = winningAnswers.map((answer) => `
+      <li class="mq-missed-answer is-correct">
+        <span>${this.escapeHtml(answer.username || "Joueur")} · +${Number(answer.score_awarded || 0)} pt</span>
+        <strong>${this.escapeHtml(answer.guess_title || answer.guess_artist || "Réponse validée")}</strong>
+      </li>
+    `).join("");
   }
 
   getVisibleAnswerAttempts() {
@@ -1014,6 +1008,21 @@ export class GameController {
     }
 
     return Array.isArray(this.roundState?.answers) ? this.roundState.answers : [];
+  }
+
+  getVisibleWinningAnswers() {
+    const answers = Array.isArray(this.roundState?.answers)
+      ? this.roundState.answers
+      : [];
+
+    return answers
+      .filter((answer) => Number(answer?.score_awarded || 0) > 0)
+      .filter((answer) => String(answer?.guess_title || answer?.guess_artist || "").trim())
+      .sort((a, b) => {
+        const aTime = Date.parse(a?.answered_at || "") || 0;
+        const bTime = Date.parse(b?.answered_at || "") || 0;
+        return aTime - bTime;
+      });
   }
 
   renderRevealVotePhase(round, isAvailable) {
