@@ -55,6 +55,13 @@ Passe appliquee le 2026-06-16 (`20260616-game-action-layout`):
 - colonne droite allegee: elle garde le vote de manche suivante, les infos du salon, le classement et les outils;
 - aucune modification de strategie player.
 
+Correctif applique le 2026-06-16 (`20260616-game-layout-scroll-fix`):
+
+- la zone sous la video garde uniquement la saisie ou la solution;
+- les blocs `Personne ne trouve ?`, `Derniers essais rates` et `Reponses validees` reviennent dans la colonne laterale;
+- le scroll de secours est reactive sur desktop pour eviter qu'une page de jeu devienne bloquee sur les ecrans courts;
+- aucune modification de strategie player.
+
 Points encore a affiner apres nouveaux tests reels:
 
 - qualite exacte des delais d'inactivite (`MQ_PLAYER_INACTIVE_TIMEOUT_SECONDS`);

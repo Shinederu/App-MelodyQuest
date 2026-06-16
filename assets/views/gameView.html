@@ -63,6 +63,19 @@
           </div>
         </div>
 
+      </section>
+
+      <div class="mq-video-toolbar">
+        <label class="mq-volume-control" for="game-volume">
+          <span>Volume</span>
+          <input id="game-volume" type="range" min="0" max="100" step="1" value="70" />
+        </label>
+        <span id="game-volume-value" class="mq-chip">70%</span>
+      </div>
+    </section>
+
+    <aside class="mq-game-side">
+      <section id="game-round-side-panel" class="mq-card mq-game-round-card" hidden>
         <div id="game-reveal-vote" class="mq-game-note mq-game-reveal-vote" hidden>
           <strong>Personne ne trouve ?</strong>
           <p id="game-reveal-vote-info" class="mq-muted"></p>
@@ -83,16 +96,6 @@
         </div>
       </section>
 
-      <div class="mq-video-toolbar">
-        <label class="mq-volume-control" for="game-volume">
-          <span>Volume</span>
-          <input id="game-volume" type="range" min="0" max="100" step="1" value="70" />
-        </label>
-        <span id="game-volume-value" class="mq-chip">70%</span>
-      </div>
-    </section>
-
-    <aside class="mq-game-side">
       <section id="game-next-panel" class="mq-card mq-game-vote-panel" hidden>
         <div>
           <p class="mq-section-label">Suite de la partie</p>

@@ -668,6 +668,7 @@ export class GameController {
     if (!round) {
       this.renderPlayerOnlyRoundSummary(null);
       this.renderVideo(null, false);
+      this.clearRoundSidePanels();
       if (String(this.currentLobby?.status || "").toLowerCase() === "finished") {
         this.finishToResult(this.scoreboard || []);
         return;
@@ -700,6 +701,7 @@ export class GameController {
     this.renderMissedAnswerPhase(round);
     this.renderAnswerHistoryPhase(round, answerClosed, hasCorrectAnswer);
     this.renderRevealVotePhase(round, earlyRevealAvailable);
+    this.updateRoundSidePanelVisibility();
     this.renderVotePhase(round, answerClosed, nextVoteAvailable);
 
     if (answerClosed && !this.roundRefreshRequested) {
@@ -1070,6 +1072,29 @@ export class GameController {
     summary.textContent = `${voteCount} / ${requiredCount} votes pour révéler la réponse`;
     button.disabled = hasVoted || this.revealVoteRequestInFlight;
     button.textContent = hasVoted ? "Vote enregistré" : "Révéler la réponse";
+  }
+
+  clearRoundSidePanels() {
+    const panel = document.getElementById("game-round-side-panel");
+    if (panel) {
+      panel.hidden = true;
+    }
+
+    ["game-reveal-vote", "game-missed-panel", "game-answer-history-panel"].forEach((id) => {
+      const child = document.getElementById(id);
+      if (child) {
+        child.hidden = true;
+      }
+    });
+  }
+
+  updateRoundSidePanelVisibility() {
+    const panel = document.getElementById("game-round-side-panel");
+    if (!panel) return;
+
+    const hasVisibleChild = Array.from(panel.querySelectorAll(".mq-game-note"))
+      .some((child) => !child.hidden);
+    panel.hidden = !hasVisibleChild;
   }
 
   renderVotePhase(round, answerClosed, nextVoteAvailable) {

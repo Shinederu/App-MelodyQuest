@@ -1952,6 +1952,7 @@ input[type="range"] {
 .mq-game-page.is-player-only-mode #game-round-category,
 .mq-game-page.is-player-only-mode #game-solution,
 .mq-game-page.is-player-only-mode .mq-game-info-card,
+.mq-game-page.is-player-only-mode .mq-game-round-card,
 .mq-game-page.is-player-only-mode .mq-game-missed-panel,
 .mq-game-page.is-player-only-mode .mq-game-answer-history-panel {
   display: none;
@@ -1993,6 +1994,7 @@ input[type="range"] {
 
 .mq-game-answer-card,
 .mq-game-info-card,
+.mq-game-round-card,
 .mq-game-vote-panel {
   padding: 18px;
 }
@@ -2026,6 +2028,11 @@ input[type="range"] {
 
 .mq-game-stage-action #game-answer-locked > .mq-actions {
   margin-top: 4px;
+}
+
+.mq-game-round-card {
+  display: grid;
+  gap: 10px;
 }
 
 .mq-game-info-grid {
@@ -2090,6 +2097,7 @@ input[type="range"] {
 }
 
 .mq-game-note[hidden],
+.mq-game-round-card[hidden],
 .mq-game-reveal-vote[hidden],
 .mq-game-missed-panel[hidden],
 #game-answer-locked[hidden],
@@ -2116,15 +2124,15 @@ input[type="range"] {
 }
 
 .mq-game-reveal-vote {
-  margin-top: 12px;
+  margin-top: 0;
 }
 
 .mq-game-missed-panel {
-  margin-top: 12px;
+  margin-top: 0;
 }
 
 .mq-game-answer-history-panel {
-  margin-top: 12px;
+  margin-top: 0;
 }
 
 .mq-game-vote-panel {
@@ -2667,7 +2675,8 @@ body:has(.mq-tv-page) #footer {
 @media (min-width: 1180px) {
   body:has(.mq-game-page) {
     padding: 12px;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   body:has(.mq-game-page) #header,
@@ -2706,7 +2715,7 @@ body:has(.mq-tv-page) #footer {
 
   body:has(.mq-game-page) .mq-game-stage {
     padding: 12px;
-    overflow: hidden;
+    overflow: auto;
   }
 
   body:has(.mq-game-page) .mq-game-side {
@@ -2719,6 +2728,7 @@ body:has(.mq-tv-page) #footer {
 
   body:has(.mq-game-page) .mq-game-answer-card,
   body:has(.mq-game-page) .mq-game-info-card,
+  body:has(.mq-game-page) .mq-game-round-card,
   body:has(.mq-game-page) .mq-game-vote-panel {
     padding: 13px;
   }
@@ -2742,10 +2752,7 @@ body:has(.mq-tv-page) #footer {
 
   body:has(.mq-game-page) .mq-game-stage-action #game-player-mode-summary,
   body:has(.mq-game-page) .mq-game-stage-action #game-answer-shell,
-  body:has(.mq-game-page) .mq-game-stage-action #game-answer-locked,
-  body:has(.mq-game-page) .mq-game-stage-action #game-reveal-vote,
-  body:has(.mq-game-page) .mq-game-stage-action #game-missed-panel,
-  body:has(.mq-game-page) .mq-game-stage-action #game-answer-history-panel {
+  body:has(.mq-game-page) .mq-game-stage-action #game-answer-locked {
     grid-column: 1 / -1;
   }
 
@@ -2769,6 +2776,7 @@ body:has(.mq-tv-page) #footer {
 
   body:has(.mq-game-page) .mq-game-answer-card input,
   body:has(.mq-game-page) .mq-game-answer-card button,
+  body:has(.mq-game-page) .mq-game-round-card button,
   body:has(.mq-game-page) .mq-game-vote-panel button {
     min-height: 40px;
   }
@@ -2920,6 +2928,7 @@ body:has(.mq-tv-page) #footer {
 
   body:has(.mq-game-page) .mq-game-answer-card,
   body:has(.mq-game-page) .mq-game-info-card,
+  body:has(.mq-game-page) .mq-game-round-card,
   body:has(.mq-game-page) .mq-game-vote-panel {
     padding: 10px;
   }
@@ -2958,18 +2967,21 @@ body:has(.mq-tv-page) #footer {
 
   body:has(.mq-game-page) .mq-game-answer-card input,
   body:has(.mq-game-page) .mq-game-answer-card button,
+  body:has(.mq-game-page) .mq-game-round-card button,
   body:has(.mq-game-page) .mq-game-vote-panel button {
     min-height: 36px;
   }
 
   body:has(.mq-game-page) .mq-game-reveal-vote,
-  body:has(.mq-game-page) .mq-game-missed-panel {
-    margin-top: 8px;
+  body:has(.mq-game-page) .mq-game-missed-panel,
+  body:has(.mq-game-page) .mq-game-answer-history-panel {
+    margin-top: 0;
     padding: 9px;
   }
 
   body:has(.mq-game-page) .mq-game-reveal-vote p,
   body:has(.mq-game-page) .mq-game-missed-panel p,
+  body:has(.mq-game-page) .mq-game-answer-history-panel p,
   body:has(.mq-game-page) .mq-game-vote-panel p {
     margin: 0;
   }
@@ -3563,7 +3575,12 @@ body:has(.mq-tv-page) #footer {
   }
 
   body:has(.mq-game-page) .mq-game-info-card {
-    order: 3;
+    order: 5;
+    padding: 12px;
+  }
+
+  body:has(.mq-game-page) .mq-game-round-card {
+    order: 4;
     padding: 12px;
   }
 
@@ -3599,7 +3616,7 @@ body:has(.mq-tv-page) #footer {
   }
 
   body:has(.mq-game-page) .mq-game-vote-panel {
-    order: 4;
+    order: 6;
     padding: 12px;
   }
 
