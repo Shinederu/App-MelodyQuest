@@ -1,5 +1,5 @@
 import { setCurrentLobby } from "../utils/LobbyState.js";
-import { escapeAttribute, escapeHtml } from "../utils/ui.js?v=20260610-shared-utils";
+import { escapeAttribute, escapeHtml } from "../utils/ui.js?v=20260616-answer-default-80";
 
 export class MainController {
   constructor() {
@@ -70,7 +70,7 @@ export class MainController {
       guess_mode: "title",
       show_track_category: false,
       allow_early_reveal_vote: true,
-      answer_similarity_threshold: 100,
+      answer_similarity_threshold: 80,
     });
 
     this.setStatus(res.success ? "Salon créé" : (res.error || "Erreur"), res.success);

@@ -1,11 +1,12 @@
 import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
-import { escapeAttribute, escapeHtml, formatPlayerRole, renderAvatar } from "../utils/ui.js?v=20260616-game-flow-fixes";
+import { escapeAttribute, escapeHtml, formatPlayerRole, renderAvatar } from "../utils/ui.js?v=20260616-answer-default-80";
 
 const MIN_TOTAL_ROUNDS = 1;
 const MAX_TOTAL_ROUNDS = 1000;
 const MIN_ROUND_DURATION = 1;
 const MAX_ROUND_DURATION = 600;
 const MIN_ANSWER_THRESHOLD = 70;
+const DEFAULT_ANSWER_THRESHOLD = 80;
 const MAX_ANSWER_THRESHOLD = 100;
 
 export class LobbyController {
@@ -810,8 +811,8 @@ export class LobbyController {
   }
 
   normalizeAnswerThreshold(value) {
-    const parsed = Number.parseInt(String(value ?? MAX_ANSWER_THRESHOLD).trim(), 10);
-    if (!Number.isFinite(parsed)) return MAX_ANSWER_THRESHOLD;
+    const parsed = Number.parseInt(String(value ?? DEFAULT_ANSWER_THRESHOLD).trim(), 10);
+    if (!Number.isFinite(parsed)) return DEFAULT_ANSWER_THRESHOLD;
     return Math.max(MIN_ANSWER_THRESHOLD, Math.min(MAX_ANSWER_THRESHOLD, parsed));
   }
 

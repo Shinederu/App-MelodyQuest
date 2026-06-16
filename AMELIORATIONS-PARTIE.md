@@ -28,6 +28,12 @@ Passe appliquee le 2026-06-16 (`20260616-game-flow-fixes`):
 - exclusion joueur disponible depuis le lobby et depuis le classement de partie;
 - ecran resultat redirige automatiquement vers le jeu si le createur relance une partie.
 
+Passe appliquee le 2026-06-16 (`20260616-answer-default-80`):
+
+- nouveaux salons crees avec une precision de validation des reponses a `80%` par defaut;
+- fallback de l'ecran de reglages aligne sur `80%`;
+- aucune modification de strategie player.
+
 Points encore a affiner apres nouveaux tests reels:
 
 - qualite exacte des delais d'inactivite (`MQ_PLAYER_INACTIVE_TIMEOUT_SECONDS`);
