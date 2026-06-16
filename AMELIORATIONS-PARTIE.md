@@ -69,6 +69,14 @@ Correctif applique le 2026-06-16 (`20260616-player-menu-cleanup`):
 - actions createur sur les joueurs masquees derriere un menu compact dans le lobby et en partie;
 - aucune modification de strategie player.
 
+Correctif applique le 2026-06-16 (`20260616-game-header-tools-fit`):
+
+- titre redondant de la carte reponse retire;
+- boutons `Partager` et `Lier une TV` deplaces dans les actions principales de la manche;
+- actions principales compactees en grille sur mobile;
+- colonne droite raccourcie pour se concentrer sur manche, classement et panneaux de vote;
+- aucune modification de strategie player.
+
 Points encore a affiner apres nouveaux tests reels:
 
 - qualite exacte des delais d'inactivite (`MQ_PLAYER_INACTIVE_TIMEOUT_SECONDS`);

@@ -2212,18 +2212,6 @@ input[type="range"] {
   font-size: 1.06rem;
 }
 
-.mq-game-tools {
-  display: grid;
-  gap: 8px;
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid var(--mq-line);
-}
-
-.mq-game-tools p {
-  margin: 0;
-}
-
 .mq-missed-answer-list {
   gap: 6px;
 }
@@ -2807,23 +2795,10 @@ body:has(.mq-tv-page) #footer {
     display: none;
   }
 
-  body:has(.mq-game-page) .mq-game-stage-action:has(#game-answer-shell:not([hidden])) {
-    grid-template-columns: minmax(180px, 0.42fr) minmax(320px, 1fr);
-    align-items: end;
-  }
-
-  body:has(.mq-game-page) .mq-game-stage-action:has(#game-answer-shell:not([hidden])) .mq-card-heading {
-    align-self: center;
-  }
-
   body:has(.mq-game-page) .mq-game-stage-action #game-player-mode-summary,
   body:has(.mq-game-page) .mq-game-stage-action #game-answer-shell,
   body:has(.mq-game-page) .mq-game-stage-action #game-answer-locked {
     grid-column: 1 / -1;
-  }
-
-  body:has(.mq-game-page) .mq-game-stage-action:has(#game-answer-shell:not([hidden])) #game-answer-shell {
-    grid-column: 2;
   }
 
   body:has(.mq-game-page) .mq-game-answer-card .mq-form-stack,
@@ -3017,10 +2992,6 @@ body:has(.mq-tv-page) #footer {
 
   body:has(.mq-game-page) #game-answer-shell {
     gap: 6px;
-  }
-
-  body:has(.mq-game-page) .mq-game-stage-action:has(#game-answer-shell:not([hidden])) {
-    grid-template-columns: minmax(130px, 0.34fr) minmax(260px, 1fr);
   }
 
   body:has(.mq-game-page) #game-answer-shell label {
@@ -3503,16 +3474,22 @@ body:has(.mq-tv-page) #footer {
   }
 
   body:has(.mq-game-page) .mq-game-stage__head .mq-actions {
-    width: auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
     margin-top: 0;
-    flex: 0 0 auto;
-    flex-direction: row;
+    flex: 1 1 auto;
+    gap: 7px;
   }
 
   body:has(.mq-game-page) .mq-game-stage__head button {
-    width: auto;
+    width: 100%;
     min-height: 34px;
     padding: 0 10px;
+  }
+
+  body:has(.mq-game-page) #btn-game-leave {
+    grid-column: 1 / -1;
   }
 
   body:has(.mq-game-page) .mq-video-shell {

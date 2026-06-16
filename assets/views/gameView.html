@@ -6,6 +6,8 @@
         <div class="mq-actions">
           <button id="btn-game-player-mode" type="button" class="mq-secondary" aria-pressed="false">Mode joueur</button>
           <button id="btn-game-away" type="button" class="mq-secondary">Me mettre absent</button>
+          <button id="btn-game-share-lobby" type="button" class="mq-secondary">Partager</button>
+          <button id="btn-game-link-tv" type="button" class="mq-secondary">Lier une TV</button>
           <button id="btn-game-leave" type="button" class="mq-danger">Quitter le salon</button>
         </div>
       </div>
@@ -33,12 +35,6 @@
       <div id="game-round-category" class="mq-game-category" hidden></div>
 
       <section class="mq-card mq-game-answer-card mq-game-stage-action">
-        <div class="mq-card-heading">
-          <div class="mq-kicker">Action principale</div>
-          <h2 id="game-answer-title">Ta réponse</h2>
-          <p id="game-answer-copy" class="mq-card-copy">Tape ta réponse ici pendant que la vidéo reste cachée.</p>
-        </div>
-
         <div id="game-player-mode-summary" class="mq-game-player-summary" hidden></div>
 
         <div id="game-answer-shell" class="mq-form-stack">
@@ -131,17 +127,6 @@
           <h3>Classement</h3>
         </div>
         <ul id="game-scoreboard" class="mq-clean-list"></ul>
-
-        <div class="mq-game-tools">
-          <div>
-            <p class="mq-section-label">Outils</p>
-            <p class="mq-muted">Invitation et écran TV.</p>
-          </div>
-          <div class="mq-actions mq-actions--compact mq-actions--full">
-            <button id="btn-game-share-lobby" type="button" class="mq-secondary mq-button-block">Partager le salon</button>
-            <button id="btn-game-link-tv" type="button" class="mq-secondary mq-button-block">Lier une TV</button>
-          </div>
-        </div>
       </section>
     </aside>
   </section>
