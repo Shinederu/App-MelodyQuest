@@ -10,8 +10,8 @@ Ce depot contient uniquement le client navigateur. Le backend source vit dans `P
 
 Le projet est mis en pause dans un etat stable de reprise. Les changements applicatifs de reference ont restaure le mode TV sur un lecteur YouTube iframe simple, puis une passe player a reduit le buffering sans retenter le double lecteur:
 
-- cache-bust JS courant: `20260617-game-action-compact`;
-- cache-bust CSS courant: `20260617-game-action-compact`;
+- cache-bust JS courant: `20260617-game-action-compact-v2`;
+- cache-bust CSS courant: `20260617-game-action-compact-v2`;
 - commit frontend applicatif de reference: `295dd11 Restore basic MelodyQuest TV player`;
 - commit API applicatif de reference: `28dbdda Remove MelodyQuest TV ready playback flow`;
 - fichiers deployes dans `P:\PROD\MelodyQuest` et `P:\PROD\API\melodyquest`.
@@ -44,7 +44,7 @@ Passe nettoyage classement 2026-06-16: le cache-bust `20260616-player-menu-clean
 
 Passe outils de manche 2026-06-16: le cache-bust `20260616-game-header-tools-fit` supprime le titre redondant de la carte de reponse, deplace `Partager` / `Lier une TV` dans les actions principales de manche et compacte ces actions en grille sur mobile. Le lecteur reste inchange.
 
-Passe actions compactes 2026-06-17: le cache-bust `20260617-game-action-compact` corrige la superposition des menus d'action joueur dans le classement et compacte les blocs de vote revelation/suite de manche pour reduire les textes repetitifs. Le lecteur reste inchange.
+Passe actions compactes 2026-06-17: le cache-bust `20260617-game-action-compact-v2` corrige la superposition des menus d'action joueur dans le classement et compacte les blocs de vote revelation/suite de manche pour reduire les textes repetitifs. Le lecteur reste inchange.
 
 Dernieres verifications connues:
 
