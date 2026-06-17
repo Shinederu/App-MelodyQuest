@@ -2771,6 +2771,15 @@ body:has(.mq-tv-page) #footer {
   overflow: hidden;
 }
 
+.mq-tv-layout--passive {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.mq-tv-stage--passive .mq-tv-video-shell {
+  width: min(100%, calc((100dvh - (var(--tv-pad) * 2) - (var(--tv-card-pad) * 2) - 148px) * 16 / 9));
+}
+
 .mq-tv-video-card {
   min-width: 0;
   min-height: 0;
@@ -2925,6 +2934,10 @@ body:has(.mq-tv-page) #footer {
   .mq-tv-layout {
     grid-template-columns: 1fr;
     grid-template-rows: minmax(0, 1fr) minmax(120px, 30dvh);
+  }
+
+  .mq-tv-layout--passive {
+    grid-template-rows: minmax(0, 1fr);
   }
 
   .mq-tv-side .mq-card {

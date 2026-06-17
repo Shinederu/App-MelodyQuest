@@ -1,7 +1,7 @@
-import { renderQrSvg } from "../utils/qr.js?v=20260613-backend-late-sync";
-import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260613-backend-late-sync";
-import { escapeHtml, renderAvatar } from "../utils/ui.js?v=20260613-backend-late-sync";
-import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=20260613-backend-late-sync";
+import { renderQrSvg } from "../utils/qr.js?v=20260617-passive-tv-cleanup";
+import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260617-passive-tv-cleanup";
+import { escapeHtml, renderAvatar } from "../utils/ui.js?v=20260617-passive-tv-cleanup";
+import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=20260617-passive-tv-cleanup";
 
 const TV_TOKEN_STORAGE_KEY = "mq_tv_device_token";
 const TV_PAIRING_POLL_INTERVAL_MS = 1000;
@@ -298,10 +298,38 @@ export class TvController {
       this.lastRoundPresentationKey = "";
     }
 
+    this.renderMode();
     this.renderLobby(revisionChanged || roundChanged);
     this.renderPlayers(revisionChanged || roundChanged);
     this.updateRoundPresentation(revisionChanged || roundChanged);
     this.startTimer();
+  }
+
+  isPassiveMode() {
+    return String(this.snapshot?.lobby?.game_mode || "participative") === "autoplay";
+  }
+
+  renderMode() {
+    const isPassive = this.isPassiveMode();
+    const stage = document.getElementById("tv-stage");
+    const layout = document.querySelector(".mq-tv-layout");
+    const scoreboardPanel = document.getElementById("tv-scoreboard-panel");
+    const scoreboard = document.getElementById("tv-scoreboard");
+
+    stage?.classList.toggle("mq-tv-stage--passive", isPassive);
+    layout?.classList.toggle("mq-tv-layout--passive", isPassive);
+
+    if (scoreboardPanel) {
+      scoreboardPanel.hidden = isPassive;
+      scoreboardPanel.setAttribute("aria-hidden", isPassive ? "true" : "false");
+    }
+
+    if (isPassive) {
+      this.lastRenderedPlayersKey = "";
+      if (scoreboard) {
+        scoreboard.innerHTML = "";
+      }
+    }
   }
 
   renderLobby(force = false) {
@@ -314,6 +342,7 @@ export class TvController {
       lobby.id,
       lobby.name,
       lobby.lobby_code,
+      lobby.game_mode,
       lobby.total_rounds,
       lobby.current_round_number,
       round?.id,
@@ -341,6 +370,10 @@ export class TvController {
   renderPlayers(force = false) {
     const list = document.getElementById("tv-scoreboard");
     if (!list) return;
+    if (this.isPassiveMode()) {
+      list.innerHTML = "";
+      return;
+    }
 
     const answers = this.snapshot?.round?.answers || [];
     const solvedUsers = new Set(answers
