@@ -1,5 +1,5 @@
-import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
-import { escapeAttribute, escapeHtml, formatPlayerRole, renderAvatar } from "../utils/ui.js?v=20260617-lobby-mode-switch";
+﻿import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
+import { escapeAttribute, escapeHtml, formatPlayerRole, renderAvatar } from "../utils/ui.js?v=20260617-lobby-mode-review";
 
 const MIN_TOTAL_ROUNDS = 1;
 const MAX_TOTAL_ROUNDS = 1000;

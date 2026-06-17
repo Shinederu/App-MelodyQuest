@@ -1,5 +1,5 @@
-import { setCurrentLobby } from "../utils/LobbyState.js";
-import { escapeHtml } from "../utils/ui.js?v=20260617-lobby-mode-switch";
+﻿import { setCurrentLobby } from "../utils/LobbyState.js";
+import { escapeHtml } from "../utils/ui.js?v=20260617-lobby-mode-review";
 
 const DEFAULT_AUTOPLAY_ROUNDS = 10;
 const DEFAULT_LISTEN_SECONDS = 30;
@@ -156,7 +156,7 @@ export class AutoplaySetupController {
     }
 
     setCurrentLobby(res.data.lobby);
-    window.appCtrl.changeView("autoplay");
+    window.appCtrl.changeView("lobby");
   }
 
   getSelectedCategoryIds() {

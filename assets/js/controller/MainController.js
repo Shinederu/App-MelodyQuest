@@ -1,10 +1,20 @@
-import { setCurrentLobby } from "../utils/LobbyState.js";
-import { escapeAttribute, escapeHtml } from "../utils/ui.js?v=20260617-lobby-mode-switch";
+﻿import { setCurrentLobby } from "../utils/LobbyState.js";
+import { escapeAttribute, escapeHtml } from "../utils/ui.js?v=20260617-lobby-mode-review";
 
 const MAIN_MODE_STORAGE_KEY = "mq_main_game_mode";
 const GAME_MODES = {
   active: "participative",
   passive: "autoplay",
+};
+const ACTIVE_DEFAULTS = {
+  rounds: 5,
+  listenSeconds: 30,
+  revealSeconds: 10,
+};
+const PASSIVE_DEFAULTS = {
+  rounds: 10,
+  listenSeconds: 30,
+  revealSeconds: 10,
 };
 
 export class MainController {
@@ -72,16 +82,17 @@ export class MainController {
     );
     const isPublic = document.getElementById("main-lobby-public")?.checked !== false;
     const gameMode = this.mode;
+    const defaults = this.isPassiveMode() ? PASSIVE_DEFAULTS : ACTIVE_DEFAULTS;
 
     const res = await window.httpClient.createLobby({
       name: lobbyName,
       visibility: isPublic ? "public" : "private",
       game_mode: gameMode,
       max_players: 8,
-      round_duration_seconds: this.isPassiveMode() ? 30 : 30,
-      reveal_duration_seconds: this.isPassiveMode() ? 10 : 10,
-      total_rounds: this.isPassiveMode() ? 10 : 5,
-      guess_mode: this.isPassiveMode() ? "title" : "title",
+      round_duration_seconds: defaults.listenSeconds,
+      reveal_duration_seconds: defaults.revealSeconds,
+      total_rounds: defaults.rounds,
+      guess_mode: "title",
       show_track_category: this.isPassiveMode(),
       allow_early_reveal_vote: !this.isPassiveMode(),
       answer_similarity_threshold: 80,
@@ -149,7 +160,7 @@ export class MainController {
         if (!this.shouldApplyRealtimePayload(payload)) {
           return;
         }
-        this.renderLobbyList(this.filterLobbiesByMode(payload?.items ?? []));
+        this.renderLobbyList(payload?.items ?? []);
       });
       this.stream.onerror = () => this.handleMercureError();
       return true;
@@ -225,6 +236,7 @@ export class MainController {
     const modeCopy = document.getElementById("main-mode-copy");
     const createTitle = document.getElementById("main-create-title");
     const nameInput = document.getElementById("main-lobby-name");
+    const publicLabel = document.getElementById("main-lobby-public-label");
     const publicTitle = document.getElementById("main-public-title");
     const publicCopy = document.getElementById("main-public-copy");
 
@@ -235,6 +247,11 @@ export class MainController {
 
     if (nameInput) {
       nameInput.placeholder = passive ? "Blindtest passif du soir" : "Blindtest du vendredi";
+    }
+    if (publicLabel) {
+      publicLabel.textContent = passive
+        ? "Visible dans la liste des écoutes publiques"
+        : "Visible dans la liste des salons publics";
     }
     if (modeCopy) {
       modeCopy.textContent = passive
