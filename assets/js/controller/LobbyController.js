@@ -1,5 +1,5 @@
-﻿import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
-import { escapeAttribute, escapeHtml, formatPlayerRole, renderAvatar } from "../utils/ui.js?v=20260617-lobby-mode-review";
+import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
+import { escapeAttribute, escapeHtml, formatPlayerRole, renderAvatar } from "../utils/ui.js?v=20260617-launch-fullscreen";
 
 const MIN_TOTAL_ROUNDS = 1;
 const MAX_TOTAL_ROUNDS = 1000;
@@ -732,6 +732,65 @@ export class LobbyController {
     window.appCtrl.changeView("tv-link?from=lobby");
   }
 
+  requestLaunchFullscreen() {
+    if (this.isFullscreenActive()) {
+      return null;
+    }
+
+    const target = document.documentElement;
+    if (!target) {
+      return null;
+    }
+
+    try {
+      if (typeof target.requestFullscreen === "function") {
+        const result = target.requestFullscreen({ navigationUI: "hide" });
+        return result && typeof result.catch === "function" ? result.catch(() => {}) : Promise.resolve();
+      }
+      if (typeof target.webkitRequestFullscreen === "function") {
+        const result = target.webkitRequestFullscreen();
+        return result && typeof result.catch === "function" ? result.catch(() => {}) : Promise.resolve();
+      }
+      if (typeof target.msRequestFullscreen === "function") {
+        const result = target.msRequestFullscreen();
+        return result && typeof result.catch === "function" ? result.catch(() => {}) : Promise.resolve();
+      }
+    } catch {
+      return null;
+    }
+
+    return null;
+  }
+
+  isFullscreenActive() {
+    return Boolean(
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.msFullscreenElement
+    );
+  }
+
+  rollbackLaunchFullscreen(fullscreenRequest) {
+    if (!fullscreenRequest || typeof fullscreenRequest.then !== "function") {
+      return;
+    }
+
+    fullscreenRequest.then(() => {
+      if (!this.isFullscreenActive()) {
+        return;
+      }
+
+      try {
+        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        if (typeof exit === "function") {
+          exit.call(document);
+        }
+      } catch {
+        // Le plein ecran est une amelioration de confort, jamais un prerequis.
+      }
+    });
+  }
+
   async startGame() {
     const lobbyId = this.getLobbyId();
     if (!lobbyId) return;
@@ -745,6 +804,8 @@ export class LobbyController {
       return;
     }
 
+    const fullscreenRequest = this.requestLaunchFullscreen();
+
     if (this.configSaveTimeout) {
       clearTimeout(this.configSaveTimeout);
       this.configSaveTimeout = null;
@@ -752,6 +813,7 @@ export class LobbyController {
     if (this.configDirty || this.configSaveInFlight) {
       await this.saveConfig();
       if (this.configSaveInFlight || this.configDirty) {
+        this.rollbackLaunchFullscreen(fullscreenRequest);
         return;
       }
     }
@@ -761,6 +823,8 @@ export class LobbyController {
     if (res.success) {
       localStorage.removeItem("mq_last_scoreboard");
       window.appCtrl.changeView(this.getPlayRoute());
+    } else {
+      this.rollbackLaunchFullscreen(fullscreenRequest);
     }
   }
 
