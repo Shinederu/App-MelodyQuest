@@ -1,5 +1,5 @@
-﻿import { setCurrentLobby } from "../utils/LobbyState.js";
-import { escapeAttribute, escapeHtml } from "../utils/ui.js?v=20260617-lobby-mode-review";
+import { setCurrentLobby } from "../utils/LobbyState.js";
+import { escapeAttribute, escapeHtml } from "../utils/ui.js?v=20260617-category-default-visible";
 
 const MAIN_MODE_STORAGE_KEY = "mq_main_game_mode";
 const GAME_MODES = {
@@ -93,7 +93,7 @@ export class MainController {
       reveal_duration_seconds: defaults.revealSeconds,
       total_rounds: defaults.rounds,
       guess_mode: "title",
-      show_track_category: this.isPassiveMode(),
+      show_track_category: true,
       allow_early_reveal_vote: !this.isPassiveMode(),
       answer_similarity_threshold: 80,
     });
