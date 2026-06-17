@@ -111,6 +111,13 @@ export class LobbyController {
     this.currentLobby = detail.data.lobby;
     this.realtimeConfig = detail.data?.realtime ?? null;
     setCurrentLobby(this.currentLobby);
+
+    if (String(this.currentLobby.game_mode || "participative") === "autoplay") {
+      this.stopHeartbeat();
+      window.appCtrl.changeView("autoplay");
+      return;
+    }
+
     this.renderLobby(detail.data);
     await this.refreshRoundState(true);
     this.startRealtime();

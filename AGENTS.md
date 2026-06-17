@@ -55,7 +55,7 @@ Le dossier `output/` n'est pas requis par l'application. S'il reapparait vide, l
 Les routes sont gerees par hash dans `assets/js/controller/AppController.js`.
 
 - Publiques: `#/public`, `#/suggest-track`, `/tv`
-- Authentifiees: `#/main`, `#/lobby-list`, `#/lobby`, `#/game`, `#/result`, `#/tv-link`
+- Authentifiees: `#/main`, `#/autoplay-setup`, `#/autoplay`, `#/lobby-list`, `#/lobby`, `#/game`, `#/result`, `#/tv-link`
 - Admin catalogue: `#/management`, `#/management-categories`, `#/management-families`, `#/management-tracks`, `#/management-validation`, `#/management-suggestions`
 
 Conserver les redirections existantes:
@@ -70,6 +70,7 @@ Conserver les redirections existantes:
 - Login/register/logout via le package `@shinederu/auth-core` fourni par `Module-Auth-Core`.
 - Creation/rejoindre lobby public ou prive.
 - Reglages lobby: categories, timer, manches, visibilite, categorie visible, vote de revelation, seuil de precision.
+- Mode automatique separe: configuration categories/timers, lecture en chaine, aucune saisie, aucun score.
 - Jeu desktop/mobile avec video cachee, reponse, classement, timer, partage, suggestions de correction.
 - Mode joueur de salon sans lecteur video local.
 - Mode TV avec QR code, liaison `tv-link`, son actif et lecteur YouTube simple. Les optimisations de prechargement TV precedentes sont abandonnees pour l'instant.

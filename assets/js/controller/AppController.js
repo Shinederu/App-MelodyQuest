@@ -1,26 +1,28 @@
-import { HttpService } from "../utils/HttpService.js?v=20260617-game-action-compact-v2";
-import { HeaderModel } from "../model/HeaderModel.js?v=20260617-game-action-compact-v2";
-import { WakeLockService } from "../utils/WakeLockService.js?v=20260617-game-action-compact-v2";
-import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260617-game-action-compact-v2";
-import { PublicController } from "./PublicController.js?v=20260617-game-action-compact-v2";
-import { SuggestTrackController } from "./SuggestTrackController.js?v=20260617-game-action-compact-v2";
-import { MainController } from "./MainController.js?v=20260617-game-action-compact-v2";
-import { LobbyController } from "./LobbyController.js?v=20260617-game-action-compact-v2";
-import { LobbyListController } from "./LobbyListController.js?v=20260617-game-action-compact-v2";
-import { GameController } from "./GameController.js?v=20260617-game-action-compact-v2";
-import { ResultController } from "./ResultController.js?v=20260617-game-action-compact-v2";
-import { TvController } from "./TvController.js?v=20260617-game-action-compact-v2";
-import { TvLinkController } from "./TvLinkController.js?v=20260617-game-action-compact-v2";
-import { ManagementController } from "./ManagementController.js?v=20260617-game-action-compact-v2";
-import { ManagementCategoriesController } from "./ManagementCategoriesController.js?v=20260617-game-action-compact-v2";
-import { ManagementFamiliesController } from "./ManagementFamiliesController.js?v=20260617-game-action-compact-v2";
-import { ManagementTracksController } from "./ManagementTracksController.js?v=20260617-game-action-compact-v2";
-import { ManagementValidationController } from "./ManagementValidationController.js?v=20260617-game-action-compact-v2";
-import { ManagementSuggestionsController } from "./ManagementSuggestionsController.js?v=20260617-game-action-compact-v2";
+import { HttpService } from "../utils/HttpService.js?v=20260617-autoplay-mode";
+import { HeaderModel } from "../model/HeaderModel.js?v=20260617-autoplay-mode";
+import { WakeLockService } from "../utils/WakeLockService.js?v=20260617-autoplay-mode";
+import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260617-autoplay-mode";
+import { PublicController } from "./PublicController.js?v=20260617-autoplay-mode";
+import { SuggestTrackController } from "./SuggestTrackController.js?v=20260617-autoplay-mode";
+import { MainController } from "./MainController.js?v=20260617-autoplay-mode";
+import { AutoplaySetupController } from "./AutoplaySetupController.js?v=20260617-autoplay-mode";
+import { AutoplayController } from "./AutoplayController.js?v=20260617-autoplay-mode";
+import { LobbyController } from "./LobbyController.js?v=20260617-autoplay-mode";
+import { LobbyListController } from "./LobbyListController.js?v=20260617-autoplay-mode";
+import { GameController } from "./GameController.js?v=20260617-autoplay-mode";
+import { ResultController } from "./ResultController.js?v=20260617-autoplay-mode";
+import { TvController } from "./TvController.js?v=20260617-autoplay-mode";
+import { TvLinkController } from "./TvLinkController.js?v=20260617-autoplay-mode";
+import { ManagementController } from "./ManagementController.js?v=20260617-autoplay-mode";
+import { ManagementCategoriesController } from "./ManagementCategoriesController.js?v=20260617-autoplay-mode";
+import { ManagementFamiliesController } from "./ManagementFamiliesController.js?v=20260617-autoplay-mode";
+import { ManagementTracksController } from "./ManagementTracksController.js?v=20260617-autoplay-mode";
+import { ManagementValidationController } from "./ManagementValidationController.js?v=20260617-autoplay-mode";
+import { ManagementSuggestionsController } from "./ManagementSuggestionsController.js?v=20260617-autoplay-mode";
 
-const ASSET_VERSION = "20260617-game-action-compact-v2";
-const YOUTUBE_PREWARM_ROUTES = new Set(["lobby", "game", "tv"]);
-const WAKE_LOCK_ROUTES = new Set(["lobby", "game", "result", "tv-link", "tv"]);
+const ASSET_VERSION = "20260617-autoplay-mode";
+const YOUTUBE_PREWARM_ROUTES = new Set(["lobby", "game", "autoplay", "tv"]);
+const WAKE_LOCK_ROUTES = new Set(["lobby", "game", "autoplay", "result", "tv-link", "tv"]);
 
 let currentUser = null;
 let headerManager = null;
@@ -31,6 +33,8 @@ const ROUTES = {
   tv: { auth: false, admin: false, allowAuthed: true, controller: TvController },
   "tv-link": { auth: true, admin: false, controller: TvLinkController },
   main: { auth: true, admin: false, controller: MainController },
+  "autoplay-setup": { auth: true, admin: false, controller: AutoplaySetupController },
+  autoplay: { auth: true, admin: false, controller: AutoplayController },
   "lobby-list": { auth: true, admin: false, controller: LobbyListController },
   lobby: { auth: true, admin: false, controller: LobbyController },
   game: { auth: true, admin: false, controller: GameController },

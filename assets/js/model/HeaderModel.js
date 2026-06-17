@@ -6,6 +6,16 @@ const PAGE_META = {
     title: "Jouer maintenant",
     description: "Créer un salon, partager le code, lancer la musique.",
   },
+  "autoplay-setup": {
+    eyebrow: "Mode automatique",
+    title: "Préparer un blindtest",
+    description: "Sans réponses à saisir, sans score, avec enchaînement automatique.",
+  },
+  autoplay: {
+    eyebrow: "Mode automatique",
+    title: "Lecture en cours",
+    description: "Les musiques et les réponses s'enchaînent seules.",
+  },
   "suggest-track": {
     eyebrow: "Contribution",
     title: "Proposer une musique",

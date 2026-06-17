@@ -13,6 +13,7 @@ export function setCurrentLobby(lobby) {
     id: Number(lobby.id || 0),
     lobby_code: String(lobby.lobby_code || "").toUpperCase(),
     name: String(lobby.name || ""),
+    game_mode: String(lobby.game_mode || "participative"),
   };
   localStorage.setItem("mq_current_lobby", JSON.stringify(payload));
 }

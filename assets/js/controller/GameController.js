@@ -150,6 +150,13 @@ export class GameController {
       return;
     }
 
+    if (String(detail.data.lobby.game_mode || "participative") === "autoplay") {
+      this.currentLobby = detail.data.lobby;
+      setCurrentLobby(this.currentLobby);
+      window.appCtrl.changeView("autoplay");
+      return;
+    }
+
     this.applySnapshot({
       lobby: detail.data.lobby,
       players: detail.data.players ?? [],

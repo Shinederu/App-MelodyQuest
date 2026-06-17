@@ -1,0 +1,55 @@
+<section class="mq-page mq-autoplay-setup-page">
+  <section class="mq-card mq-card--accent mq-autoplay-setup-card">
+    <div class="mq-card-heading">
+      <div class="mq-kicker">Mode automatique</div>
+      <h2>Préparer le blindtest</h2>
+      <p class="mq-card-copy">Choisis les catégories et le rythme. La partie enchaînera les extraits et les réponses sans score ni saisie.</p>
+    </div>
+
+    <div class="mq-autoplay-settings">
+      <div class="mq-field">
+        <label for="autoplay-name">Nom</label>
+        <input id="autoplay-name" type="text" maxlength="120" placeholder="Blindtest automatique" />
+      </div>
+
+      <div class="mq-grid">
+        <div class="mq-field">
+          <label for="autoplay-rounds">Musiques</label>
+          <input id="autoplay-rounds" type="number" min="1" max="1000" value="10" />
+        </div>
+        <div class="mq-field">
+          <label for="autoplay-listen-duration">Écoute</label>
+          <input id="autoplay-listen-duration" type="number" min="1" max="600" value="30" />
+        </div>
+        <div class="mq-field">
+          <label for="autoplay-reveal-duration">Réponse</label>
+          <input id="autoplay-reveal-duration" type="number" min="3" max="60" value="10" />
+        </div>
+        <label class="mq-check mq-check--compact">
+          <input id="autoplay-show-category" type="checkbox" checked />
+          <span>Afficher la catégorie</span>
+        </label>
+      </div>
+
+      <div class="mq-lobby-category-head">
+        <div>
+          <p class="mq-section-label">Catégories</p>
+          <p id="autoplay-category-summary" class="mq-muted">Chargement...</p>
+        </div>
+        <div class="mq-actions mq-lobby-category-actions">
+          <button id="btn-autoplay-all-categories" type="button" class="mq-secondary">Tout cocher</button>
+          <button id="btn-autoplay-clear-categories" type="button" class="mq-secondary">Vider</button>
+        </div>
+      </div>
+
+      <div id="autoplay-categories" class="mq-check-grid mq-category-grid"></div>
+
+      <p id="autoplay-setup-status" class="status"></p>
+
+      <div class="mq-actions">
+        <button id="btn-autoplay-start" type="button">Lancer</button>
+        <button id="btn-autoplay-back" type="button" class="mq-secondary">Retour</button>
+      </div>
+    </div>
+  </section>
+</section>

@@ -19,6 +19,7 @@ export class MainController {
 
     document.getElementById("btn-main-create")?.addEventListener("click", () => this.createLobby());
     document.getElementById("btn-main-join-code")?.addEventListener("click", () => this.joinLobbyByCode());
+    document.getElementById("btn-main-autoplay")?.addEventListener("click", () => window.appCtrl.changeView("autoplay-setup"));
     document.getElementById("btn-main-refresh")?.addEventListener("click", () => this.refreshLobbies());
     document.getElementById("btn-main-suggest-track")?.addEventListener("click", () => window.appCtrl.changeView("suggest-track"));
     document.getElementById("btn-main-management")?.addEventListener("click", () => window.appCtrl.changeView("management"));

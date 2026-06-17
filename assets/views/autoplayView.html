@@ -1,0 +1,59 @@
+<section class="mq-page mq-autoplay-page">
+  <section class="mq-card mq-card--soft mq-autoplay-stage">
+    <div class="mq-autoplay-head">
+      <div>
+        <p id="autoplay-status" class="status">Préparation...</p>
+        <h2 id="autoplay-title">Blindtest automatique</h2>
+      </div>
+      <div class="mq-actions">
+        <button id="btn-autoplay-leave" type="button" class="mq-danger">Arrêter</button>
+      </div>
+    </div>
+
+    <div id="autoplay-video" class="mq-video-shell mq-autoplay-video-shell is-concealed">
+      <div id="autoplay-video-player" class="mq-video-player"></div>
+      <div id="autoplay-video-overlay" class="mq-video-overlay">
+        <div class="mq-video-overlay__content">
+          <div class="mq-video-overlay__timer">
+            <svg class="mq-timer-ring" viewBox="0 0 120 120" aria-hidden="true">
+              <circle class="mq-timer-ring__track" cx="60" cy="60" r="44"></circle>
+              <circle id="autoplay-ring-progress" class="mq-timer-ring__progress" cx="60" cy="60" r="44"></circle>
+            </svg>
+            <div class="mq-video-overlay__timer-copy">
+              <strong id="autoplay-overlay-title">Préparation</strong>
+              <p id="autoplay-overlay-copy">Chargement de la prochaine musique.</p>
+            </div>
+          </div>
+          <p id="autoplay-overlay-hint" class="mq-video-overlay__hint">La réponse s'affichera automatiquement.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="autoplay-solution" class="mq-game-solution mq-autoplay-solution" hidden>
+      <span id="autoplay-solution-category" class="mq-chip" hidden></span>
+      <strong id="autoplay-solution-family"></strong>
+      <span id="autoplay-solution-track"></span>
+    </div>
+
+    <div class="mq-autoplay-footer">
+      <div class="mq-game-info-grid">
+        <article class="mq-game-fact">
+          <span>Manche</span>
+          <strong id="autoplay-progress">-- / --</strong>
+        </article>
+        <article class="mq-game-fact">
+          <span>Phase</span>
+          <strong id="autoplay-phase">--</strong>
+        </article>
+      </div>
+
+      <div class="mq-video-toolbar">
+        <label class="mq-volume-control" for="autoplay-volume">
+          <span>Volume</span>
+          <input id="autoplay-volume" type="range" min="0" max="100" step="1" value="70" />
+        </label>
+        <span id="autoplay-volume-value" class="mq-chip">70%</span>
+      </div>
+    </div>
+  </section>
+</section>
