@@ -5,6 +5,7 @@ const MANAGEMENT_NAVIGATION = [
   ["btn-mgmt-tracks", "management-tracks"],
   ["btn-mgmt-validation", "management-validation"],
   ["btn-mgmt-suggestions", "management-suggestions"],
+  ["btn-mgmt-answers", "management-answers"],
 ];
 
 export class ManagementController {

@@ -14,13 +14,13 @@
     </div>
   </section>
 
-  <div class="mq-admin-workspace">
+  <div class="mq-admin-workspace mq-admin-workspace--wide">
     <section class="mq-card mq-admin-pane">
       <div class="mq-admin-pane__header">
         <div class="mq-card-heading">
           <div class="mq-kicker">File joueurs</div>
           <h2>Propositions</h2>
-          <p class="mq-card-copy">Corrections envoyées depuis une partie et nouvelles musiques proposées depuis la page publique.</p>
+          <p class="mq-card-copy">Sélectionne une demande, corrige les champs, puis applique-la au catalogue si elle est utile.</p>
         </div>
       </div>
 
@@ -43,19 +43,68 @@
 
     <section class="mq-card mq-card--accent mq-admin-pane mq-admin-pane--sticky">
       <div class="mq-card-heading">
-        <div class="mq-kicker">Detail</div>
+        <div class="mq-kicker">Traitement</div>
         <h2 id="suggestions-detail-title">Aucune proposition sélectionnée</h2>
-        <p id="suggestions-detail-helper" class="mq-admin-helper">Choisis une proposition pour comparer les valeurs actuelles et les corrections demandées.</p>
+        <p id="suggestions-detail-helper" class="mq-admin-helper">Choisis une proposition pour la modifier ou l'appliquer au catalogue.</p>
       </div>
 
       <div id="suggestions-detail-meta" class="mq-admin-item__meta">
         <span class="mq-muted">Aucune proposition sélectionnée.</span>
       </div>
 
-      <div id="suggestions-detail-body" class="mq-suggestion-detail"></div>
+      <div id="suggestions-detail-compare" class="mq-suggestion-detail"></div>
+
+      <div id="suggestions-editor" class="mq-suggestion-editor" hidden>
+        <div class="mq-admin-filter-bar mq-admin-filter-bar--compact">
+          <div class="mq-field">
+            <label for="suggestion-admin-category">Catégorie</label>
+            <select id="suggestion-admin-category"></select>
+          </div>
+
+          <div class="mq-field">
+            <label for="suggestion-admin-family">Œuvre / réponse attendue</label>
+            <input id="suggestion-admin-family" type="text" list="suggestion-family-options" maxlength="160" placeholder="Ex: Genshin Impact" />
+            <datalist id="suggestion-family-options"></datalist>
+          </div>
+        </div>
+
+        <div class="mq-admin-form-grid">
+          <div class="mq-field">
+            <label for="suggestion-title">Libellé piste</label>
+            <input id="suggestion-title" type="text" maxlength="220" />
+          </div>
+
+          <div class="mq-field">
+            <label for="suggestion-artist">Artiste / licence</label>
+            <input id="suggestion-artist" type="text" maxlength="160" />
+          </div>
+
+          <div class="mq-field">
+            <label for="suggestion-youtube">URL YouTube</label>
+            <input id="suggestion-youtube" type="text" maxlength="255" />
+          </div>
+
+          <div class="mq-field">
+            <label for="suggestion-alias">Alias à ajouter</label>
+            <input id="suggestion-alias" type="text" maxlength="160" />
+          </div>
+
+          <div class="mq-field">
+            <label for="suggestion-start-offset">Début lecture (s)</label>
+            <input id="suggestion-start-offset" type="number" min="0" step="1" />
+          </div>
+        </div>
+
+        <div class="mq-field">
+          <label for="suggestion-note">Note</label>
+          <textarea id="suggestion-note"></textarea>
+        </div>
+      </div>
 
       <div class="mq-admin-form-actions">
-        <button id="btn-suggestion-reviewed" type="button" disabled>Marquer traitée</button>
+        <button id="btn-suggestion-save" type="button" disabled>Enregistrer</button>
+        <button id="btn-suggestion-apply" type="button" disabled>Appliquer au catalogue</button>
+        <button id="btn-suggestion-reviewed" type="button" class="mq-secondary" disabled>Marquer traitée</button>
         <button id="btn-suggestion-rejected" type="button" class="mq-danger" disabled>Refuser</button>
         <button id="btn-suggestion-pending" type="button" class="mq-secondary" disabled>Remettre en attente</button>
       </div>

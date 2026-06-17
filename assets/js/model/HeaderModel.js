@@ -1,4 +1,4 @@
-import { escapeHtml } from "../utils/ui.js?v=20260610-shared-utils";
+import { escapeHtml } from "../utils/ui.js?v=20260617-admin-workflow";
 
 const PAGE_META = {
   main: {
@@ -78,6 +78,11 @@ const PAGE_META = {
     eyebrow: "Administration",
     title: "Suggestions joueurs",
     description: "Trie les corrections, alias et nouvelles musiques proposés.",
+  },
+  "management-answers": {
+    eyebrow: "Administration",
+    title: "Réponses joueurs",
+    description: "Repère les essais utiles pour enrichir le catalogue.",
   },
 };
 

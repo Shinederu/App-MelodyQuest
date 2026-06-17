@@ -328,6 +328,18 @@ export class HttpService {
     return this.request(MELODY_BASE_URL, "POST", "updateSuggestionStatus", { id, status });
   }
 
+  async updateSuggestion(data) {
+    return this.request(MELODY_BASE_URL, "POST", "updateSuggestion", data);
+  }
+
+  async applySuggestion(data) {
+    return this.request(MELODY_BASE_URL, "POST", "applySuggestion", data);
+  }
+
+  async listAnswerAttempts(filters = {}) {
+    return this.request(MELODY_BASE_URL, "GET", "listAnswerAttempts", filters);
+  }
+
   async listPublicLobbies(gameMode = "participative") {
     return this.request(MELODY_BASE_URL, "GET", "listPublicLobbies", {
       game_mode: gameMode,

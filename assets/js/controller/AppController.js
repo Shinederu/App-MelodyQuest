@@ -1,26 +1,27 @@
-import { HttpService } from "../utils/HttpService.js?v=20260617-launch-fullscreen";
-import { HeaderModel } from "../model/HeaderModel.js?v=20260617-launch-fullscreen";
-import { WakeLockService } from "../utils/WakeLockService.js?v=20260617-launch-fullscreen";
-import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260617-launch-fullscreen";
-import { PublicController } from "./PublicController.js?v=20260617-launch-fullscreen";
-import { SuggestTrackController } from "./SuggestTrackController.js?v=20260617-launch-fullscreen";
-import { MainController } from "./MainController.js?v=20260617-launch-fullscreen";
-import { AutoplaySetupController } from "./AutoplaySetupController.js?v=20260617-launch-fullscreen";
-import { AutoplayController } from "./AutoplayController.js?v=20260617-launch-fullscreen";
-import { LobbyController } from "./LobbyController.js?v=20260617-launch-fullscreen";
-import { LobbyListController } from "./LobbyListController.js?v=20260617-launch-fullscreen";
-import { GameController } from "./GameController.js?v=20260617-launch-fullscreen";
-import { ResultController } from "./ResultController.js?v=20260617-launch-fullscreen";
-import { TvController } from "./TvController.js?v=20260617-launch-fullscreen";
-import { TvLinkController } from "./TvLinkController.js?v=20260617-launch-fullscreen";
-import { ManagementController } from "./ManagementController.js?v=20260617-launch-fullscreen";
-import { ManagementCategoriesController } from "./ManagementCategoriesController.js?v=20260617-launch-fullscreen";
-import { ManagementFamiliesController } from "./ManagementFamiliesController.js?v=20260617-launch-fullscreen";
-import { ManagementTracksController } from "./ManagementTracksController.js?v=20260617-launch-fullscreen";
-import { ManagementValidationController } from "./ManagementValidationController.js?v=20260617-launch-fullscreen";
-import { ManagementSuggestionsController } from "./ManagementSuggestionsController.js?v=20260617-launch-fullscreen";
+import { HttpService } from "../utils/HttpService.js?v=20260617-admin-workflow";
+import { HeaderModel } from "../model/HeaderModel.js?v=20260617-admin-workflow";
+import { WakeLockService } from "../utils/WakeLockService.js?v=20260617-admin-workflow";
+import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260617-admin-workflow";
+import { PublicController } from "./PublicController.js?v=20260617-admin-workflow";
+import { SuggestTrackController } from "./SuggestTrackController.js?v=20260617-admin-workflow";
+import { MainController } from "./MainController.js?v=20260617-admin-workflow";
+import { AutoplaySetupController } from "./AutoplaySetupController.js?v=20260617-admin-workflow";
+import { AutoplayController } from "./AutoplayController.js?v=20260617-admin-workflow";
+import { LobbyController } from "./LobbyController.js?v=20260617-admin-workflow";
+import { LobbyListController } from "./LobbyListController.js?v=20260617-admin-workflow";
+import { GameController } from "./GameController.js?v=20260617-admin-workflow";
+import { ResultController } from "./ResultController.js?v=20260617-admin-workflow";
+import { TvController } from "./TvController.js?v=20260617-admin-workflow";
+import { TvLinkController } from "./TvLinkController.js?v=20260617-admin-workflow";
+import { ManagementController } from "./ManagementController.js?v=20260617-admin-workflow";
+import { ManagementCategoriesController } from "./ManagementCategoriesController.js?v=20260617-admin-workflow";
+import { ManagementFamiliesController } from "./ManagementFamiliesController.js?v=20260617-admin-workflow";
+import { ManagementTracksController } from "./ManagementTracksController.js?v=20260617-admin-workflow";
+import { ManagementValidationController } from "./ManagementValidationController.js?v=20260617-admin-workflow";
+import { ManagementSuggestionsController } from "./ManagementSuggestionsController.js?v=20260617-admin-workflow";
+import { ManagementAnswersController } from "./ManagementAnswersController.js?v=20260617-admin-workflow";
 
-const ASSET_VERSION = "20260617-launch-fullscreen";
+const ASSET_VERSION = "20260617-admin-workflow";
 const YOUTUBE_PREWARM_ROUTES = new Set(["lobby", "game", "autoplay", "tv"]);
 const WAKE_LOCK_ROUTES = new Set(["lobby", "game", "autoplay", "result", "tv-link", "tv"]);
 
@@ -45,6 +46,7 @@ const ROUTES = {
   "management-tracks": { auth: true, admin: true, controller: ManagementTracksController },
   "management-validation": { auth: true, admin: true, controller: ManagementValidationController },
   "management-suggestions": { auth: true, admin: true, controller: ManagementSuggestionsController },
+  "management-answers": { auth: true, admin: true, controller: ManagementAnswersController },
 };
 
 function toBool(value) {

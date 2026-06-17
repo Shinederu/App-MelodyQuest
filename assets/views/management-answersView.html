@@ -1,0 +1,63 @@
+<section class="mq-page">
+  <section class="mq-card mq-card--soft">
+    <div class="mq-admin-toolbar">
+      <div class="mq-actions">
+        <button id="btn-answers-back" type="button" class="mq-secondary">Retour management</button>
+        <button id="btn-answers-refresh" type="button">Rafraîchir</button>
+      </div>
+      <div class="mq-admin-toolbar__meta">
+        <div class="mq-admin-toolbar__cluster">
+          <span id="answers-count" class="mq-chip">0 idée / 0 essai</span>
+        </div>
+        <p id="answers-status" class="status">Charge les réponses saisies par les joueurs.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="mq-admin-workspace">
+    <section class="mq-card mq-admin-pane">
+      <div class="mq-admin-pane__header">
+        <div class="mq-card-heading">
+          <div class="mq-kicker">Idées potentielles</div>
+          <h2>Réponses fréquentes</h2>
+          <p class="mq-card-copy">Les réponses ratées répétées peuvent révéler une musique manquante, un alias utile ou une confusion à corriger.</p>
+        </div>
+      </div>
+
+      <div class="mq-admin-filter-bar">
+        <div class="mq-field">
+          <label for="answers-filter-outcome">Type</label>
+          <select id="answers-filter-outcome">
+            <option value="wrong">Essais ratés</option>
+            <option value="correct">Réponses trouvées</option>
+            <option value="scored">Réponses avec points</option>
+            <option value="all">Tout</option>
+          </select>
+        </div>
+
+        <div class="mq-field">
+          <label for="answers-filter-search">Recherche</label>
+          <input id="answers-filter-search" type="text" placeholder="Réponse, joueur, œuvre, catégorie..." />
+        </div>
+
+        <button id="btn-answers-clear" type="button" class="mq-secondary">Réinitialiser</button>
+      </div>
+
+      <div class="mq-admin-list-shell">
+        <div id="answers-groups" class="mq-admin-list"></div>
+      </div>
+    </section>
+
+    <section class="mq-card mq-card--accent mq-admin-pane mq-admin-pane--sticky">
+      <div class="mq-card-heading">
+        <div class="mq-kicker">Historique</div>
+        <h2>Essais récents</h2>
+        <p class="mq-card-copy">Vue brute des dernières réponses correspondant au filtre.</p>
+      </div>
+
+      <div class="mq-admin-list-shell">
+        <div id="answers-attempts" class="mq-admin-list"></div>
+      </div>
+    </section>
+  </div>
+</section>

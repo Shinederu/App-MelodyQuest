@@ -56,7 +56,7 @@ Les routes sont gerees par hash dans `assets/js/controller/AppController.js`.
 
 - Publiques: `#/public`, `#/suggest-track`, `/tv`
 - Authentifiees: `#/main`, `#/autoplay-setup`, `#/autoplay`, `#/lobby-list`, `#/lobby`, `#/game`, `#/result`, `#/tv-link`
-- Admin catalogue: `#/management`, `#/management-categories`, `#/management-families`, `#/management-tracks`, `#/management-validation`, `#/management-suggestions`
+- Admin catalogue: `#/management`, `#/management-categories`, `#/management-families`, `#/management-tracks`, `#/management-validation`, `#/management-suggestions`, `#/management-answers`
 
 Conserver les redirections existantes:
 
@@ -74,7 +74,7 @@ Conserver les redirections existantes:
 - Jeu desktop/mobile avec video cachee, reponse, classement, timer, partage, suggestions de correction.
 - Mode joueur de salon sans lecteur video local.
 - Mode TV avec QR code, liaison `tv-link`, son actif et lecteur YouTube simple. Les optimisations de prechargement TV precedentes sont abandonnees pour l'instant.
-- Administration catalogue et suggestions joueurs.
+- Administration catalogue, suggestions joueurs et analyse des réponses saisies en partie.
 
 ## Cache-bust
 
