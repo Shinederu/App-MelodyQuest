@@ -1,9 +1,16 @@
 import { setCurrentLobby } from "../utils/LobbyState.js";
-import { escapeAttribute, escapeHtml } from "../utils/ui.js?v=20260616-owner-presence";
+import { escapeAttribute, escapeHtml } from "../utils/ui.js?v=20260617-lobby-mode-switch";
+
+const MAIN_MODE_STORAGE_KEY = "mq_main_game_mode";
+const GAME_MODES = {
+  active: "participative",
+  passive: "autoplay",
+};
 
 export class MainController {
   constructor() {
     this.user = JSON.parse(localStorage.getItem("user") || "null");
+    this.mode = this.loadMode();
     this.stream = null;
     this.realtimeConfig = null;
     this.isDestroyed = false;
@@ -19,7 +26,9 @@ export class MainController {
 
     document.getElementById("btn-main-create")?.addEventListener("click", () => this.createLobby());
     document.getElementById("btn-main-join-code")?.addEventListener("click", () => this.joinLobbyByCode());
-    document.getElementById("btn-main-autoplay")?.addEventListener("click", () => window.appCtrl.changeView("autoplay-setup"));
+    document.querySelectorAll("[data-main-mode]").forEach((button) => {
+      button.addEventListener("click", () => this.setMode(button.dataset.mainMode || GAME_MODES.active));
+    });
     document.getElementById("btn-main-refresh")?.addEventListener("click", () => this.refreshLobbies());
     document.getElementById("btn-main-suggest-track")?.addEventListener("click", () => window.appCtrl.changeView("suggest-track"));
     document.getElementById("btn-main-management")?.addEventListener("click", () => window.appCtrl.changeView("management"));
@@ -30,6 +39,7 @@ export class MainController {
 
   async bootstrap() {
     this.renderAdminActions();
+    this.renderMode();
     if (await this.consumePendingLobbyCode()) {
       return;
     }
@@ -58,19 +68,22 @@ export class MainController {
   async createLobby() {
     const lobbyName = this.normalizeLobbyName(
       document.getElementById("main-lobby-name")?.value,
-      "Nouveau salon"
+      this.isPassiveMode() ? "Blindtest passif" : "Nouveau salon"
     );
     const isPublic = document.getElementById("main-lobby-public")?.checked !== false;
+    const gameMode = this.mode;
 
     const res = await window.httpClient.createLobby({
       name: lobbyName,
       visibility: isPublic ? "public" : "private",
+      game_mode: gameMode,
       max_players: 8,
-      round_duration_seconds: 30,
-      total_rounds: 5,
-      guess_mode: "title",
-      show_track_category: false,
-      allow_early_reveal_vote: true,
+      round_duration_seconds: this.isPassiveMode() ? 30 : 30,
+      reveal_duration_seconds: this.isPassiveMode() ? 10 : 10,
+      total_rounds: this.isPassiveMode() ? 10 : 5,
+      guess_mode: this.isPassiveMode() ? "title" : "title",
+      show_track_category: this.isPassiveMode(),
+      allow_early_reveal_vote: !this.isPassiveMode(),
       answer_similarity_threshold: 80,
     });
 
@@ -100,7 +113,7 @@ export class MainController {
   }
 
   async refreshLobbies(silent = false) {
-    const res = await window.httpClient.listPublicLobbies();
+    const res = await window.httpClient.listPublicLobbies(this.mode);
     if (!res.success) {
       if (!silent) {
         this.setStatus(res.error || "Impossible de charger les salons", false);
@@ -136,7 +149,7 @@ export class MainController {
         if (!this.shouldApplyRealtimePayload(payload)) {
           return;
         }
-        this.renderLobbyList(payload?.items ?? []);
+        this.renderLobbyList(this.filterLobbiesByMode(payload?.items ?? []));
       });
       this.stream.onerror = () => this.handleMercureError();
       return true;
@@ -190,32 +203,85 @@ export class MainController {
     actions.style.display = this.user?.is_admin ? "" : "none";
   }
 
+  setMode(mode) {
+    const normalized = this.normalizeMode(mode);
+    if (normalized === this.mode) return;
+
+    this.mode = normalized;
+    localStorage.setItem(MAIN_MODE_STORAGE_KEY, this.mode);
+    this.lastRealtimeRevision = "";
+    this.renderMode(true);
+    this.refreshLobbies();
+  }
+
+  renderMode(resetVisibility = false) {
+    document.querySelectorAll("[data-main-mode]").forEach((button) => {
+      button.classList.toggle("is-active", this.normalizeMode(button.dataset.mainMode) === this.mode);
+      button.setAttribute("aria-pressed", this.normalizeMode(button.dataset.mainMode) === this.mode ? "true" : "false");
+    });
+
+    const passive = this.isPassiveMode();
+    const publicInput = document.getElementById("main-lobby-public");
+    const modeCopy = document.getElementById("main-mode-copy");
+    const createTitle = document.getElementById("main-create-title");
+    const nameInput = document.getElementById("main-lobby-name");
+    const publicTitle = document.getElementById("main-public-title");
+    const publicCopy = document.getElementById("main-public-copy");
+
+    if (publicInput && (resetVisibility || publicInput.dataset.modeInitialized !== "1")) {
+      publicInput.checked = !passive;
+      publicInput.dataset.modeInitialized = "1";
+    }
+
+    if (nameInput) {
+      nameInput.placeholder = passive ? "Blindtest passif du soir" : "Blindtest du vendredi";
+    }
+    if (modeCopy) {
+      modeCopy.textContent = passive
+        ? "Crée un salon passif, règle les musiques, puis lance une écoute automatique à partager ou à afficher sur TV."
+        : "Crée un salon actif si tu organises la partie, ou rejoins directement avec un code.";
+    }
+    if (createTitle) {
+      createTitle.textContent = passive ? "Créer un salon passif" : "Créer un salon actif";
+    }
+    if (publicTitle) {
+      publicTitle.textContent = passive ? "Rejoindre une écoute ouverte" : "Rejoindre une partie ouverte";
+    }
+    if (publicCopy) {
+      publicCopy.textContent = passive
+        ? "Les salons passifs sont privés par défaut, mais ceux rendus publics apparaissent ici."
+        : "Choisis un salon public disponible. Les salons privés se rejoignent avec un code.";
+    }
+  }
+
   renderLobbyList(items) {
     const list = document.getElementById("main-lobby-list");
     const count = document.getElementById("main-lobby-count");
     if (!list) return;
 
+    const visibleItems = this.filterLobbiesByMode(items);
     if (count) {
-      count.textContent = `${items.length} salon${items.length > 1 ? "s" : ""} actif${items.length > 1 ? "s" : ""}`;
+      const modeLabel = this.isPassiveMode() ? "passif" : "actif";
+      count.textContent = `${visibleItems.length} salon${visibleItems.length > 1 ? "s" : ""} ${modeLabel}${visibleItems.length > 1 ? "s" : ""}`;
     }
 
-    if (!items.length) {
+    if (!visibleItems.length) {
       list.innerHTML = `
         <li class="mq-list-row mq-empty-row">
           <div>
             <strong>Aucun salon public</strong>
-            <span class="mq-muted">Crée ton salon depuis le départ rapide ou utilise un code privé.</span>
+            <span class="mq-muted">${this.isPassiveMode() ? "Les salons passifs sont souvent privés. Utilise un code si quelqu'un t'en a partagé un." : "Crée ton salon depuis le départ rapide ou utilise un code privé."}</span>
           </div>
         </li>
       `;
       return;
     }
 
-    list.innerHTML = items.map((lobby) => `
+    list.innerHTML = visibleItems.map((lobby) => `
       <li class="mq-list-row mq-lobby-public-row">
         <div class="mq-lobby-public-row__main">
           <strong>${this.escapeHtml(lobby.name || "Salon")}</strong>
-          <span class="mq-muted">${Number(lobby.players_count || 0)}/${Number(lobby.max_players || 0)} joueurs</span>
+          <span class="mq-muted">${this.isPassiveLobby(lobby) ? "Mode passif" : "Mode actif"} - ${Number(lobby.players_count || 0)}/${Number(lobby.max_players || 0)} joueurs</span>
           ${lobby.owner_username ? `<span class="mq-muted">Créé par ${this.escapeHtml(lobby.owner_username)}</span>` : ""}
         </div>
         <span class="mq-chip">${this.escapeHtml(lobby.lobby_code || "")}</span>
@@ -257,6 +323,27 @@ export class MainController {
   normalizeLobbyName(value, fallback = "Nouveau salon") {
     const normalized = String(value || "").trim().replace(/\s+/g, " ").slice(0, 120);
     return normalized || fallback;
+  }
+
+  loadMode() {
+    return this.normalizeMode(localStorage.getItem(MAIN_MODE_STORAGE_KEY) || GAME_MODES.active);
+  }
+
+  normalizeMode(mode) {
+    const value = String(mode || "").trim().toLowerCase();
+    return value === GAME_MODES.passive ? GAME_MODES.passive : GAME_MODES.active;
+  }
+
+  isPassiveMode() {
+    return this.mode === GAME_MODES.passive;
+  }
+
+  isPassiveLobby(lobby) {
+    return this.normalizeMode(lobby?.game_mode) === GAME_MODES.passive;
+  }
+
+  filterLobbiesByMode(items) {
+    return (Array.isArray(items) ? items : []).filter((lobby) => this.normalizeMode(lobby?.game_mode) === this.mode);
   }
 
   destroy() {

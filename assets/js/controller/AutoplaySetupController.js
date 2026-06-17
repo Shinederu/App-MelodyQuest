@@ -1,5 +1,5 @@
 import { setCurrentLobby } from "../utils/LobbyState.js";
-import { escapeHtml } from "../utils/ui.js?v=20260617-autoplay-estimate";
+import { escapeHtml } from "../utils/ui.js?v=20260617-lobby-mode-switch";
 
 const DEFAULT_AUTOPLAY_ROUNDS = 10;
 const DEFAULT_LISTEN_SECONDS = 30;

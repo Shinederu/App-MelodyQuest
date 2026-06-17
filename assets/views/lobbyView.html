@@ -70,12 +70,16 @@
           <p class="mq-section-label">Rythme de la partie</p>
           <div class="mq-lobby-number-grid">
             <div class="mq-field">
-              <label for="lobby-config-rounds">Manches</label>
+              <label id="lobby-config-rounds-label" for="lobby-config-rounds">Manches</label>
               <input id="lobby-config-rounds" type="number" min="1" max="1000" />
             </div>
             <div class="mq-field">
-              <label for="lobby-config-timer">Secondes par réponse</label>
+              <label id="lobby-config-timer-label" for="lobby-config-timer">Secondes par réponse</label>
               <input id="lobby-config-timer" type="number" min="1" max="600" />
+            </div>
+            <div id="lobby-config-reveal-field" class="mq-field">
+              <label for="lobby-config-reveal-duration">Réponse affichée</label>
+              <input id="lobby-config-reveal-duration" type="number" min="3" max="60" />
             </div>
           </div>
         </div>
@@ -90,7 +94,7 @@
                 <small>Pendant la manche</small>
               </span>
             </label>
-            <label class="mq-toggle-row">
+            <label class="mq-toggle-row participative-only">
               <input id="lobby-config-early-reveal" type="checkbox" />
               <span>
                 <strong>Vote de révélation</strong>
@@ -100,7 +104,7 @@
           </div>
         </div>
 
-        <div class="mq-lobby-settings-block">
+        <div class="mq-lobby-settings-block participative-only">
           <p class="mq-section-label">Tolérance des réponses</p>
           <div class="mq-lobby-threshold">
             <div class="mq-lobby-threshold__head">

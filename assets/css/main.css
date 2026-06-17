@@ -915,6 +915,54 @@ input[type="range"] {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.mq-main-mode-switch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid var(--mq-line);
+  border-radius: var(--mq-radius);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.mq-main-mode-switch button {
+  display: grid;
+  gap: 3px;
+  min-height: 64px;
+  padding: 10px;
+  color: var(--mq-text-soft);
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.mq-main-mode-switch button:hover:not(:disabled) {
+  border-color: rgba(120, 183, 255, 0.22);
+  background: rgba(120, 183, 255, 0.08);
+  box-shadow: none;
+}
+
+.mq-main-mode-switch button.is-active {
+  color: #06111f;
+  border-color: rgba(120, 183, 255, 0.52);
+  background: linear-gradient(135deg, var(--mq-primary), #c0ddff);
+  box-shadow: 0 12px 24px rgba(60, 126, 210, 0.18);
+}
+
+.mq-main-mode-switch span {
+  font-size: 1rem;
+  font-weight: 850;
+  line-height: 1.1;
+}
+
+.mq-main-mode-switch small {
+  color: inherit;
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.25;
+  opacity: 0.82;
+}
+
 .mq-main-action-block {
   display: grid;
   align-content: start;
@@ -4029,6 +4077,10 @@ body:has(.mq-tv-page) #footer {
   .mq-chip-row {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .mq-main-mode-switch {
+    grid-template-columns: 1fr;
   }
 
   .mq-chip-row .mq-chip {

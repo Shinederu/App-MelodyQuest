@@ -4,7 +4,18 @@
       <div class="mq-card-heading">
         <div class="mq-kicker">Départ rapide</div>
         <h2>Jouer</h2>
-        <p class="mq-card-copy">Crée un salon si tu organises la partie, ou rejoins directement avec un code.</p>
+        <p id="main-mode-copy" class="mq-card-copy">Crée un salon si tu organises la partie, ou rejoins directement avec un code.</p>
+      </div>
+
+      <div class="mq-main-mode-switch" role="group" aria-label="Mode de jeu">
+        <button id="btn-main-mode-active" type="button" data-main-mode="participative" class="is-active">
+          <span>Actif</span>
+          <small>Réponses, scores, classement</small>
+        </button>
+        <button id="btn-main-mode-passive" type="button" data-main-mode="autoplay">
+          <span>Passif</span>
+          <small>Écoute automatique, TV possible</small>
+        </button>
       </div>
 
       <div class="mq-main-action-stack">
@@ -13,7 +24,7 @@
             <span class="mq-step-badge">1</span>
             <div>
               <p class="mq-section-label">Organisateur</p>
-              <strong>Créer un salon</strong>
+              <strong id="main-create-title">Créer un salon</strong>
             </div>
           </div>
           <div class="mq-field">
@@ -41,18 +52,6 @@
           </div>
           <button id="btn-main-join-code" type="button">Entrer dans le salon</button>
         </div>
-
-        <div class="mq-main-action-block mq-main-action-block--auto">
-          <div class="mq-main-action-block__head">
-            <span class="mq-step-badge">Auto</span>
-            <div>
-              <p class="mq-section-label">Sans score</p>
-              <strong>Blindtest automatique</strong>
-            </div>
-          </div>
-          <p class="mq-muted">Choisis les catégories, lance l'écoute, laisse les réponses s'afficher toutes seules.</p>
-          <button id="btn-main-autoplay" type="button" class="mq-secondary">Configurer</button>
-        </div>
       </div>
 
       <p id="main-status" class="status"></p>
@@ -69,8 +68,8 @@
     <section class="mq-card mq-card--soft mq-public-lobbies-card">
       <div class="mq-card-heading">
         <div class="mq-kicker">Public</div>
-        <h2>Rejoindre une partie ouverte</h2>
-        <p class="mq-card-copy">Choisis un salon public disponible. Les salons privés se rejoignent avec un code.</p>
+        <h2 id="main-public-title">Rejoindre une partie ouverte</h2>
+        <p id="main-public-copy" class="mq-card-copy">Choisis un salon public disponible. Les salons privés se rejoignent avec un code.</p>
       </div>
 
       <div class="mq-list-toolbar">

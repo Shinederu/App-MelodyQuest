@@ -1,10 +1,12 @@
 import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
-import { escapeAttribute, escapeHtml, formatPlayerRole, renderAvatar } from "../utils/ui.js?v=20260616-owner-presence";
+import { escapeAttribute, escapeHtml, formatPlayerRole, renderAvatar } from "../utils/ui.js?v=20260617-lobby-mode-switch";
 
 const MIN_TOTAL_ROUNDS = 1;
 const MAX_TOTAL_ROUNDS = 1000;
 const MIN_ROUND_DURATION = 1;
 const MAX_ROUND_DURATION = 600;
+const MIN_REVEAL_DURATION = 3;
+const MAX_REVEAL_DURATION = 60;
 const MIN_ANSWER_THRESHOLD = 70;
 const DEFAULT_ANSWER_THRESHOLD = 80;
 const MAX_ANSWER_THRESHOLD = 100;
@@ -111,12 +113,6 @@ export class LobbyController {
     this.currentLobby = detail.data.lobby;
     this.realtimeConfig = detail.data?.realtime ?? null;
     setCurrentLobby(this.currentLobby);
-
-    if (String(this.currentLobby.game_mode || "participative") === "autoplay") {
-      this.stopHeartbeat();
-      window.appCtrl.changeView("autoplay");
-      return;
-    }
 
     this.renderLobby(detail.data);
     await this.refreshRoundState(true);
@@ -257,7 +253,7 @@ export class LobbyController {
       const status = String(snapshot.round.round.status || "").toLowerCase();
       if (status === "running" || status === "reveal") {
         localStorage.removeItem("mq_last_scoreboard");
-        window.appCtrl.changeView("game");
+        window.appCtrl.changeView(this.getPlayRoute());
       }
     }
   }
@@ -276,13 +272,19 @@ export class LobbyController {
     const lobbyCode = String(lobby?.lobby_code || "").trim().toUpperCase();
     const maxPlayers = Number(lobby?.max_players || 0);
     const visibilityLabel = displayConfig.visibility === "private" ? "Privé" : "Public";
+    const passive = this.isPassiveLobby(lobby);
+    const modeLabel = passive ? "passif" : "actif";
 
     this.syncPresenceStatusFromPlayers(players);
     this.renderAwayButton();
+    document.body.classList.toggle("mq-lobby-passive-mode", passive);
+    document.querySelectorAll(".participative-only").forEach((el) => {
+      el.style.display = passive ? "none" : "";
+    });
 
     if (header) header.textContent = displayConfig.name || lobby?.name || "Salon";
     if (meta) {
-      meta.textContent = `Code ${lobbyCode || ""} - ${players.length}/${maxPlayers || 0} joueurs - Salon ${visibilityLabel.toLowerCase()}`;
+      meta.textContent = `Mode ${modeLabel} - Code ${lobbyCode || ""} - ${players.length}/${maxPlayers || 0} joueurs - Salon ${visibilityLabel.toLowerCase()}`;
     }
     if (codeDisplay) codeDisplay.textContent = lobbyCode || "------";
     if (playerCount) playerCount.textContent = `${players.length} / ${maxPlayers || "--"}`;
@@ -354,14 +356,22 @@ export class LobbyController {
     const categoriesForm = document.getElementById("lobby-config-categories");
     const roundsInput = document.getElementById("lobby-config-rounds");
     const timerInput = document.getElementById("lobby-config-timer");
+    const revealInput = document.getElementById("lobby-config-reveal-duration");
     const publicInput = document.getElementById("lobby-config-public");
     const showCategoryInput = document.getElementById("lobby-config-show-category");
     const earlyRevealInput = document.getElementById("lobby-config-early-reveal");
     const answerThresholdInput = document.getElementById("lobby-config-answer-threshold");
+    const roundsLabel = document.getElementById("lobby-config-rounds-label");
+    const timerLabel = document.getElementById("lobby-config-timer-label");
+    const revealField = document.getElementById("lobby-config-reveal-field");
     if (!categoriesForm) return;
 
     const editable = this.isOwner();
     const source = this.configDirty ? this.getDraftConfig(lobby) : this.getServerConfig(lobby);
+    const passive = this.isPassiveLobby(lobby);
+    if (roundsLabel) roundsLabel.textContent = passive ? "Musiques" : "Manches";
+    if (timerLabel) timerLabel.textContent = passive ? "Écoute par musique" : "Secondes par réponse";
+    if (revealField) revealField.style.display = passive ? "" : "none";
     if (nameInput) {
       nameInput.value = String(source.name || "");
       nameInput.disabled = !editable;
@@ -373,6 +383,10 @@ export class LobbyController {
     if (timerInput) {
       timerInput.value = Number.isFinite(source.round_duration_seconds) ? String(source.round_duration_seconds) : "";
       timerInput.disabled = !editable;
+    }
+    if (revealInput) {
+      revealInput.value = Number.isFinite(source.reveal_duration_seconds) ? String(source.reveal_duration_seconds) : "";
+      revealInput.disabled = !editable || !passive;
     }
     if (publicInput) {
       publicInput.checked = source.visibility !== "private";
@@ -416,6 +430,7 @@ export class LobbyController {
     const nameInput = document.getElementById("lobby-config-name");
     const roundsInput = document.getElementById("lobby-config-rounds");
     const timerInput = document.getElementById("lobby-config-timer");
+    const revealInput = document.getElementById("lobby-config-reveal-duration");
     const publicInput = document.getElementById("lobby-config-public");
     const showCategoryInput = document.getElementById("lobby-config-show-category");
     const earlyRevealInput = document.getElementById("lobby-config-early-reveal");
@@ -429,6 +444,7 @@ export class LobbyController {
     if (nameInput) nameInput.oninput = handleInput;
     if (roundsInput) roundsInput.oninput = handleInput;
     if (timerInput) timerInput.oninput = handleInput;
+    if (revealInput) revealInput.oninput = handleInput;
     if (publicInput) publicInput.onchange = handleCategoryChange;
     if (showCategoryInput) showCategoryInput.onchange = handleCategoryChange;
     if (earlyRevealInput) earlyRevealInput.onchange = handleCategoryChange;
@@ -589,8 +605,10 @@ export class LobbyController {
     return {
       name: this.normalizeLobbyName(lobby?.name, "Nouveau salon"),
       visibility: String(lobby?.visibility || "private").toLowerCase() === "private" ? "private" : "public",
+      game_mode: this.normalizeGameMode(lobby?.game_mode),
       total_rounds: Number.parseInt(lobby?.total_rounds ?? 5, 10),
       round_duration_seconds: Number.parseInt(lobby?.round_duration_seconds ?? 30, 10),
+      reveal_duration_seconds: Number.parseInt(lobby?.reveal_duration_seconds ?? 10, 10),
       show_track_category: this.toBool(lobby?.show_track_category),
       allow_early_reveal_vote: this.toBool(lobby?.allow_early_reveal_vote ?? true),
       answer_similarity_threshold: this.normalizeAnswerThreshold(lobby?.answer_similarity_threshold),
@@ -611,8 +629,10 @@ export class LobbyController {
         this.getServerConfig(lobby).name
       ),
       visibility: document.getElementById("lobby-config-public")?.checked ? "public" : "private",
+      game_mode: this.normalizeGameMode(lobby?.game_mode),
       total_rounds: this.parseIntegerInput(document.getElementById("lobby-config-rounds")?.value),
       round_duration_seconds: this.parseIntegerInput(document.getElementById("lobby-config-timer")?.value),
+      reveal_duration_seconds: this.parseIntegerInput(document.getElementById("lobby-config-reveal-duration")?.value),
       show_track_category: document.getElementById("lobby-config-show-category")?.checked === true,
       allow_early_reveal_vote: document.getElementById("lobby-config-early-reveal")?.checked === true,
       answer_similarity_threshold: this.normalizeAnswerThreshold(document.getElementById("lobby-config-answer-threshold")?.value),
@@ -676,8 +696,10 @@ export class LobbyController {
       lobby_id: lobbyId,
       name: draft.name,
       visibility: draft.visibility === "private" ? "private" : "public",
+      game_mode: this.normalizeGameMode(draft.game_mode),
       total_rounds: Number(draft.total_rounds || 5),
       round_duration_seconds: Number(draft.round_duration_seconds || 30),
+      reveal_duration_seconds: Number(draft.reveal_duration_seconds || 10),
       show_track_category: Boolean(draft.show_track_category),
       allow_early_reveal_vote: Boolean(draft.allow_early_reveal_vote),
       answer_similarity_threshold: this.normalizeAnswerThreshold(draft.answer_similarity_threshold),
@@ -738,7 +760,7 @@ export class LobbyController {
     this.setStatus(res.success ? "Partie lancée" : (res.error || "Erreur"), res.success);
     if (res.success) {
       localStorage.removeItem("mq_last_scoreboard");
-      window.appCtrl.changeView("game");
+      window.appCtrl.changeView(this.getPlayRoute());
     }
   }
 
@@ -778,7 +800,7 @@ export class LobbyController {
       const status = String(res.data.round.status || "").toLowerCase();
       if (status === "running" || status === "reveal") {
         localStorage.removeItem("mq_last_scoreboard");
-        window.appCtrl.changeView("game");
+        window.appCtrl.changeView(this.getPlayRoute());
       }
       return;
     }
@@ -847,6 +869,18 @@ export class LobbyController {
     return ["1", "true", "yes", "on"].includes(String(value ?? "").trim().toLowerCase());
   }
 
+  normalizeGameMode(value) {
+    return String(value || "").trim().toLowerCase() === "autoplay" ? "autoplay" : "participative";
+  }
+
+  isPassiveLobby(lobby = this.currentLobby) {
+    return this.normalizeGameMode(lobby?.game_mode) === "autoplay";
+  }
+
+  getPlayRoute() {
+    return this.isPassiveLobby() ? "autoplay" : "game";
+  }
+
   escapeHtml(value) {
     return escapeHtml(value);
   }
@@ -867,8 +901,10 @@ export class LobbyController {
     return JSON.stringify({
       name: this.normalizeLobbyName(config.name, "Nouveau salon"),
       visibility: config.visibility === "private" ? "private" : "public",
+      game_mode: this.normalizeGameMode(config.game_mode),
       total_rounds: Number.parseInt(config.total_rounds ?? 0, 10),
       round_duration_seconds: Number.parseInt(config.round_duration_seconds ?? 0, 10),
+      reveal_duration_seconds: Number.parseInt(config.reveal_duration_seconds ?? 0, 10),
       show_track_category: Boolean(config.show_track_category),
       allow_early_reveal_vote: Boolean(config.allow_early_reveal_vote),
       answer_similarity_threshold: this.normalizeAnswerThreshold(config.answer_similarity_threshold),
@@ -884,6 +920,23 @@ export class LobbyController {
   parseIntegerInput(value) {
     const parsed = Number.parseInt(String(value ?? "").trim(), 10);
     return Number.isFinite(parsed) ? parsed : Number.NaN;
+  }
+
+  formatDuration(totalSeconds) {
+    const seconds = Math.max(0, Number(totalSeconds) || 0);
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const rest = seconds % 60;
+
+    if (hours > 0) {
+      return `${hours} h ${String(minutes).padStart(2, "0")} min`;
+    }
+
+    if (minutes > 0) {
+      return rest > 0 ? `${minutes} min ${rest} s` : `${minutes} min`;
+    }
+
+    return `${rest} s`;
   }
 
   normalizeAnswerThreshold(value) {
@@ -935,6 +988,7 @@ export class LobbyController {
   validateConfig(config) {
     const totalRounds = Number.parseInt(config?.total_rounds ?? 0, 10);
     const roundDuration = Number.parseInt(config?.round_duration_seconds ?? 0, 10);
+    const revealDuration = Number.parseInt(config?.reveal_duration_seconds ?? 0, 10);
     const answerThreshold = this.normalizeAnswerThreshold(config?.answer_similarity_threshold);
     const selectedCategoryIds = Array.isArray(config?.selected_category_ids) ? config.selected_category_ids.map(Number) : [];
     const availableTracks = this.getAvailableTrackCount(selectedCategoryIds);
@@ -949,6 +1003,9 @@ export class LobbyController {
     if (!Number.isInteger(roundDuration) || roundDuration < MIN_ROUND_DURATION || roundDuration > MAX_ROUND_DURATION) {
       issues.push(`Le chrono doit etre compris entre ${MIN_ROUND_DURATION} et ${MAX_ROUND_DURATION} secondes.`);
     }
+    if (this.normalizeGameMode(config?.game_mode) === "autoplay" && (!Number.isInteger(revealDuration) || revealDuration < MIN_REVEAL_DURATION || revealDuration > MAX_REVEAL_DURATION)) {
+      issues.push(`La durée d'affichage de la réponse doit être comprise entre ${MIN_REVEAL_DURATION} et ${MAX_REVEAL_DURATION} secondes.`);
+    }
     if (!Number.isInteger(answerThreshold) || answerThreshold < MIN_ANSWER_THRESHOLD || answerThreshold > MAX_ANSWER_THRESHOLD) {
       issues.push(`La precision doit etre comprise entre ${MIN_ANSWER_THRESHOLD}% et ${MAX_ANSWER_THRESHOLD}%.`);
     }
@@ -962,6 +1019,7 @@ export class LobbyController {
       availableTracks,
       totalRounds,
       roundDuration,
+      revealDuration,
       answerThreshold,
     };
   }
@@ -973,6 +1031,10 @@ export class LobbyController {
     const startButton = document.getElementById("btn-lobby-start");
     const review = validation || this.validateConfig(config);
     const totalCategoryCount = this.categories.length;
+    const passive = this.normalizeGameMode(config?.game_mode) === "autoplay";
+    const configSummary = passive
+      ? `${this.formatSelectedCategoryCount(review.selectedCount)} - ${this.formatAvailableMusicCount(review.availableTracks)} - durée estimée ${this.formatDuration(review.totalRounds * (review.roundDuration + review.revealDuration))}.`
+      : `${this.formatSelectedCategoryCount(review.selectedCount)} - ${this.formatAvailableMusicCount(review.availableTracks)}.`;
 
     if (categorySummary) {
       categorySummary.textContent = totalCategoryCount > 0
@@ -982,7 +1044,7 @@ export class LobbyController {
 
     if (helper) {
       if (!editable) {
-        helper.textContent = `${this.formatSelectedCategoryCount(review.selectedCount)} - ${this.formatAvailableMusicCount(review.availableTracks)}.`;
+        helper.textContent = configSummary;
         helper.className = "mq-muted";
       } else if (review.issues.length) {
         helper.textContent = review.issues[0];
@@ -991,10 +1053,12 @@ export class LobbyController {
         helper.textContent = "Réglages en cours d'application...";
         helper.className = "status";
       } else if (this.configDirty) {
-        helper.textContent = `${this.formatSelectedCategoryCount(review.selectedCount)} - ${this.formatAvailableMusicCount(review.availableTracks)}.`;
+        helper.textContent = configSummary;
         helper.className = "status success";
       } else {
-        helper.textContent = `Réglages sauvegardés - ${this.formatCategoryCount(review.selectedCount)} - ${this.formatAvailableMusicCount(review.availableTracks)}.`;
+        helper.textContent = passive
+          ? `Réglages sauvegardés - ${this.formatCategoryCount(review.selectedCount)} - durée estimée ${this.formatDuration(review.totalRounds * (review.roundDuration + review.revealDuration))}.`
+          : `Réglages sauvegardés - ${this.formatCategoryCount(review.selectedCount)} - ${this.formatAvailableMusicCount(review.availableTracks)}.`;
         helper.className = "mq-muted";
       }
     }
@@ -1021,11 +1085,13 @@ export class LobbyController {
 
     if (startButton) {
       startButton.disabled = !editable || this.configSaveInFlight || review.issues.length > 0;
+      startButton.textContent = passive ? "Lancer l'écoute" : "Lancer la partie";
     }
   }
 
   destroy() {
     this.isDestroyed = true;
+    document.body.classList.remove("mq-lobby-passive-mode");
     this.stopStream();
     this.stopHeartbeat();
     if (this.configSaveTimeout) {

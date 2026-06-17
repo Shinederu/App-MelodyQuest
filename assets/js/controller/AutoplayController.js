@@ -1,6 +1,6 @@
 import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
-import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260617-autoplay-mode";
-import { escapeHtml } from "../utils/ui.js?v=20260617-autoplay-mode";
+import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260617-lobby-mode-switch";
+import { escapeHtml } from "../utils/ui.js?v=20260617-lobby-mode-switch";
 
 const DEFAULT_VOLUME = 70;
 const VOLUME_STORAGE_KEY = "mq_autoplay_volume";
@@ -11,6 +11,7 @@ const TIMER_RING_CIRCUMFERENCE = 2 * Math.PI * 44;
 export class AutoplayController {
   constructor() {
     this.currentLobby = getCurrentLobby();
+    this.user = JSON.parse(localStorage.getItem("user") || "null");
     this.lobby = null;
     this.roundState = { round: null };
     this.isDestroyed = false;
@@ -67,7 +68,7 @@ export class AutoplayController {
     this.renderLobbyShell();
     await this.refreshRoundState();
 
-    if (!this.roundState.round && String(this.lobby.status || "") !== "finished") {
+    if (this.isOwner() && !this.roundState.round && String(this.lobby.status || "") !== "finished") {
       await this.startNextRound();
     }
 
@@ -122,6 +123,10 @@ export class AutoplayController {
         this.renderFinished();
         return;
       }
+      if (!this.isOwner()) {
+        this.renderWaitingForOwner();
+        return;
+      }
       await this.startNextRound();
       return;
     }
@@ -135,12 +140,12 @@ export class AutoplayController {
 
     const now = this.nowServer();
     const status = String(round.status || "");
-    if (status === "running" && now >= Number(round.answer_deadline_unix || 0)) {
+    if (this.isOwner() && status === "running" && now >= Number(round.answer_deadline_unix || 0)) {
       await this.revealRound();
       return;
     }
 
-    if (status === "reveal") {
+    if (this.isOwner() && status === "reveal") {
       const revealStart = Number(round.reveal_started_at_unix || 0);
       const revealDuration = this.getRevealDuration();
       if (revealStart > 0 && now >= revealStart + revealDuration) {
@@ -150,6 +155,10 @@ export class AutoplayController {
   }
 
   async startNextRound() {
+    if (!this.isOwner()) {
+      this.renderWaitingForOwner();
+      return;
+    }
     if (this.actionInFlight || this.finished) return;
 
     this.actionInFlight = true;
@@ -172,6 +181,7 @@ export class AutoplayController {
   }
 
   async revealRound() {
+    if (!this.isOwner()) return;
     if (this.actionInFlight) return;
 
     this.actionInFlight = true;
@@ -189,6 +199,7 @@ export class AutoplayController {
   }
 
   async finishAndAdvance(round) {
+    if (!this.isOwner()) return;
     if (this.actionInFlight) return;
 
     this.actionInFlight = true;
@@ -417,6 +428,15 @@ export class AutoplayController {
     }
   }
 
+  renderWaitingForOwner() {
+    this.setStatus("En attente du lancement", true);
+    this.setPhase("Salon prêt");
+    this.setProgress(null);
+    this.renderOverlay("Prêt", "Le créateur lance l'écoute depuis son appareil.", 0);
+    this.renderSolution(null, false);
+    this.setVideoConcealed(true);
+  }
+
   async leave() {
     this.stopLoops();
     const lobbyId = this.getLobbyId();
@@ -461,6 +481,10 @@ export class AutoplayController {
 
   getRevealDuration() {
     return Math.max(3, Number(this.lobby?.reveal_duration_seconds || 10));
+  }
+
+  isOwner() {
+    return Number(this.lobby?.owner_user_id || this.currentLobby?.owner_user_id || 0) === Number(this.user?.id || 0);
   }
 
   getProgressRatio(now, start, end) {
