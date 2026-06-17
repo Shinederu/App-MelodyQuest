@@ -1308,6 +1308,7 @@ input[type="range"] {
   position: relative;
   flex: 0 0 auto;
   cursor: default;
+  z-index: 45;
 }
 
 .mq-player-actions-menu summary {
@@ -1342,7 +1343,7 @@ input[type="range"] {
   position: absolute;
   top: calc(100% + 7px);
   right: 0;
-  z-index: 35;
+  z-index: 120;
   display: grid;
   min-width: 168px;
   padding: 8px;
@@ -2048,6 +2049,8 @@ input[type="range"] {
 .mq-game-side {
   display: grid;
   gap: 12px;
+  position: relative;
+  z-index: 6;
 }
 
 .mq-game-answer-card,
@@ -2055,6 +2058,11 @@ input[type="range"] {
 .mq-game-round-card,
 .mq-game-vote-panel {
   padding: 18px;
+}
+
+.mq-game-info-card {
+  overflow: visible;
+  z-index: 12;
 }
 
 .mq-game-stage-action {
@@ -2158,6 +2166,43 @@ input[type="range"] {
   box-shadow: none;
 }
 
+.mq-game-compact-action,
+.mq-game-next-head,
+.mq-game-next-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mq-game-compact-action > div,
+.mq-game-next-head > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.mq-game-compact-action strong,
+.mq-game-next-head h3 {
+  margin: 0;
+  color: var(--mq-text);
+}
+
+.mq-game-compact-action p,
+.mq-game-next-head p,
+.mq-game-next-options p {
+  margin: 0;
+}
+
+.mq-game-compact-action button,
+.mq-game-next-head button {
+  flex: 0 0 auto;
+}
+
+.mq-game-action-help {
+  font-size: 0.84rem;
+}
+
 .mq-game-note[hidden],
 .mq-game-round-card[hidden],
 .mq-game-reveal-vote[hidden],
@@ -2172,7 +2217,9 @@ input[type="range"] {
 }
 
 #game-scoreboard .mq-list-row {
+  position: relative;
   padding: 10px 11px;
+  overflow: visible;
 }
 
 #game-scoreboard .mq-player-line {
@@ -3023,6 +3070,12 @@ body:has(.mq-tv-page) #footer {
     margin: 0;
   }
 
+  body:has(.mq-game-page) .mq-game-compact-action,
+  body:has(.mq-game-page) .mq-game-next-head,
+  body:has(.mq-game-page) .mq-game-next-options {
+    gap: 7px;
+  }
+
   body:has(.mq-game-page) .mq-game-info-grid {
     gap: 6px;
     margin-bottom: 6px;
@@ -3656,6 +3709,18 @@ body:has(.mq-tv-page) #footer {
     align-items: center;
     flex-direction: row;
     padding: 8px 9px;
+  }
+
+  body:has(.mq-game-page) .mq-game-compact-action,
+  body:has(.mq-game-page) .mq-game-next-head,
+  body:has(.mq-game-page) .mq-game-next-options {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  body:has(.mq-game-page) .mq-game-compact-action button,
+  body:has(.mq-game-page) .mq-game-next-head button {
+    width: 100%;
   }
 
   body:has(.mq-game-page) .mq-game-vote-panel {

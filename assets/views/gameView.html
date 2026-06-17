@@ -73,12 +73,14 @@
     <aside class="mq-game-side">
       <section id="game-round-side-panel" class="mq-card mq-game-round-card" hidden>
         <div id="game-reveal-vote" class="mq-game-note mq-game-reveal-vote" hidden>
-          <strong>Personne ne trouve ?</strong>
-          <p id="game-reveal-vote-info" class="mq-muted"></p>
-          <p id="game-reveal-vote-summary" class="mq-muted"></p>
-          <div class="mq-actions">
+          <div class="mq-game-compact-action">
+            <div>
+              <strong>Révéler la réponse</strong>
+              <p id="game-reveal-vote-summary" class="mq-muted"></p>
+            </div>
             <button id="btn-game-reveal" type="button" class="mq-secondary">Révéler la réponse</button>
           </div>
+          <p id="game-reveal-vote-info" class="mq-muted mq-game-action-help"></p>
         </div>
 
         <div id="game-missed-panel" class="mq-game-note mq-game-missed-panel" hidden>
@@ -93,18 +95,21 @@
       </section>
 
       <section id="game-next-panel" class="mq-card mq-game-vote-panel" hidden>
-        <div>
-          <p class="mq-section-label">Suite de la partie</p>
-          <h3>Manche suivante</h3>
-          <p id="game-next-info" class="mq-muted">Le vote sera disponible après quelques secondes de solution.</p>
-          <p id="game-next-summary" class="mq-muted"></p>
+        <div class="mq-game-next-head">
+          <div>
+            <h3>Manche suivante</h3>
+            <p id="game-next-summary" class="mq-muted"></p>
+          </div>
+          <div class="mq-actions">
+            <button id="btn-game-next" type="button">Passer au suivant</button>
+          </div>
         </div>
-        <label class="mq-check">
-          <input id="game-auto-next" type="checkbox" />
-          <span>Activer le suivant automatique</span>
-        </label>
-        <div class="mq-actions">
-          <button id="btn-game-next" type="button">Passer au suivant</button>
+        <div class="mq-game-next-options">
+          <p id="game-next-info" class="mq-muted">Le vote sera disponible après quelques secondes de solution.</p>
+          <label class="mq-check">
+            <input id="game-auto-next" type="checkbox" />
+            <span>Suivant automatique</span>
+          </label>
         </div>
       </section>
 

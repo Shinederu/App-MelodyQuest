@@ -1104,9 +1104,9 @@ export class GameController {
     const hasVoted = this.hasCurrentUserVotedReveal(round);
 
     info.textContent = hasVoted
-      ? "Ton vote est enregistré. La réponse sera révélée si tout le monde vote."
-      : "Vote pour révéler la réponse maintenant si le groupe est bloqué.";
-    summary.textContent = `${voteCount} / ${requiredCount} votes pour révéler la réponse`;
+      ? "Vote enregistré. En attente du groupe."
+      : "Disponible si tout le monde est bloqué.";
+    summary.textContent = `${voteCount} / ${requiredCount} votes`;
     button.disabled = hasVoted || this.revealVoteRequestInFlight;
     button.textContent = hasVoted ? "Vote enregistré" : "Révéler la réponse";
   }
@@ -1160,18 +1160,18 @@ export class GameController {
     const hasVoted = this.hasCurrentUserVoted(round);
     const suggestionHold = this.getActiveSuggestionHold();
 
-    summary.textContent = `${readyCount} / ${requiredCount} votes pour passer à la manche suivante`;
+    summary.textContent = `${readyCount} / ${requiredCount} votes`;
 
     if (!nextVoteAvailable) {
       const remaining = Math.max(0, Math.ceil((this.getNextVoteAvailableMs(round) - this.getNowMs()) / 1000));
-      info.textContent = `Le vote sera disponible dans ${remaining}s.`;
+      info.textContent = `Vote disponible dans ${remaining}s.`;
       button.hidden = true;
       return;
     }
 
     if (suggestionHold) {
       const name = suggestionHold.isCurrentUser ? "toi" : (suggestionHold.username || "un joueur");
-      info.textContent = `Proposition en cours par ${name}. La manche attend la fin de la correction.`;
+      info.textContent = `Correction en cours par ${name}.`;
       button.hidden = false;
       button.disabled = true;
       button.textContent = "Correction en cours";
@@ -1179,8 +1179,8 @@ export class GameController {
     }
 
     info.textContent = hasVoted
-      ? "Ton vote est enregistré. En attente du reste du lobby."
-      : "Au moins 50% des joueurs doivent valider pour lancer la suite.";
+      ? "Vote enregistré. En attente du lobby."
+      : "La moitié du lobby suffit pour continuer.";
     button.hidden = false;
     button.disabled = hasVoted || this.nextVoteRequestInFlight;
     button.textContent = hasVoted ? "Vote enregistré" : "Passer au suivant";
