@@ -1933,6 +1933,31 @@ input[type="range"] {
   width: min(260px, 48vw);
 }
 
+.mq-game-page .mq-video-toolbar {
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+.mq-game-page .mq-video-toolbar #btn-game-suggest-correction {
+  flex: 0 0 auto;
+}
+
+.mq-game-page .mq-video-toolbar .mq-volume-control {
+  flex: 0 1 430px;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.mq-game-page .mq-video-toolbar .mq-volume-control input {
+  width: clamp(150px, 18vw, 280px);
+}
+
+.mq-game-page #game-volume-value {
+  flex: 0 0 auto;
+  min-width: 52px;
+  text-align: center;
+}
+
 .mq-game-category {
   justify-self: center;
   width: fit-content;
@@ -3853,20 +3878,27 @@ body:has(.mq-tv-page) #footer {
   }
 
   body:has(.mq-game-page) .mq-video-toolbar {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
     gap: 8px;
     margin-top: 4px;
     order: 4;
   }
 
+  body:has(.mq-game-page) .mq-video-toolbar #btn-game-suggest-correction {
+    flex: 1 1 180px;
+  }
+
   body:has(.mq-game-page) .mq-volume-control {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    flex: 2 1 240px;
     min-width: 0;
   }
 
-  body:has(.mq-game-page) .mq-volume-control input {
+  body:has(.mq-game-page) .mq-video-toolbar .mq-volume-control input {
     width: 100%;
   }
 
