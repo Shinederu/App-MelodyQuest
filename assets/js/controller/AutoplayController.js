@@ -1,6 +1,6 @@
-﻿import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
-import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260617-lobby-mode-review";
-import { escapeHtml } from "../utils/ui.js?v=20260617-lobby-mode-review";
+import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
+import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260619-autoplay-return-lobby";
+import { escapeHtml } from "../utils/ui.js?v=20260619-autoplay-return-lobby";
 
 const DEFAULT_VOLUME = 70;
 const VOLUME_STORAGE_KEY = "mq_autoplay_volume";
@@ -65,6 +65,11 @@ export class AutoplayController {
       return;
     }
 
+    if (String(this.lobby.status || "") === "finished") {
+      this.returnToLobbyAfterFinish();
+      return;
+    }
+
     this.renderLobbyShell();
     await this.refreshRoundState();
 
@@ -111,6 +116,11 @@ export class AutoplayController {
       this.serverOffsetSeconds = serverTime - (Date.now() / 1000);
     }
 
+    if (this.isLastRoundFinished(this.roundState?.round)) {
+      this.returnToLobbyAfterFinish();
+      return;
+    }
+
     this.renderRound();
   }
 
@@ -128,6 +138,11 @@ export class AutoplayController {
         return;
       }
       await this.startNextRound();
+      return;
+    }
+
+    if (this.isLastRoundFinished(round)) {
+      this.returnToLobbyAfterFinish();
       return;
     }
 
@@ -417,15 +432,31 @@ export class AutoplayController {
   }
 
   renderFinished() {
+    this.returnToLobbyAfterFinish();
+  }
+
+  returnToLobbyAfterFinish() {
+    if (this.finished || this.isDestroyed) return;
+
     this.finished = true;
     this.stopLoops();
-    this.setStatus("Blindtest terminé", true);
-    this.setPhase("Terminé");
-    this.renderOverlay("Terminé", "Toutes les musiques ont été jouées.", 1);
-    this.setVideoConcealed(false, true);
     if (this.player && typeof this.player.stopVideo === "function") {
       this.player.stopVideo();
     }
+    if (this.lobby) {
+      setCurrentLobby(this.lobby);
+    }
+    window.appCtrl.changeView("lobby");
+  }
+
+  isLastRoundFinished(round) {
+    if (!round) return false;
+
+    const status = String(round.status || "");
+    const totalRounds = Number(this.lobby?.total_rounds || 0);
+    const currentRoundNumber = Number(round.round_number || 0);
+
+    return status === "finished" && totalRounds > 0 && currentRoundNumber >= totalRounds;
   }
 
   renderWaitingForOwner() {
