@@ -1,17 +1,6 @@
 # Guide Agents - MelodyQuest
 
-Ce depot contient le frontend statique MelodyQuest. Il doit rester simple a reprendre: pas de build, pas de dependances Node obligatoires, et pas de backend local dans ce repo.
-
-## Etat courant avant pause
-
-MelodyQuest est volontairement mis en pause au 2026-06-12. Avant de reprendre:
-
-- lire la section `Etat de pause - 2026-06-12` dans `README.md`;
-- verifier les deux repos `App-MelodyQuest` et `App-MelodyQuest-API`;
-- verifier que `P:\PROD` reflete bien le contenu servi par Nginx si le site
-  public ne montre pas les fichiers deployes.
-
-Le mode TV est revenu a un lecteur YouTube iframe actif simple. Le double lecteur TV, le prechargement TV actif et l'action backend `markTvRoundReady` ont ete retires apres regressions video/son. Ne pas les restaurer par reflexe.
+Ce depot contient le frontend statique MelodyQuest. Il doit rester simple a reprendre: pas de build obligatoire, pas de backend local et pas de dependance Node runtime.
 
 ## Lecture de demarrage
 
@@ -20,7 +9,10 @@ Le mode TV est revenu a un lecteur YouTube iframe actif simple. Le double lecteu
 3. Lire `P:\DEV\GitHub\AGENTS.md`.
 4. Lire ce fichier.
 5. Lire `README.md`.
-6. Si le changement touche l'API ou la DB, lire aussi `P:\DEV\GitHub\App-MelodyQuest-API\README.md`, `P:\DEV\GitHub\App-MelodyQuest-API\AGENTS.md` et les migrations `P:\DEV\GitHub\App-MelodyQuest-API\sql\`.
+6. Si le changement touche l'API, la DB, les droits, les salons, les scores, le player, la TV ou Mercure, lire aussi:
+   - `P:\DEV\GitHub\App-MelodyQuest-API\README.md`
+   - `P:\DEV\GitHub\App-MelodyQuest-API\AGENTS.md`
+   - `P:\DEV\GitHub\App-MelodyQuest-API\sql\`
 
 ## Source de verite
 
@@ -28,67 +20,62 @@ Le mode TV est revenu a un lecteur YouTube iframe actif simple. Le double lecteu
 - Frontend PROD: `P:\PROD\MelodyQuest`
 - Backend DEV: `P:\DEV\GitHub\App-MelodyQuest-API`
 - Backend PROD: `P:\PROD\API\melodyquest`
-- Endpoint API: `https://api.shinederu.ch/melodyquest/`
 - Endpoint front: `https://melodyquest.shinederu.ch/`
+- Endpoint API: `https://api.shinederu.ch/melodyquest/`
+- Hub Mercure: `https://mercure.shinederu.ch/.well-known/mercure`
 
-Le repo MelodyQuest actuel ne contient pas de dossier `client/` ou `backend/` actif. Ne pas recreer ces miroirs sans demande explicite.
+Le repo frontend ne contient pas de dossier `client/` ou `backend/` actif. Ne pas recreer ces miroirs sans demande explicite.
+
+## Etat a preserver
+
+- MelodyQuest a deux modes: `participative` (actif) et `autoplay` (passif).
+- Le mode passif passe par un vrai salon, garde le partage et la liaison TV, puis revient au lobby en fin de partie.
+- La TV utilise un lecteur YouTube iframe simple. Le double lecteur TV et `markTvRoundReady` ont ete abandonnes.
+- YouTube reste la source principale. Ne pas introduire d'hebergement audio local.
+- La presence est manuelle: un joueur ou le createur bascule present/absent; fermer l'onglet ne marque pas automatiquement absent.
+- Les pages management reposent sur la permission backend `melodyquest.catalog.manage`.
 
 ## Organisation
 
-- `index.html`: point d'entree statique et cache-bust global.
-- `assets/css/main.css`: style global.
-- `assets/views/*View.html`: fragments HTML charges par route.
+- `index.html`: point d'entree, configuration API publique et cache-bust global.
+- `assets/css/main.css`: style global sombre/responsive.
+- `assets/views/*View.html`: fragments HTML par route.
 - `assets/js/controller/*Controller.js`: logique par vue.
-- `assets/js/model/`: modeles UI partages.
-- `assets/js/utils/`: helpers HTTP, lobby, YouTube et QR.
-- `assets/js/vendor/`: bibliotheques vendorees necessaires au navigateur.
+- `assets/js/model/`: header/utilisateur.
+- `assets/js/utils/`: helpers HTTP, lobby, horloge, UI, YouTube, QR, wake lock.
+- `assets/js/vendor/`: bibliotheques vendorees navigateur.
 
-Helpers partages a reutiliser avant de creer une logique locale:
+Helpers a reutiliser:
 
-- `assets/js/utils/ui.js`: HTML/attribut escaping, normalisation de recherche, slugs, dates, rangs, roles joueurs et avatars.
-- `assets/js/utils/youtube.js`: extraction/build d'URL YouTube et chargement unique de l'API iframe.
+- `ui.js`: echappement HTML/attribut, recherche, slugs, dates, avatars, rangs.
+- `youtube.js`: extraction/build d'URL YouTube, API iframe.
+- `ClockSync.js`: synchronisation d'horloge backend/client.
+- `LobbyState.js`: stockage du lobby courant.
 
-Le dossier `output/` n'est pas requis par l'application. S'il reapparait vide, le supprimer.
+Le dossier `output/` n'est pas requis. S'il reapparait vide, il peut etre supprime.
 
-## Routes frontend
-
-Les routes sont gerees par hash dans `assets/js/controller/AppController.js`.
+## Routes
 
 - Publiques: `#/public`, `#/suggest-track`, `/tv`
-- Authentifiees: `#/main`, `#/autoplay-setup`, `#/autoplay`, `#/lobby-list`, `#/lobby`, `#/game`, `#/result`, `#/tv-link`
-- Admin catalogue: `#/management`, `#/management-categories`, `#/management-families`, `#/management-tracks`, `#/management-validation`, `#/management-suggestions`, `#/management-answers`
-
-Conserver les redirections existantes:
-
-- utilisateur non connecte vers `#/public`;
-- utilisateur connecte hors pages publiques vers `#/main`;
-- non-admin hors pages management vers `#/main`;
-- `#/lobby?code=...` et `#/tv-link?code=...` gardent le code en attente pendant la connexion.
-
-## Fonctionnalites a preserver
-
-- Login/register/logout via le package `@shinederu/auth-core` fourni par `Module-Auth-Core`.
-- Creation/rejoindre lobby public ou prive.
-- Reglages lobby: categories, timer, manches, visibilite, categorie visible, vote de revelation, seuil de precision.
-- Mode automatique separe: configuration categories/timers, lecture en chaine, aucune saisie, aucun score.
-- Jeu desktop/mobile avec video cachee, reponse, classement, timer, partage, suggestions de correction.
-- Mode joueur de salon sans lecteur video local.
-- Mode TV avec QR code, liaison `tv-link`, son actif et lecteur YouTube simple. Les optimisations de prechargement TV precedentes sont abandonnees pour l'instant.
-- Administration catalogue, suggestions joueurs et analyse des réponses saisies en partie.
+- Joueur: `#/main`, `#/lobby`, `#/game`, `#/result`, `#/autoplay`, `#/tv-link`
+- Compatibilite: `#/lobby-list`, `#/autoplay-setup`
+- Admin: `#/management`, `#/management-categories`, `#/management-families`, `#/management-tracks`, `#/management-validation`, `#/management-suggestions`, `#/management-answers`
 
 ## Cache-bust
 
-Quand un JS, une vue HTML ou le CSS change, mettre a jour la version:
+Quand un JS, une vue HTML ou le CSS change, mettre a jour:
 
-- `index.html` pour `main.css` et `AppController.js`;
-- imports de `AppController.js`;
-- imports directs dans les autres modules touches (`PublicController`, `TvController`, `TvLinkController`, etc.).
+- `index.html`;
+- `assets/js/controller/AppController.js`;
+- les imports directs des modules touches si besoin.
 
-Utiliser une valeur lisible du type `YYYYMMDD-sujet`.
+Format conseille: `YYYYMMDD-sujet`.
+
+Cache-bust courant: `20260619-autoplay-return-lobby`.
 
 ## Verification
 
-Verification minimale frontend:
+Verification minimale:
 
 ```powershell
 Get-ChildItem P:\DEV\GitHub\App-MelodyQuest\assets\js -Recurse -Filter *.js | % { node --check $_.FullName }
@@ -96,34 +83,39 @@ git -c safe.directory=* diff --check
 rg -n "console\.|alert\(|debugger" P:\DEV\GitHub\App-MelodyQuest\assets
 ```
 
-Smoke test recommande en production apres deploiement:
+Smoke test a privilegier selon la zone touchee:
 
-1. `#/public`: login et message d'erreur integre.
-2. `#/main`: salons publics et creation/rejoindre.
-3. `#/lobby`: chargement reglages/categories/joueurs.
-4. `#/game`: layout desktop/mobile, champ reponse, timer, video cachee.
-5. `/tv` + `#/tv-link`: QR/lien TV et absence de conteneur `tv-video-preload-player` si le changement touche ces zones.
-6. Pages management si le changement touche catalogue ou suggestions.
+1. `#/public`: connexion et inscription.
+2. `#/main`: switch actif/passif, creation/rejoindre, liste publique.
+3. `#/lobby`: reglages, joueurs, partage, TV.
+4. `#/game`: reponse, video cachee, solution, votes, classement.
+5. `#/autoplay`: lecture passive et retour lobby en fin de partie.
+6. `/tv` + `#/tv-link`: QR et liaison.
+7. `#/management*`: catalogue, suggestions et analyse admin.
 
 ## Deploiement
 
-Projet statique: copier uniquement les fichiers runtime publics depuis DEV vers `P:\PROD\MelodyQuest`:
+Copier uniquement les fichiers runtime publics vers `P:\PROD\MelodyQuest`:
 
-- `index.html`;
-- `assets\css\`;
-- `assets\views\`;
-- `assets\js\`;
-- assets publics necessaires au navigateur.
+- `index.html`
+- `assets\css\`
+- `assets\views\`
+- `assets\js\`
+- assets publics necessaires au navigateur
 
-Ne pas copier `README.md`, `AGENTS.md`, `.git`, `.github`, docs internes, tests, caches, brouillons ou dossier `output\` en PROD.
+Ne pas copier:
 
-Ne pas supprimer massivement en PROD. Si un nettoyage est necessaire, verifier d'abord les references dans `index.html` et les imports JS.
+- `.git`, `.github`
+- `README.md`, `AGENTS.md`
+- docs internes
+- tests, caches, brouillons
+- `output\`
 
 Commande type:
 
 ```powershell
 Copy-Item P:\DEV\GitHub\App-MelodyQuest\index.html P:\PROD\MelodyQuest\index.html -Force
-Copy-Item P:\DEV\GitHub\App-MelodyQuest\assets\* P:\PROD\MelodyQuest\assets -Recurse -Force
+robocopy P:\DEV\GitHub\App-MelodyQuest\assets P:\PROD\MelodyQuest\assets /E /NFL /NDL /NJH /NJS /NP
 ```
 
 ## Encodage
