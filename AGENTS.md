@@ -71,7 +71,9 @@ Quand un JS, une vue HTML ou le CSS change, mettre a jour:
 
 Format conseille: `YYYYMMDD-sujet`.
 
-Cache-bust courant: `20260619-autoplay-return-lobby`.
+Cache-bust courant: `20260717-compact-landscape`.
+
+Le CSS contient un profil paysage compact pour les petits ecrans autour de `800 x 480`. Toute modification de la TV, de `#/game` ou de `#/autoplay` doit conserver un viewport sans debordement horizontal a cette resolution.
 
 ## Verification
 

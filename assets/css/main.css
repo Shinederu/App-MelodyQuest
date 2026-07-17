@@ -2711,6 +2711,7 @@ input[type="range"] {
 
 body:has(.mq-tv-page) {
   padding: 0;
+  height: 100vh;
   height: 100dvh;
   overflow: hidden;
   overflow-x: hidden;
@@ -2728,6 +2729,7 @@ body:has(.mq-tv-page) #footer {
 }
 
 body:has(.mq-tv-page) #app {
+  height: 100vh;
   height: 100dvh;
   overflow: hidden;
 }
@@ -2738,13 +2740,17 @@ body:has(.mq-tv-page) #footer {
 }
 
 .mq-tv-page {
+  min-height: 100vh;
   min-height: 100dvh;
+  height: 100vh;
   height: 100dvh;
   overflow: hidden;
 }
 
 .mq-tv-pairing {
+  min-height: 100vh;
   min-height: 100dvh;
+  height: 100vh;
   height: 100dvh;
   display: grid;
   place-items: center;
@@ -2818,6 +2824,7 @@ body:has(.mq-tv-page) #footer {
   --tv-gap: clamp(7px, 1.1vmin, 14px);
   --tv-card-pad: clamp(8px, 1.2vmin, 14px);
   min-height: 0;
+  height: 100vh;
   height: 100dvh;
   display: grid;
   grid-template-rows: minmax(0, 1fr);
@@ -4179,5 +4186,555 @@ body:has(.mq-tv-page) #footer {
 
   .mq-lobby-code-panel > div {
     min-height: 58px;
+  }
+}
+
+/* Compact landscape profile for 7-inch screens such as 800 x 480. */
+@media (orientation: landscape) and (max-width: 900px) and (max-height: 560px) {
+  body:not(:has(.mq-tv-page)) {
+    padding: 6px;
+  }
+
+  #header {
+    top: 4px;
+    margin-bottom: 6px;
+  }
+
+  #app {
+    margin-bottom: 8px;
+  }
+
+  .mq-page {
+    gap: 8px;
+  }
+
+  .mq-topbar {
+    min-height: 42px;
+    gap: 6px;
+    padding: 4px 6px;
+  }
+
+  .mq-topbar__brand,
+  .mq-topbar__page-eyebrow,
+  .mq-topbar__page-copy,
+  .mq-topbar__role {
+    display: none;
+  }
+
+  .mq-topbar__page {
+    min-width: 0;
+    padding: 0;
+  }
+
+  .mq-topbar__page-title {
+    gap: 5px;
+    flex-wrap: nowrap;
+  }
+
+  .mq-topbar__page-title strong {
+    max-width: 34vw;
+    font-size: 0.92rem;
+  }
+
+  .mq-topbar__page-chips {
+    gap: 4px;
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+
+  .mq-topbar__page-chips .mq-chip {
+    min-height: 22px;
+    padding: 2px 6px;
+    font-size: 0.68rem;
+    white-space: nowrap;
+  }
+
+  .mq-topbar__actions {
+    flex-direction: row;
+    gap: 4px;
+    flex-wrap: nowrap;
+  }
+
+  .mq-topbar__actions button {
+    min-height: 32px;
+    padding-inline: 9px;
+    font-size: 0.76rem;
+    white-space: nowrap;
+  }
+
+  .mq-lobby-command {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .mq-lobby-command__main {
+    gap: 8px;
+  }
+
+  .mq-lobby-command .mq-card-copy {
+    display: none;
+  }
+
+  .mq-lobby-code-panel {
+    gap: 6px;
+  }
+
+  .mq-lobby-code-panel > div {
+    min-height: 50px;
+    gap: 2px;
+    padding: 7px;
+  }
+
+  .mq-lobby-command .mq-actions {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .mq-lobby-command .mq-actions button {
+    min-height: 34px;
+    padding-inline: 10px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
+  body:has(.mq-game-page) .mq-game-shell {
+    gap: 8px;
+  }
+
+  body:has(.mq-game-page) .mq-game-stage {
+    gap: 6px;
+    padding: 7px;
+  }
+
+  body:has(.mq-game-page) .mq-game-stage__head {
+    align-items: center;
+    gap: 6px;
+  }
+
+  body:has(.mq-game-page) .mq-game-stage__head .status {
+    min-height: 0;
+    margin: 0;
+    flex: 0 1 auto;
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
+
+  body:has(.mq-game-page) .mq-game-stage__head .mq-actions {
+    flex: 1 1 auto;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  body:has(.mq-game-page) .mq-game-stage__head button {
+    min-height: 32px;
+    padding-inline: 9px;
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
+
+  body:has(.mq-game-page) .mq-video-shell {
+    width: min(100%, calc(52dvh * 16 / 9));
+    height: auto;
+    max-height: none;
+    aspect-ratio: 16 / 9;
+    justify-self: center;
+  }
+
+  body:has(.mq-game-page) .mq-video-overlay {
+    padding: 8px;
+  }
+
+  body:has(.mq-game-page) .mq-video-overlay__content {
+    gap: 5px;
+  }
+
+  body:has(.mq-game-page) .mq-video-overlay__timer {
+    gap: 8px;
+  }
+
+  body:has(.mq-game-page) .mq-video-overlay__timer-copy strong {
+    font-size: 1.05rem;
+  }
+
+  body:has(.mq-game-page) .mq-video-overlay__hint {
+    display: none;
+  }
+
+  body:has(.mq-game-page) .mq-timer-ring {
+    width: 48px;
+    height: 48px;
+  }
+
+  body:has(.mq-game-page) .mq-game-answer-card,
+  body:has(.mq-game-page) .mq-game-info-card,
+  body:has(.mq-game-page) .mq-game-round-card,
+  body:has(.mq-game-page) .mq-game-vote-panel {
+    padding: 8px;
+  }
+
+  body:has(.mq-game-page) .mq-game-answer-card .mq-card-heading,
+  body:has(.mq-game-page) .mq-game-answer-card .mq-card-copy,
+  body:has(.mq-game-page) .mq-game-answer-card .mq-kicker {
+    display: none;
+  }
+
+  body:has(.mq-game-page) #game-answer-shell {
+    gap: 4px;
+  }
+
+  body:has(.mq-game-page) #game-answer-shell label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  body:has(.mq-game-page) .mq-answer-row input,
+  body:has(.mq-game-page) .mq-answer-row button {
+    min-height: 38px;
+  }
+
+  body:has(.mq-game-page) .mq-video-toolbar {
+    gap: 6px;
+    margin-top: 2px;
+  }
+
+  body:has(.mq-game-page) .mq-video-toolbar button {
+    min-height: 32px;
+    padding-inline: 9px;
+    font-size: 0.74rem;
+  }
+
+  body:has(.mq-game-page) .mq-volume-control {
+    gap: 6px;
+    font-size: 0.76rem;
+  }
+
+  body:has(.mq-game-page) .mq-game-info-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+
+  body:has(.mq-game-page) .mq-game-fact {
+    min-height: 48px;
+    padding: 6px;
+  }
+
+  body:has(.mq-autoplay-page) {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  body:has(.mq-autoplay-page) #app {
+    margin-bottom: 0;
+  }
+
+  body:has(.mq-autoplay-page) .mq-autoplay-stage {
+    height: calc(100dvh - 54px);
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    gap: 5px;
+    padding: 6px;
+    overflow: hidden;
+  }
+
+  body:has(.mq-autoplay-page) .mq-autoplay-head {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px;
+  }
+
+  body:has(.mq-autoplay-page) .mq-autoplay-head h2 {
+    font-size: 0.98rem;
+  }
+
+  body:has(.mq-autoplay-page) .mq-autoplay-head .status {
+    margin: 0;
+    font-size: 0.7rem;
+  }
+
+  body:has(.mq-autoplay-page) .mq-autoplay-head button {
+    width: auto;
+    min-height: 32px;
+    padding-inline: 10px;
+    font-size: 0.76rem;
+  }
+
+  body:has(.mq-autoplay-page) .mq-autoplay-video-shell {
+    width: min(100%, calc((100dvh - 170px) * 16 / 9));
+    height: auto;
+    max-height: 100%;
+    aspect-ratio: 16 / 9;
+    justify-self: center;
+  }
+
+  body:has(.mq-autoplay-page) .mq-autoplay-solution:not([hidden]) ~ .mq-autoplay-footer,
+  body:has(.mq-autoplay-page) .mq-autoplay-footer {
+    min-height: 0;
+  }
+
+  body:has(.mq-autoplay-solution:not([hidden])) .mq-autoplay-video-shell {
+    width: min(100%, calc((100dvh - 245px) * 16 / 9));
+  }
+
+  body:has(.mq-autoplay-page) .mq-autoplay-solution {
+    min-height: 0;
+    gap: 2px;
+    padding: 5px 8px;
+  }
+
+  body:has(.mq-autoplay-page) .mq-autoplay-solution strong {
+    font-size: 1.1rem;
+  }
+
+  body:has(.mq-autoplay-page) .mq-autoplay-solution span:not(.mq-chip) {
+    font-size: 0.74rem;
+  }
+
+  body:has(.mq-autoplay-page) .mq-autoplay-footer {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  body:has(.mq-autoplay-page) .mq-autoplay-footer .mq-game-info-grid {
+    min-width: 210px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  body:has(.mq-autoplay-page) .mq-autoplay-footer .mq-game-fact {
+    min-height: 38px;
+    padding: 5px 7px;
+  }
+
+  body:has(.mq-autoplay-page) .mq-autoplay-footer .mq-game-fact span {
+    font-size: 0.62rem;
+  }
+
+  body:has(.mq-autoplay-page) .mq-autoplay-footer .mq-game-fact strong {
+    font-size: 0.84rem;
+  }
+
+  body:has(.mq-autoplay-page) .mq-autoplay-footer .mq-video-toolbar {
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+
+  body:has(.mq-autoplay-page) .mq-autoplay-footer .mq-volume-control {
+    min-width: 0;
+    flex-wrap: nowrap;
+    font-size: 0.72rem;
+  }
+
+  body:has(.mq-autoplay-page) .mq-autoplay-footer .mq-volume-control input {
+    width: min(180px, 30vw);
+  }
+
+  body:has(.mq-tv-page) {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  .mq-tv-pairing {
+    padding: 10px;
+  }
+
+  .mq-tv-pairing__content {
+    width: min(760px, 100%);
+    max-height: calc(100dvh - 20px);
+    grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+    grid-template-rows: minmax(0, auto) minmax(0, auto);
+    justify-items: stretch;
+    align-items: center;
+    gap: 10px 18px;
+    padding: 12px;
+    text-align: left;
+  }
+
+  .mq-tv-qr {
+    width: min(66dvh, 300px);
+    grid-column: 1;
+    grid-row: 1 / 3;
+    justify-self: center;
+    padding: 8px;
+  }
+
+  .mq-tv-code {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: stretch;
+    padding: 8px 10px;
+    font-size: clamp(2rem, 7vw, 3.2rem);
+    text-align: center;
+  }
+
+  .mq-tv-pairing .status {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+    font-size: 0.9rem;
+    line-height: 1.35;
+  }
+
+  .mq-tv-stage {
+    --tv-pad: 4px;
+    --tv-gap: 4px;
+    --tv-card-pad: 5px;
+    padding: var(--tv-pad);
+  }
+
+  .mq-tv-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(176px, 23vw);
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .mq-tv-layout--passive {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mq-tv-video-card {
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+
+  .mq-tv-round-head {
+    align-items: center;
+    flex-direction: row;
+    min-height: 28px;
+  }
+
+  .mq-tv-round-head > div:first-child {
+    min-width: 0;
+  }
+
+  .mq-tv-round-head .mq-muted {
+    display: none;
+  }
+
+  .mq-tv-round-head .mq-section-label {
+    overflow: hidden;
+    max-width: 28vw;
+    font-size: 0.64rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mq-tv-round-meta {
+    gap: 4px;
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+
+  .mq-tv-round-meta .mq-chip,
+  .mq-tv-round-meta .mq-game-category {
+    min-height: 22px;
+    max-width: 24vw;
+    overflow: hidden;
+    padding: 3px 6px;
+    font-size: 0.66rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mq-tv-video-shell,
+  .mq-tv-stage--passive .mq-tv-video-shell {
+    width: min(100%, calc((100dvh - 104px) * 16 / 9));
+  }
+
+  .mq-tv-video-overlay {
+    padding: 7px;
+  }
+
+  .mq-tv-video-overlay .mq-video-overlay__content {
+    gap: 5px;
+  }
+
+  .mq-tv-video-overlay .mq-video-overlay__timer {
+    gap: 8px;
+  }
+
+  .mq-tv-video-overlay .mq-timer-ring {
+    width: 52px;
+    height: 52px;
+  }
+
+  .mq-tv-video-overlay .mq-video-overlay__timer-copy strong {
+    font-size: clamp(1rem, 4.2vmin, 1.35rem);
+  }
+
+  .mq-tv-video-overlay .mq-video-overlay__timer-copy p {
+    font-size: 0.72rem;
+    line-height: 1.25;
+  }
+
+  .mq-tv-timer-readout strong {
+    font-size: clamp(1.35rem, 7vmin, 2rem);
+  }
+
+  .mq-tv-timer-readout span {
+    font-size: 0.7rem;
+  }
+
+  .mq-tv-solution {
+    max-height: 64px;
+    gap: 1px;
+    padding: 5px 7px;
+  }
+
+  .mq-tv-solution strong {
+    font-size: clamp(1.15rem, 5vmin, 1.55rem);
+  }
+
+  .mq-tv-solution span:not(.mq-chip) {
+    font-size: 0.7rem;
+  }
+
+  .mq-tv-side .mq-card {
+    padding: 6px;
+  }
+
+  .mq-tv-side .mq-card-heading {
+    margin-bottom: 4px;
+  }
+
+  .mq-tv-side .mq-card-heading .mq-kicker {
+    display: none;
+  }
+
+  .mq-tv-side .mq-card-heading h2 {
+    font-size: 0.88rem;
+  }
+
+  .mq-tv-scoreboard {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+    padding-right: 2px;
+  }
+
+  .mq-tv-scoreboard .mq-list-row {
+    align-items: center;
+    flex-direction: row;
+    gap: 5px;
+    padding: 4px 5px;
+  }
+
+  .mq-tv-scoreboard .mq-avatar {
+    width: 26px;
+    height: 26px;
+    flex-basis: 26px;
+  }
+
+  .mq-tv-scoreboard strong,
+  .mq-tv-scoreboard .mq-muted,
+  .mq-tv-scoreboard .mq-chip {
+    font-size: 0.66rem;
   }
 }

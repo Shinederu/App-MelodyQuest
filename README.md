@@ -20,7 +20,7 @@ Ce depot contient uniquement le client navigateur HTML/CSS/JS. Le backend source
 - API MelodyQuest: `https://api.shinederu.ch/melodyquest/`
 - API Auth: `https://api.shinederu.ch/auth/`
 - Hub Mercure: `https://mercure.shinederu.ch/.well-known/mercure`
-- Cache-bust JS/CSS courant: `20260619-autoplay-return-lobby`
+- Cache-bust JS/CSS courant: `20260717-compact-landscape`
 
 Etat player a preserver:
 
@@ -147,6 +147,7 @@ Redirections importantes:
 - Ergonomie:
   - style sombre;
   - layout responsive desktop/tablette/mobile;
+  - profil paysage compact dedie aux ecrans 7 pouces autour de `800 x 480`, avec TV plein ecran, partie active et mode passif testes sans debordement horizontal;
   - wake lock best-effort sur les routes de jeu/lobby/TV;
   - demande de plein ecran best-effort au lancement d'une partie active ou passive.
 - Administration:
@@ -266,7 +267,7 @@ YYYYMMDD-sujet-court
 Cache-bust courant:
 
 ```text
-20260619-autoplay-return-lobby
+20260717-compact-landscape
 ```
 
 Historique utile:
@@ -291,6 +292,7 @@ Historique utile:
 - `20260617-launch-fullscreen`: plein ecran best-effort au lancement.
 - `20260617-admin-workflow`: suggestions et analyse des reponses admin.
 - `20260619-autoplay-return-lobby`: retour au lobby en fin de mode passif.
+- `20260717-compact-landscape`: responsive paysage `800 x 480`, TV plein viewport et interfaces de partie compactes.
 
 ## Diagnostics player
 
@@ -404,6 +406,7 @@ server {
 - Ne pas restaurer le double lecteur TV sans nouvelle preuve qu'il corrige le probleme sans casser le son.
 - Tester un vrai salon avec au moins deux joueurs si la modification touche `#/lobby`, `#/game`, votes, presence, scores ou suggestions.
 - Tester `/tv` + `#/tv-link` si la modification touche le player, la TV, le mode passif ou le partage.
+- Pour les changements responsive, verifier au minimum `800 x 480` en paysage sur l'appairage TV, une manche cachee, la solution TV, `#/game` et `#/autoplay`.
 - Garder `#/lobby-list` et `#/autoplay-setup` pour compatibilite, meme si le flux principal passe par `#/main` et `#/lobby`.
 
 ## Checklist avant livraison

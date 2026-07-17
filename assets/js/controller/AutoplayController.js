@@ -1,6 +1,6 @@
 import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
-import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260619-autoplay-return-lobby";
-import { escapeHtml } from "../utils/ui.js?v=20260619-autoplay-return-lobby";
+import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260717-compact-landscape";
+import { escapeHtml } from "../utils/ui.js?v=20260717-compact-landscape";
 
 const DEFAULT_VOLUME = 70;
 const VOLUME_STORAGE_KEY = "mq_autoplay_volume";
