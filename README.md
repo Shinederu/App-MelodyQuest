@@ -20,7 +20,7 @@ Ce depot contient uniquement le client navigateur HTML/CSS/JS. Le backend source
 - API MelodyQuest: `https://api.shinederu.ch/melodyquest/`
 - API Auth: `https://api.shinederu.ch/auth/`
 - Hub Mercure: `https://mercure.shinederu.ch/.well-known/mercure`
-- Cache-bust JS/CSS courant: `20260717-compact-landscape`
+- Cache-bust JS/CSS courant: `20260810-history-safety`
 
 Etat player a preserver:
 
@@ -31,6 +31,8 @@ Etat player a preserver:
 - L'hebergement local de fichiers audio a ete refuse.
 
 Le mode passif revient automatiquement au lobby a la fin de toutes les manches.
+
+Les suppressions de categories, œuvres, musiques et salons passent par une modale commune qui nomme l'element avant confirmation.
 
 ## Reprise rapide agent
 
@@ -57,6 +59,8 @@ git -c safe.directory=* status --short --branch
 - `assets/js/model/`: modeles UI transverses, notamment header/utilisateur.
 - `assets/js/utils/`: helpers HTTP, etat lobby, horloge, UI, YouTube, QR et wake lock.
 - `assets/js/vendor/`: dependances vendorees navigateur (`@shinederu/auth-core`, `jsQR`).
+- `tests/`: tests Node des helpers sans dependance navigateur.
+- `package.json`: commandes de test locales; ne fait pas partie du runtime public.
 
 Helpers importants:
 
@@ -65,6 +69,7 @@ Helpers importants:
 - `assets/js/utils/ClockSync.js`: correction d'horloge client/backend.
 - `assets/js/utils/WakeLockService.js`: verrou d'ecran best-effort.
 - `assets/js/utils/ui.js`: echappement HTML, normalisation de recherche, avatars, rangs et roles.
+- `assets/js/utils/confirmDialog.js`: confirmation accessible et responsive des suppressions destructives.
 - `assets/js/utils/youtube.js`: extraction d'ID YouTube et chargement partage de l'API iframe.
 - `assets/js/utils/qr.js`: generation QR locale.
 
@@ -267,10 +272,12 @@ YYYYMMDD-sujet-court
 Cache-bust courant:
 
 ```text
-20260717-compact-landscape
+20260810-history-safety
 ```
 
 Historique utile:
+
+- `20260810-history-safety`: confirmations de suppression partagees et raccordement a l'historique backend.
 
 - `20260613-backend-late-sync`: timing backend comme reference stricte, resync si retard notable.
 - `20260615-ui-flow`: premiere passe ergonomie globale.
@@ -322,6 +329,7 @@ Verification minimale frontend:
 
 ```powershell
 Get-ChildItem P:\DEV\GitHub\App-MelodyQuest\assets\js -Recurse -Filter *.js | % { node --check $_.FullName }
+node --test P:\DEV\GitHub\App-MelodyQuest\tests\confirmDialog.test.js
 git -c safe.directory=* diff --check
 rg -n "console\.|alert\(|debugger" P:\DEV\GitHub\App-MelodyQuest\assets
 ```
@@ -354,6 +362,7 @@ Le dossier `P:\PROD\MelodyQuest` ne doit pas contenir:
 - `README.md`
 - `AGENTS.md`
 - docs internes
+- `package.json`
 - tests
 - caches
 - brouillons
@@ -415,6 +424,7 @@ server {
 - Aucun dossier temporaire inutile.
 - Pas de `console.log`, `alert()` ou `debugger` dans le code applicatif.
 - JS valide avec `node --check`.
+- Tests Node valides avec `node --test tests\confirmDialog.test.js`.
 - Cache-bust mis a jour si un asset deploye change.
 - Runtime public copie en PROD si le changement touche le site.
 - Aucun README/AGENTS/docs internes copies en PROD.

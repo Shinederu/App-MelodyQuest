@@ -1,3 +1,4 @@
+import { confirmDeletion } from "../utils/confirmDialog.js?v=20260810-history-safety";
 import { escapeHtml, slugify } from "../utils/ui.js?v=20260610-shared-utils";
 
 export class ManagementCategoriesController {
@@ -126,6 +127,14 @@ export class ManagementCategoriesController {
 
   async remove() {
     if (!this.selectedId) return;
+
+    const selected = this.items.find((item) => Number(item.id) === Number(this.selectedId));
+    const confirmed = await confirmDeletion({
+      entityLabel: "la catégorie",
+      itemName: selected?.name || `#${this.selectedId}`,
+    });
+    if (!confirmed) return;
+
     const res = await window.httpClient.deleteCategory(this.selectedId);
     this.setStatus(res.success ? "Catégorie supprimée" : (res.error || "Erreur"), res.success);
     if (res.success) {

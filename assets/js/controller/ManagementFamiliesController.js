@@ -1,3 +1,4 @@
+import { confirmDeletion } from "../utils/confirmDialog.js?v=20260810-history-safety";
 import { escapeHtml, normalizeSearch, slugify } from "../utils/ui.js?v=20260610-shared-utils";
 
 export class ManagementFamiliesController {
@@ -211,6 +212,14 @@ export class ManagementFamiliesController {
 
   async remove() {
     if (!this.selectedId) return;
+
+    const selected = this.items.find((item) => Number(item.id) === Number(this.selectedId));
+    const confirmed = await confirmDeletion({
+      entityLabel: "l’œuvre",
+      itemName: selected?.name || `#${this.selectedId}`,
+    });
+    if (!confirmed) return;
+
     const res = await window.httpClient.deleteFamily(this.selectedId);
     this.setStatus(res.success ? "Œuvre supprimée" : (res.error || "Erreur"), res.success);
     if (res.success) {

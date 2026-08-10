@@ -34,6 +34,7 @@ Le repo frontend ne contient pas de dossier `client/` ou `backend/` actif. Ne pa
 - YouTube reste la source principale. Ne pas introduire d'hebergement audio local.
 - La presence est manuelle: un joueur ou le createur bascule present/absent; fermer l'onglet ne marque pas automatiquement absent.
 - Les pages management reposent sur la permission backend `melodyquest.catalog.manage`.
+- Toute suppression de catalogue ou de salon demande une confirmation nommee via `confirmDialog.js`.
 
 ## Organisation
 
@@ -44,10 +45,12 @@ Le repo frontend ne contient pas de dossier `client/` ou `backend/` actif. Ne pa
 - `assets/js/model/`: header/utilisateur.
 - `assets/js/utils/`: helpers HTTP, lobby, horloge, UI, YouTube, QR, wake lock.
 - `assets/js/vendor/`: bibliotheques vendorees navigateur.
+- `tests/` et `package.json`: tests locaux, jamais deployes en runtime public.
 
 Helpers a reutiliser:
 
 - `ui.js`: echappement HTML/attribut, recherche, slugs, dates, avatars, rangs.
+- `confirmDialog.js`: modale partagee pour confirmer les suppressions destructives.
 - `youtube.js`: extraction/build d'URL YouTube, API iframe.
 - `ClockSync.js`: synchronisation d'horloge backend/client.
 - `LobbyState.js`: stockage du lobby courant.
@@ -71,7 +74,7 @@ Quand un JS, une vue HTML ou le CSS change, mettre a jour:
 
 Format conseille: `YYYYMMDD-sujet`.
 
-Cache-bust courant: `20260717-compact-landscape`.
+Cache-bust courant: `20260810-history-safety`.
 
 Le CSS contient un profil paysage compact pour les petits ecrans autour de `800 x 480`. Toute modification de la TV, de `#/game` ou de `#/autoplay` doit conserver un viewport sans debordement horizontal a cette resolution.
 
@@ -81,6 +84,7 @@ Verification minimale:
 
 ```powershell
 Get-ChildItem P:\DEV\GitHub\App-MelodyQuest\assets\js -Recurse -Filter *.js | % { node --check $_.FullName }
+node --test P:\DEV\GitHub\App-MelodyQuest\tests\confirmDialog.test.js
 git -c safe.directory=* diff --check
 rg -n "console\.|alert\(|debugger" P:\DEV\GitHub\App-MelodyQuest\assets
 ```
@@ -110,6 +114,7 @@ Ne pas copier:
 - `.git`, `.github`
 - `README.md`, `AGENTS.md`
 - docs internes
+- `package.json`
 - tests, caches, brouillons
 - `output\`
 

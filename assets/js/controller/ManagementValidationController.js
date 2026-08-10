@@ -1,3 +1,4 @@
+import { confirmDeletion } from "../utils/confirmDialog.js?v=20260810-history-safety";
 import { buildYouTubeEmbedUrl, buildYouTubeWatchUrl, extractYouTubeVideoId } from "../utils/youtube.js?v=20260615-playtest-improvements";
 import { escapeAttribute, escapeHtml, formatDate, normalizeSearch } from "../utils/ui.js?v=20260615-playtest-improvements";
 
@@ -316,8 +317,13 @@ export class ManagementValidationController {
     const item = this.getSelectedItem();
     if (!item) return;
 
-    const title = String(item.title || "cette musique").trim();
-    const confirmed = window.confirm(`Refuser et supprimer "${title}" de la file de validation ?`);
+    const title = String(item.title || `#${item.id}`).trim();
+    const confirmed = await confirmDeletion({
+      entityLabel: "la musique",
+      itemName: title,
+      title: "Refuser cette musique",
+      confirmLabel: "Refuser et supprimer",
+    });
     if (!confirmed) return;
 
     const res = await window.httpClient.deleteTrack(Number(item.id));

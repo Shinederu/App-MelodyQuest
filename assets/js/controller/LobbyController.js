@@ -1,3 +1,4 @@
+import { confirmDeletion } from "../utils/confirmDialog.js?v=20260810-history-safety";
 import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
 import { escapeAttribute, escapeHtml, formatPlayerRole, renderAvatar } from "../utils/ui.js?v=20260617-launch-fullscreen";
 
@@ -831,6 +832,12 @@ export class LobbyController {
   async deleteLobby() {
     const lobbyId = this.getLobbyId();
     if (!lobbyId) return;
+
+    const confirmed = await confirmDeletion({
+      entityLabel: "le salon",
+      itemName: this.currentLobby?.name || this.getLobbyCode() || `#${lobbyId}`,
+    });
+    if (!confirmed) return;
 
     const res = await window.httpClient.deleteLobby(lobbyId);
     this.setStatus(res.success ? "Salon supprimé" : (res.error || "Erreur"), res.success);
