@@ -1,4 +1,4 @@
-import { HttpService } from "../utils/HttpService.js?v=20260810-history-safety";
+import { HttpService } from "../utils/HttpService.js?v=20260811-answer-insights";
 import { HeaderModel } from "../model/HeaderModel.js?v=20260810-history-safety";
 import { WakeLockService } from "../utils/WakeLockService.js?v=20260810-history-safety";
 import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260810-history-safety";
@@ -16,12 +16,12 @@ import { TvLinkController } from "./TvLinkController.js?v=20260810-history-safet
 import { ManagementController } from "./ManagementController.js?v=20260810-history-safety";
 import { ManagementCategoriesController } from "./ManagementCategoriesController.js?v=20260810-history-safety";
 import { ManagementFamiliesController } from "./ManagementFamiliesController.js?v=20260810-history-safety";
-import { ManagementTracksController } from "./ManagementTracksController.js?v=20260810-history-safety";
+import { ManagementTracksController } from "./ManagementTracksController.js?v=20260811-answer-insights";
 import { ManagementValidationController } from "./ManagementValidationController.js?v=20260810-history-safety";
 import { ManagementSuggestionsController } from "./ManagementSuggestionsController.js?v=20260810-history-safety";
-import { ManagementAnswersController } from "./ManagementAnswersController.js?v=20260810-history-safety";
+import { ManagementAnswersController } from "./ManagementAnswersController.js?v=20260811-answer-insights";
 
-const ASSET_VERSION = "20260810-history-safety";
+const ASSET_VERSION = "20260811-answer-insights";
 const YOUTUBE_PREWARM_ROUTES = new Set(["lobby", "game", "autoplay", "tv"]);
 const WAKE_LOCK_ROUTES = new Set(["lobby", "game", "autoplay", "result", "tv-link", "tv"]);
 

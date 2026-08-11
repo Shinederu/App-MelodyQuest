@@ -4,12 +4,13 @@ import { escapeAttribute, escapeHtml, normalizeSearch } from "../utils/ui.js?v=2
 
 export class ManagementTracksController {
   constructor() {
+    const incomingDraft = this.consumeAnswerIdeaDraft();
     this.items = [];
     this.categories = [];
     this.families = [];
     this.selectedId = null;
-    this.draftCategoryId = null;
-    this.draftFamilyName = "";
+    this.draftCategoryId = incomingDraft.categoryId;
+    this.draftFamilyName = incomingDraft.familyName;
     this.familySuggestions = [];
     this.activeFamilySuggestionIndex = -1;
     this.isFamilySuggestionOpen = false;
@@ -36,6 +37,20 @@ export class ManagementTracksController {
     document.getElementById("btn-track-clear-filters")?.addEventListener("click", () => this.clearFilters());
 
     this.refresh();
+  }
+
+  consumeAnswerIdeaDraft() {
+    try {
+      const raw = window.sessionStorage.getItem("mq.admin.track-draft");
+      window.sessionStorage.removeItem("mq.admin.track-draft");
+      const draft = raw ? JSON.parse(raw) : {};
+      return {
+        categoryId: Number(draft?.categoryId || 0) || null,
+        familyName: String(draft?.familyName || "").trim(),
+      };
+    } catch {
+      return { categoryId: null, familyName: "" };
+    }
   }
 
   async refresh() {

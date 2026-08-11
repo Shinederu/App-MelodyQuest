@@ -340,6 +340,10 @@ export class HttpService {
     return this.request(MELODY_BASE_URL, "GET", "listAnswerAttempts", filters);
   }
 
+  async addFamilyAlias(data) {
+    return this.request(MELODY_BASE_URL, "POST", "addFamilyAlias", data);
+  }
+
   async listPublicLobbies(gameMode = "participative") {
     return this.request(MELODY_BASE_URL, "GET", "listPublicLobbies", {
       game_mode: gameMode,

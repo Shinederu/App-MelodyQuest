@@ -64,15 +64,15 @@ Applique:
 - debut de lecture configurable par piste (`start_offset_seconds`);
 - champ disponible dans les pages de gestion/validation;
 - categories equilibrees lors du tirage quand plusieurs categories sont selectionnees;
+- anti-repetition inter-parties basee sur l'historique des participants, avec repli progressif pour les petits catalogues;
 - seuil de precision des reponses configurable, `80%` par defaut;
 - historique des tentatives conserve en DB;
-- page admin `#/management-answers` pour exploiter les tentatives comme source d'alias/corrections/idees;
+- page admin `#/management-answers` pour fusionner les essais live/archives, grouper les fautes proches, accepter un alias et preparer une nouvelle musique;
 - page admin `#/management-suggestions` pour editer, refuser, traiter ou appliquer les suggestions.
 
-Points a surveiller:
+Point a surveiller:
 
-- l'impression de repetition entre parties peut revenir si le catalogue selectionne est petit;
-- une future passe pourrait ajouter une vraie logique anti-repetition inter-parties, sans bloquer les petits catalogues.
+- un petit catalogue peut toujours forcer une repetition une fois les niveaux de recul epuises; le lancement de la partie reste prioritaire.
 
 ### Mode TV et player
 
@@ -141,42 +141,6 @@ Regle d'activation:
 3. verifier qu'une solution plus petite ne suffit pas;
 4. n'ajouter une table, un cache, un service ou une dependance durable qu'avec
    une justification explicite.
-
-### Anti-repetition inter-parties
-
-Probleme:
-
-- malgre l'equilibrage par categorie, les memes pistes peuvent revenir souvent si le catalogue choisi est petit ou si plusieurs parties se suivent.
-
-Piste:
-
-- conserver un historique recent par utilisateur/salon/categorie;
-- penaliser les pistes recentes au tirage;
-- ne jamais rendre impossible le lancement si le catalogue est trop petit.
-
-Zones probables:
-
-- API selection des rounds;
-- nouvelle table ou cache historique si le besoin devient durable.
-
-### Exploitation avancee des tentatives
-
-Probleme:
-
-- `#/management-answers` expose deja les essais, mais une vraie assistance admin pourrait aller plus loin.
-
-Pistes:
-
-- grouper automatiquement les fautes proches;
-- proposer des alias candidats;
-- detecter les confusions recurrentes entre deux oeuvres;
-- filtrer par categorie, oeuvre, piste ou date.
-
-Zones probables:
-
-- `AdminInsightsService`;
-- `ManagementAnswersController`;
-- eventuelle migration pour metadata d'analyse si necessaire.
 
 ### Player TV nouvelle generation
 

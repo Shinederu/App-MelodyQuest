@@ -28,7 +28,7 @@ petit changement complet.
 - API MelodyQuest: `https://api.shinederu.ch/melodyquest/`
 - API Auth: `https://api.shinederu.ch/auth/`
 - Hub Mercure: `https://mercure.shinederu.ch/.well-known/mercure`
-- Cache-bust JS/CSS courant: `20260810-history-safety`
+- Cache-bust JS/CSS courant: `20260811-answer-insights`
 
 Etat player a preserver:
 
@@ -106,7 +106,7 @@ Les routes sont gerees dans `assets/js/controller/AppController.js`.
 - `#/management-tracks`: pistes jouables.
 - `#/management-validation`: validation/correction des pistes en attente.
 - `#/management-suggestions`: suggestions joueurs, edition, refus, acceptation et application catalogue.
-- `#/management-answers`: analyse admin des reponses saisies par les joueurs.
+- `#/management-answers`: essais actifs et archives, candidats alias regroupes, idees de contenu et ajout direct d'alias.
 
 Redirections importantes:
 
@@ -168,7 +168,9 @@ Redirections importantes:
   - validation des pistes en attente avec modification des champs et alias;
   - suggestions de correction ou nouvelle musique;
   - application directe des suggestions au catalogue;
-  - analyse des reponses joueurs pour trouver des alias, corrections ou idees de pistes.
+  - analyse des reponses joueurs avec filtres resultat/categorie/periode/texte;
+  - regroupement des fautes proches et ajout d'un candidat comme alias;
+  - idees de contenu transferables vers le formulaire de nouvelle musique.
 
 ## Authentification et permissions
 
@@ -422,6 +424,7 @@ server {
 - Les performances YouTube sur certaines Smart TV restent variables selon navigateur, video et reseau.
 - Ne pas restaurer le double lecteur TV sans nouvelle preuve qu'il corrige le probleme sans casser le son.
 - Tester un vrai salon avec au moins deux joueurs si la modification touche `#/lobby`, `#/game`, votes, presence, scores ou suggestions.
+- Tester `#/management-answers` avec des essais archives et a `800 x 480` si l'analyse ou le catalogue change.
 - Tester `/tv` + `#/tv-link` si la modification touche le player, la TV, le mode passif ou le partage.
 - Pour les changements responsive, verifier au minimum `800 x 480` en paysage sur l'appairage TV, une manche cachee, la solution TV, `#/game` et `#/autoplay`.
 - Garder `#/lobby-list` et `#/autoplay-setup` pour compatibilite, meme si le flux principal passe par `#/main` et `#/lobby`.

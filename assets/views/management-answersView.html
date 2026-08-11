@@ -6,53 +6,83 @@
         <button id="btn-answers-refresh" type="button">Rafraîchir</button>
       </div>
       <div class="mq-admin-toolbar__meta">
-        <div class="mq-admin-toolbar__cluster">
-          <span id="answers-count" class="mq-chip">0 idée / 0 essai</span>
+        <div class="mq-admin-toolbar__cluster mq-answer-summary">
+          <span id="answers-count" class="mq-chip">0 essai</span>
+          <span id="answers-alias-count" class="mq-chip">0 alias</span>
+          <span id="answers-ideas-count" class="mq-chip">0 idée</span>
         </div>
-        <p id="answers-status" class="status">Charge les réponses saisies par les joueurs.</p>
+        <p id="answers-status" class="status">Chargement des réponses…</p>
       </div>
+    </div>
+
+    <div class="mq-admin-filter-bar mq-answer-filters">
+      <div class="mq-field">
+        <label for="answers-filter-outcome">Résultat</label>
+        <select id="answers-filter-outcome">
+          <option value="wrong">Essais ratés</option>
+          <option value="correct">Réponses trouvées</option>
+          <option value="scored">Réponses avec points</option>
+          <option value="all">Tout</option>
+        </select>
+      </div>
+
+      <div class="mq-field">
+        <label for="answers-filter-category">Catégorie</label>
+        <select id="answers-filter-category">
+          <option value="">Toutes les catégories</option>
+        </select>
+      </div>
+
+      <div class="mq-field">
+        <label for="answers-filter-period">Période</label>
+        <select id="answers-filter-period">
+          <option value="7">7 derniers jours</option>
+          <option value="30">30 derniers jours</option>
+          <option value="90" selected>90 derniers jours</option>
+          <option value="365">12 derniers mois</option>
+          <option value="all">Tout l'historique</option>
+        </select>
+      </div>
+
+      <div class="mq-field mq-answer-search">
+        <label for="answers-filter-search">Recherche</label>
+        <input id="answers-filter-search" type="search" placeholder="Réponse, œuvre, piste ou joueur" />
+      </div>
+
+      <button id="btn-answers-clear" type="button" class="mq-secondary">Réinitialiser</button>
     </div>
   </section>
 
-  <div class="mq-admin-workspace">
+  <div class="mq-admin-workspace mq-admin-workspace--wide mq-answer-workspace">
     <section class="mq-card mq-admin-pane">
-      <div class="mq-admin-pane__header">
+      <div class="mq-admin-pane__header mq-answer-insight-header">
         <div class="mq-card-heading">
-          <div class="mq-kicker">Idées potentielles</div>
-          <h2>Réponses fréquentes</h2>
-          <p class="mq-card-copy">Les réponses ratées répétées peuvent révéler une musique manquante, un alias utile ou une confusion à corriger.</p>
+          <div class="mq-kicker">Analyse</div>
+          <h2 id="answers-insight-title">Alias à examiner</h2>
+        </div>
+
+        <div class="mq-answer-tabs" role="tablist" aria-label="Type d'analyse">
+          <button id="btn-answers-aliases" type="button" class="mq-answer-tab is-active" role="tab" aria-selected="true">
+            Alias
+          </button>
+          <button id="btn-answers-ideas" type="button" class="mq-answer-tab" role="tab" aria-selected="false">
+            Idées de contenu
+          </button>
         </div>
       </div>
 
-      <div class="mq-admin-filter-bar">
-        <div class="mq-field">
-          <label for="answers-filter-outcome">Type</label>
-          <select id="answers-filter-outcome">
-            <option value="wrong">Essais ratés</option>
-            <option value="correct">Réponses trouvées</option>
-            <option value="scored">Réponses avec points</option>
-            <option value="all">Tout</option>
-          </select>
-        </div>
-
-        <div class="mq-field">
-          <label for="answers-filter-search">Recherche</label>
-          <input id="answers-filter-search" type="text" placeholder="Réponse, joueur, œuvre, catégorie..." />
-        </div>
-
-        <button id="btn-answers-clear" type="button" class="mq-secondary">Réinitialiser</button>
-      </div>
-
-      <div class="mq-admin-list-shell">
-        <div id="answers-groups" class="mq-admin-list"></div>
+      <div class="mq-admin-list-shell mq-answer-insight-shell">
+        <div id="answers-insights" class="mq-admin-list"></div>
       </div>
     </section>
 
     <section class="mq-card mq-card--accent mq-admin-pane mq-admin-pane--sticky">
-      <div class="mq-card-heading">
-        <div class="mq-kicker">Historique</div>
-        <h2>Essais récents</h2>
-        <p class="mq-card-copy">Vue brute des dernières réponses correspondant au filtre.</p>
+      <div class="mq-admin-pane__header">
+        <div class="mq-card-heading">
+          <div class="mq-kicker">Détail</div>
+          <h2>Essais récents</h2>
+        </div>
+        <span id="answers-visible-count" class="mq-chip">0 affiché</span>
       </div>
 
       <div class="mq-admin-list-shell">
