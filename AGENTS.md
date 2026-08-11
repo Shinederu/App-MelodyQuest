@@ -2,6 +2,14 @@
 
 Ce depot contient le frontend statique MelodyQuest. Il doit rester simple a reprendre: pas de build obligatoire, pas de backend local et pas de dependance Node runtime.
 
+## Priorite produit
+
+MelodyQuest est le seul produit en developpement continu. Les idees et pistes
+documentees ne sont toutefois pas des taches automatiques: les implementer
+uniquement apres priorisation explicite d'un besoin concret. Garder le perimetre
+borne et choisir le plus petit changement complet; ne pas creer un service, un
+flux, une table ou une dependance durable « au cas ou ».
+
 ## Lecture de demarrage
 
 1. Lire `P:\AGENTS.md`.

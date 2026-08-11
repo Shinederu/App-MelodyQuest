@@ -129,9 +129,18 @@ Point a surveiller:
 
 - garder le mode passif separe dans les listes publiques pour ne pas melanger les attentes joueur.
 
-## Points ouverts reels
+## Parking d'idees (pas une roadmap)
 
-Ces points ne sont pas bloques pour l'etat actuel, mais peuvent servir de base a une future passe.
+Les points ci-dessous conservent du contexte, mais ne sont ni engages, ni
+planifies. Ne pas les implementer parce qu'ils sont listes ici.
+
+Regle d'activation:
+
+1. partir d'un besoin observe en partie ou explicitement demande;
+2. choisir une priorite et un resultat attendu;
+3. verifier qu'une solution plus petite ne suffit pas;
+4. n'ajouter une table, un cache, un service ou une dependance durable qu'avec
+   une justification explicite.
 
 ### Anti-repetition inter-parties
 

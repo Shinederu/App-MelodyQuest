@@ -11,6 +11,14 @@ Le projet permet de jouer a un blindtest musical depuis un navigateur, avec deux
 
 Ce depot contient uniquement le client navigateur HTML/CSS/JS. Le backend source vit dans `P:\DEV\GitHub\App-MelodyQuest-API`.
 
+## Statut et priorite
+
+MelodyQuest est le seul produit Shinede en developpement continu. Ce statut
+autorise une roadmap priorisee, mais ne transforme pas chaque idee documentee
+en tache. Une evolution entre dans le travail planifie seulement apres une
+decision explicite, avec un besoin clair et un perimetre borne. Preferer le plus
+petit changement complet.
+
 ## Etat courant
 
 - Front DEV: `P:\DEV\GitHub\App-MelodyQuest`
