@@ -28,7 +28,14 @@ petit changement complet.
 - API MelodyQuest: `https://api.shinederu.ch/melodyquest/`
 - API Auth: `https://api.shinederu.ch/auth/`
 - Hub Mercure: `https://mercure.shinederu.ch/.well-known/mercure`
-- Cache-bust JS/CSS courant: `20260811-answer-insights`
+- Cache-bust JS/CSS courant: `20260813-wake-theme`
+
+Identite visuelle:
+
+- surfaces charbon et texte blanc chaud, alignes sur le langage visuel de ShinedeWake;
+- ambre/orange pour les actions principales et la selection;
+- bleu pour l'information, vert menthe pour les succes et corail pour les dangers;
+- les dispositions restent propres a MelodyQuest et adaptees aux parcours de jeu.
 
 Etat player a preserver:
 
@@ -282,11 +289,12 @@ YYYYMMDD-sujet-court
 Cache-bust courant:
 
 ```text
-20260810-history-safety
+20260813-wake-theme
 ```
 
 Historique utile:
 
+- `20260813-wake-theme`: palette et composants visuels alignes sur ShinedeWake sans changement de disposition.
 - `20260810-history-safety`: confirmations de suppression partagees et raccordement a l'historique backend.
 
 - `20260613-backend-late-sync`: timing backend comme reference stricte, resync si retard notable.

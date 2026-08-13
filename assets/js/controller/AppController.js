@@ -21,7 +21,7 @@ import { ManagementValidationController } from "./ManagementValidationController
 import { ManagementSuggestionsController } from "./ManagementSuggestionsController.js?v=20260810-history-safety";
 import { ManagementAnswersController } from "./ManagementAnswersController.js?v=20260811-answer-insights";
 
-const ASSET_VERSION = "20260811-answer-insights";
+const ASSET_VERSION = "20260813-wake-theme";
 const YOUTUBE_PREWARM_ROUTES = new Set(["lobby", "game", "autoplay", "tv"]);
 const WAKE_LOCK_ROUTES = new Set(["lobby", "game", "autoplay", "result", "tv-link", "tv"]);
 
