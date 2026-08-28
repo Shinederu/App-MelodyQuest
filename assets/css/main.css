@@ -922,12 +922,32 @@ body.mq-modal-open {
 .mq-ai-disclosure {
   max-width: 880px;
   margin: clamp(22px, 4vw, 38px) auto 0;
-  padding: 16px 6px 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 0 6px;
   text-align: center;
 }
 
+.mq-ai-disclosure summary {
+  width: fit-content;
+  margin: 0 auto;
+  color: var(--mq-text-faint);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.mq-ai-disclosure summary:hover,
+.mq-ai-disclosure summary:focus-visible {
+  color: var(--mq-text-soft);
+}
+
+.mq-ai-disclosure summary::marker {
+  color: var(--mq-primary);
+}
+
 .mq-ai-disclosure p {
+  margin-top: 12px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
   color: var(--mq-text-faint);
   font-size: 0.8rem;
   line-height: 1.65;
