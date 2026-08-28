@@ -82,11 +82,13 @@ Quand un JS, une vue HTML ou le CSS change, mettre a jour:
 
 Format conseille: `YYYYMMDD-sujet`.
 
-Cache-bust courant: `20260813-wake-theme`.
+Cache-bust courant: `20260828-wake-theme`.
 
 Le theme visuel partage la palette de ShinedeWake: surfaces charbon, action
 principale ambre/orange, information bleue, succes vert menthe et danger
 corail. Conserver ces roles semantiques lors des evolutions UI.
+Ne pas creer de degrade direct ambre-bleu: utiliser ambre-orange pour les
+transitions continues et garder le bleu dans un composant ou un fond separe.
 
 Le CSS contient un profil paysage compact pour les petits ecrans autour de `800 x 480`. Toute modification de la TV, de `#/game` ou de `#/autoplay` doit conserver un viewport sans debordement horizontal a cette resolution.
 
