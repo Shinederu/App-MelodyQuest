@@ -82,7 +82,7 @@ Quand un JS, une vue HTML ou le CSS change, mettre a jour:
 
 Format conseille: `YYYYMMDD-sujet`.
 
-Cache-bust courant: `20260828-wake-theme`.
+Cache-bust courant: `20260828-ai-disclosure`.
 
 Le theme visuel partage la palette de ShinedeWake: surfaces charbon, action
 principale ambre/orange, information bleue, succes vert menthe et danger

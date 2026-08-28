@@ -28,7 +28,7 @@ petit changement complet.
 - API MelodyQuest: `https://api.shinederu.ch/melodyquest/`
 - API Auth: `https://api.shinederu.ch/auth/`
 - Hub Mercure: `https://mercure.shinederu.ch/.well-known/mercure`
-- Cache-bust JS/CSS courant: `20260828-wake-theme`
+- Cache-bust JS/CSS courant: `20260828-ai-disclosure`
 
 Identite visuelle:
 
@@ -289,11 +289,12 @@ YYYYMMDD-sujet-court
 Cache-bust courant:
 
 ```text
-20260828-wake-theme
+20260828-ai-disclosure
 ```
 
 Historique utile:
 
+- `20260828-ai-disclosure`: ajout d'une note de transparence discrete sur l'experimentation du developpement assiste par IA en bas de la page publique.
 - `20260828-wake-theme`: suppression des transitions directes ambre-bleu; les bandeaux utilisent un degrade ambre-orange et le bleu reste un accent separe.
 - `20260813-wake-theme`: palette et composants visuels alignes sur ShinedeWake sans changement de disposition.
 - `20260810-history-safety`: confirmations de suppression partagees et raccordement a l'historique backend.
