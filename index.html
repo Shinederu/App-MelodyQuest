@@ -2,9 +2,57 @@
 <html lang="fr">
 
 <head>
-  <title>MelodyQuest</title>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>MelodyQuest | Blindtest musical multijoueur en ligne</title>
+  <meta name="description" content="Jouez gratuitement à un blindtest musical en ligne avec vos amis. Créez un salon, devinez les morceaux et comparez vos scores, ou lancez le mode automatique." />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="theme-color" content="#171820" />
+  <link rel="canonical" href="https://melodyquest.shinederu.ch/" />
+  <link rel="icon" type="image/svg+xml" sizes="any" href="/favicon.svg" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="MelodyQuest" />
+  <meta property="og:locale" content="fr_CH" />
+  <meta property="og:url" content="https://melodyquest.shinederu.ch/" />
+  <meta property="og:title" content="MelodyQuest | Blindtest musical multijoueur en ligne" />
+  <meta property="og:description" content="Créez un salon de blindtest, jouez entre amis avec scores ou laissez les musiques s’enchaîner en mode automatique." />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="MelodyQuest | Blindtest musical multijoueur en ligne" />
+  <meta name="twitter:description" content="Créez un salon de blindtest musical et jouez en ligne avec vos amis." />
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://melodyquest.shinederu.ch/#website",
+          "url": "https://melodyquest.shinederu.ch/",
+          "name": "MelodyQuest",
+          "alternateName": "Melody Quest",
+          "description": "Blindtest musical multijoueur en ligne à jouer entre amis.",
+          "inLanguage": "fr"
+        },
+        {
+          "@type": "WebApplication",
+          "@id": "https://melodyquest.shinederu.ch/#application",
+          "url": "https://melodyquest.shinederu.ch/",
+          "name": "MelodyQuest",
+          "description": "Jeu de blindtest musical en ligne avec salons multijoueurs, scores et mode automatique.",
+          "applicationCategory": "GameApplication",
+          "operatingSystem": "Tout système doté d’un navigateur web moderne",
+          "browserRequirements": "JavaScript",
+          "isAccessibleForFree": true,
+          "inLanguage": "fr",
+          "isPartOf": {
+            "@id": "https://melodyquest.shinederu.ch/#website"
+          }
+        }
+      ]
+    }
+  </script>
+
   <link rel="dns-prefetch" href="//www.youtube.com" />
   <link rel="dns-prefetch" href="//www.google.com" />
   <link rel="dns-prefetch" href="//i.ytimg.com" />
@@ -22,7 +70,41 @@
 
 <body>
   <div id="header"></div>
-  <div id="app"></div>
+  <div id="app">
+    <main class="mq-page" aria-labelledby="mq-seo-title">
+      <header class="mq-page-header mq-player-hero">
+        <div class="mq-kicker">Blindtest musical en ligne</div>
+        <h1 id="mq-seo-title">MelodyQuest</h1>
+        <p>Créez ou rejoignez un salon de blindtest multijoueur et tentez de reconnaître les musiques avec vos amis.</p>
+      </header>
+
+      <section class="mq-card mq-card--soft">
+        <div class="mq-card-heading">
+          <h2>Un blindtest à jouer ensemble, où que vous soyez</h2>
+          <p class="mq-card-copy">Choisissez vos catégories musicales, partagez le code du salon et lancez la partie depuis un ordinateur, une tablette, un téléphone ou un écran TV.</p>
+        </div>
+
+        <div class="mq-public-info">
+          <div class="mq-public-info__item">
+            <strong>Mode participatif</strong>
+            <span>Proposez vos réponses, gagnez des points et suivez le classement manche après manche.</span>
+          </div>
+          <div class="mq-public-info__item">
+            <strong>Mode automatique</strong>
+            <span>Écoutez les extraits et découvrez les solutions sans saisie ni score.</span>
+          </div>
+          <div class="mq-public-info__item">
+            <strong>Soirées entre amis</strong>
+            <span>Liez une TV au salon et utilisez vos téléphones comme contrôleurs de jeu.</span>
+          </div>
+        </div>
+
+        <noscript>
+          <p class="status error">JavaScript doit être activé pour lancer MelodyQuest.</p>
+        </noscript>
+      </section>
+    </main>
+  </div>
   <div id="footer"></div>
 </body>
 

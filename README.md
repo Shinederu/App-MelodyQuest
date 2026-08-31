@@ -68,6 +68,9 @@ git -c safe.directory=* status --short --branch
 ## Organisation du depot
 
 - `index.html`: point d'entree HTML, configuration API publique, preconnect YouTube et cache-bust principal.
+- `robots.txt`: autorise l'exploration et declare le sitemap public.
+- `sitemap.xml`: expose uniquement l'URL canonique indexable; les routes `#` restent des etats internes de la SPA.
+- `favicon.svg`: favicon stable et carree pour les navigateurs et les resultats de recherche.
 - `assets/css/main.css`: style global sombre et responsive.
 - `assets/views/*View.html`: fragments HTML charges par route.
 - `assets/js/controller/*Controller.js`: logique par vue.
@@ -272,6 +275,37 @@ window.__SHINEDERU_API_ROOT__ = "https://api.shinederu.ch";
 
 Aucun secret ne doit etre ajoute au frontend.
 
+## Referencement
+
+URL canonique indexable:
+
+```text
+https://melodyquest.shinederu.ch/
+```
+
+MelodyQuest utilise des routes avec fragment (`#/public`, `#/main`, etc.). Le
+fragment n'est pas transmis au serveur et ne represente donc pas une page SEO
+distincte. Seule la racine est declaree dans `sitemap.xml`; `/tv` et les routes
+applicatives se consolident vers cette URL avec la balise canonique de
+`index.html`.
+
+La reponse HTML initiale contient une presentation statique du jeu avant le
+chargement de la SPA. Elle permet aux moteurs et aux visiteurs sans JavaScript
+de comprendre le produit sans dependre du rendu asynchrone des vues.
+
+Fichiers et signaux publics:
+
+- metadonnees description, robots, Open Graph et Twitter dans `index.html`;
+- donnees structurees JSON-LD `WebSite` et `WebApplication`;
+- favicon stable `/favicon.svg`;
+- regles d'exploration `/robots.txt`;
+- sitemap canonique `/sitemap.xml`;
+- propriete Google Search Console de type prefixe d'URL pour le domaine public.
+
+Apres une modification significative du contenu indexable, actualiser
+`<lastmod>` dans `sitemap.xml`, deployer les fichiers racine, puis verifier la
+racine avec l'outil d'inspection d'URL de Search Console.
+
 ## Cache-bust
 
 Les assets sont servis avec cache long. En cas de changement deploye, mettre a jour:
@@ -371,6 +405,9 @@ Copier uniquement le runtime public:
 
 ```powershell
 Copy-Item P:\DEV\GitHub\App-MelodyQuest\index.html P:\PROD\MelodyQuest\index.html -Force
+Copy-Item P:\DEV\GitHub\App-MelodyQuest\robots.txt P:\PROD\MelodyQuest\robots.txt -Force
+Copy-Item P:\DEV\GitHub\App-MelodyQuest\sitemap.xml P:\PROD\MelodyQuest\sitemap.xml -Force
+Copy-Item P:\DEV\GitHub\App-MelodyQuest\favicon.svg P:\PROD\MelodyQuest\favicon.svg -Force
 robocopy P:\DEV\GitHub\App-MelodyQuest\assets P:\PROD\MelodyQuest\assets /E /NFL /NDL /NJH /NJS /NP
 ```
 

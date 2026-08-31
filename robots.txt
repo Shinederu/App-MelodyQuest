@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://melodyquest.shinederu.ch/sitemap.xml

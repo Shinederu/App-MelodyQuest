@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">MelodyQuest</title>
+  <rect width="64" height="64" rx="12" fill="#171820" />
+  <path d="M25 18v27M25 23l22-5v23" fill="none" stroke="#ffbf3b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="18" cy="46" r="8" fill="#f28749" />
+  <circle cx="40" cy="42" r="8" fill="#ffbf3b" />
+</svg>

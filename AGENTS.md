@@ -47,6 +47,7 @@ Le repo frontend ne contient pas de dossier `client/` ou `backend/` actif. Ne pa
 ## Organisation
 
 - `index.html`: point d'entree, configuration API publique et cache-bust global.
+- `robots.txt`, `sitemap.xml`, `favicon.svg`: decouverte, URL canonique et identite du resultat de recherche.
 - `assets/css/main.css`: style global sombre/responsive.
 - `assets/views/*View.html`: fragments HTML par route.
 - `assets/js/controller/*Controller.js`: logique par vue.
@@ -118,6 +119,9 @@ Smoke test a privilegier selon la zone touchee:
 Copier uniquement les fichiers runtime publics vers `P:\PROD\MelodyQuest`:
 
 - `index.html`
+- `robots.txt`
+- `sitemap.xml`
+- `favicon.svg`
 - `assets\css\`
 - `assets\views\`
 - `assets\js\`
