@@ -1,5 +1,6 @@
 import { confirmDeletion } from "../utils/confirmDialog.js?v=20260810-history-safety";
 import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
+import { getActorId } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
 import { escapeAttribute, escapeHtml, formatPlayerRole, renderAvatar } from "../utils/ui.js?v=20260617-launch-fullscreen";
 
 const MIN_TOTAL_ROUNDS = 1;
@@ -67,6 +68,7 @@ export class LobbyController {
     if (!code && sharedCode) {
       const joinRes = await window.httpClient.joinLobby(sharedCode);
       if (joinRes.success && joinRes.data?.lobby) {
+        this.user = window.appCtrl.adoptPlayerIdentity(joinRes.data.identity) || this.user;
         this.currentLobby = joinRes.data.lobby;
         setCurrentLobby(this.currentLobby);
         code = this.getLobbyCode();
@@ -232,8 +234,8 @@ export class LobbyController {
     }
 
     if (Array.isArray(snapshot.players)) {
-      const currentUserId = Number(this.user?.id || 0);
-      const stillPresent = snapshot.players.some((player) => Number(player.user_id || 0) === currentUserId);
+      const currentActorId = getActorId(this.user);
+      const stillPresent = snapshot.players.some((player) => getActorId(player) === currentActorId);
       if (!stillPresent) {
         this.exitLobbyIfActive();
         return;
@@ -295,7 +297,7 @@ export class LobbyController {
       playersHost.innerHTML = players.map((player) => {
         const actions = this.renderOwnerPlayerActions(player);
         return `
-          <li class="mq-list-row${actions ? " mq-list-row--manageable" : ""}"${actions ? ` data-lobby-player-menu-row="${Number(player.user_id || 0)}"` : ""}>
+          <li class="mq-list-row${actions ? " mq-list-row--manageable" : ""}"${actions ? ` data-lobby-player-menu-row="${getActorId(player)}"` : ""}>
             <div class="mq-player-line">
               ${this.renderAvatar(player)}
               <div>
@@ -344,7 +346,7 @@ export class LobbyController {
       });
     }
 
-    const isOwner = Number(lobby?.owner_user_id || 0) === Number(this.user?.id || 0);
+    const isOwner = Number(lobby?.owner_actor_id ?? lobby?.owner_user_id ?? 0) === getActorId(this.user);
     ownerOnly.forEach((el) => {
       el.style.display = isOwner ? "" : "none";
     });
@@ -502,8 +504,8 @@ export class LobbyController {
   }
 
   syncPresenceStatusFromPlayers(players = []) {
-    const currentUserId = Number(this.user?.id || 0);
-    const currentPlayer = players.find((player) => Number(player.user_id || 0) === currentUserId);
+    const currentActorId = getActorId(this.user);
+    const currentPlayer = players.find((player) => getActorId(player) === currentActorId);
     const status = String(currentPlayer?.presence_status || this.presenceStatus || "active").toLowerCase();
     this.presenceStatus = status === "away" ? "away" : "active";
   }
@@ -527,8 +529,8 @@ export class LobbyController {
   }
 
   renderOwnerPlayerActions(player) {
-    const playerId = Number(player?.user_id || 0);
-    const canManage = this.isOwner() && playerId > 0 && playerId !== Number(this.user?.id || 0);
+    const playerId = getActorId(player);
+    const canManage = this.isOwner() && playerId !== 0 && playerId !== getActorId(this.user);
     if (!canManage) {
       return "";
     }
@@ -917,13 +919,13 @@ export class LobbyController {
   }
 
   isCurrentUserInPlayers(players = []) {
-    const currentUserId = Number(this.user?.id || 0);
-    if (currentUserId <= 0) return true;
-    return players.some((player) => Number(player?.user_id || 0) === currentUserId);
+    const currentActorId = getActorId(this.user);
+    if (currentActorId === 0) return true;
+    return players.some((player) => getActorId(player) === currentActorId);
   }
 
   isOwner() {
-    return Number(this.currentLobby?.owner_user_id || 0) === Number(this.user?.id || 0);
+    return Number(this.currentLobby?.owner_actor_id ?? this.currentLobby?.owner_user_id ?? 0) === getActorId(this.user);
   }
 
   renderAvatar(player) {

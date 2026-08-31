@@ -1,15 +1,19 @@
+import { clearPlayerIdentity } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
+
 export class UserModel {
   async submitLogin(username, password) {
     const response = await window.httpClient.submitLogin({ username, password });
 
     if (response.success) {
+      await window.httpClient.endGuestSession().catch(() => {});
+      clearPlayerIdentity();
       const pendingTvCode = sessionStorage.getItem("mq_pending_tv_code");
       if (pendingTvCode) {
         window.appCtrl.changeView(`tv-link?code=${encodeURIComponent(pendingTvCode)}`);
         return response;
       }
 
-      window.appCtrl.changeView("main");
+      window.appCtrl.changeView("main", { force: true });
     }
 
     return response;
@@ -28,8 +32,8 @@ export class UserModel {
     const response = await window.httpClient.logout();
 
     if (response.success) {
-      localStorage.removeItem("user");
-      window.appCtrl.changeView("public");
+      clearPlayerIdentity();
+      window.appCtrl.changeView("main", { force: true });
     }
 
     return response;

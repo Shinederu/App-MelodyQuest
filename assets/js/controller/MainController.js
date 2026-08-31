@@ -1,4 +1,5 @@
 import { setCurrentLobby } from "../utils/LobbyState.js";
+import { normalizeLocalNickname } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
 import { escapeAttribute, escapeHtml } from "../utils/ui.js?v=20260617-category-default-visible";
 
 const MAIN_MODE_STORAGE_KEY = "mq_main_game_mode";
@@ -42,6 +43,11 @@ export class MainController {
     document.getElementById("btn-main-refresh")?.addEventListener("click", () => this.refreshLobbies());
     document.getElementById("btn-main-suggest-track")?.addEventListener("click", () => window.appCtrl.changeView("suggest-track"));
     document.getElementById("btn-main-management")?.addEventListener("click", () => window.appCtrl.changeView("management"));
+    document.getElementById("btn-main-guest-rename")?.addEventListener("click", () => this.openGuestModal());
+    document.getElementById("main-guest-form")?.addEventListener("submit", () => this.submitGuestNickname());
+    document.getElementById("btn-main-guest-close")?.addEventListener("click", () => this.closeGuestModal());
+    document.getElementById("btn-main-guest-cancel")?.addEventListener("click", () => this.closeGuestModal());
+    document.querySelector("[data-main-guest-close]")?.addEventListener("click", () => this.closeGuestModal());
     document.addEventListener("visibilitychange", this.visibilityHandler);
 
     this.bootstrap();
@@ -49,6 +55,7 @@ export class MainController {
 
   async bootstrap() {
     this.renderAdminActions();
+    this.renderGuestIdentity();
     this.renderMode();
     if (await this.consumePendingLobbyCode()) {
       return;
@@ -66,6 +73,7 @@ export class MainController {
     sessionStorage.removeItem("mq_pending_lobby_code");
     const res = await window.httpClient.joinLobby(code);
     if (res.success && res.data?.lobby) {
+      this.adoptResponseIdentity(res);
       setCurrentLobby(res.data.lobby);
       window.appCtrl.changeView("lobby");
       return true;
@@ -101,6 +109,7 @@ export class MainController {
     this.setStatus(res.success ? "Salon créé" : (res.error || "Erreur"), res.success);
 
     if (res.success && res.data?.lobby) {
+      this.adoptResponseIdentity(res);
       setCurrentLobby(res.data.lobby);
       window.appCtrl.changeView("lobby");
     }
@@ -118,6 +127,7 @@ export class MainController {
     this.setStatus(res.success ? "Salon rejoint" : (res.error || "Erreur"), res.success);
 
     if (res.success && res.data?.lobby) {
+      this.adoptResponseIdentity(res);
       setCurrentLobby(res.data.lobby);
       window.appCtrl.changeView("lobby");
     }
@@ -212,6 +222,90 @@ export class MainController {
     const actions = document.getElementById("main-admin-actions");
     if (!actions) return;
     actions.style.display = this.user?.is_admin ? "" : "none";
+  }
+
+  renderGuestIdentity() {
+    const host = document.getElementById("main-guest-identity");
+    const nickname = document.getElementById("main-guest-nickname");
+    const isGuest = Boolean(this.user?.is_guest);
+    if (host) host.hidden = !isGuest;
+    if (nickname) nickname.textContent = String(this.user?.username || "Invité");
+  }
+
+  openGuestModal() {
+    if (!this.user?.is_guest) return;
+
+    const modal = document.getElementById("main-guest-modal");
+    const input = document.getElementById("main-guest-input");
+    const status = document.getElementById("main-guest-status");
+    if (!modal || !input) return;
+
+    input.value = String(this.user?.username || "");
+    if (status) {
+      status.textContent = "";
+      status.className = "status";
+    }
+    modal.hidden = false;
+    document.body.classList.add("mq-modal-open");
+    window.setTimeout(() => input.focus(), 0);
+  }
+
+  closeGuestModal() {
+    const modal = document.getElementById("main-guest-modal");
+    if (modal) modal.hidden = true;
+    document.body.classList.remove("mq-modal-open");
+  }
+
+  async submitGuestNickname() {
+    const input = document.getElementById("main-guest-input");
+    const status = document.getElementById("main-guest-status");
+    const button = document.getElementById("btn-main-guest-save");
+    if (!input || !button) return;
+
+    let nickname;
+    try {
+      nickname = normalizeLocalNickname(input.value);
+    } catch (error) {
+      if (status) {
+        status.textContent = error?.message || "Pseudo invalide.";
+        status.className = "status error";
+      }
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Vérification...";
+    try {
+      const res = await window.httpClient.updateGuestNickname(nickname);
+      if (!res.success || !res.data?.identity) {
+        if (status) {
+          status.textContent = res.error || "Impossible de modifier le pseudo.";
+          status.className = "status error";
+        }
+        return;
+      }
+
+      this.user = window.appCtrl.adoptPlayerIdentity(res.data.identity) || this.user;
+      this.renderGuestIdentity();
+      const headerUser = document.querySelector(".mq-topbar__user");
+      if (headerUser) headerUser.textContent = `Bonjour ${this.user.username}`;
+      this.closeGuestModal();
+      this.setStatus("Pseudo mis à jour", true);
+    } catch {
+      if (status) {
+        status.textContent = "Impossible de modifier le pseudo pour le moment.";
+        status.className = "status error";
+      }
+    } finally {
+      button.disabled = false;
+      button.textContent = "Utiliser ce pseudo";
+    }
+  }
+
+  adoptResponseIdentity(response) {
+    const identity = response?.data?.identity;
+    if (!identity) return;
+    this.user = window.appCtrl.adoptPlayerIdentity(identity) || this.user;
   }
 
   setMode(mode) {
@@ -317,6 +411,7 @@ export class MainController {
     this.setStatus(res.success ? "Salon rejoint" : (res.error || "Erreur"), res.success);
 
     if (res.success && res.data?.lobby) {
+      this.adoptResponseIdentity(res);
       setCurrentLobby(res.data.lobby);
       window.appCtrl.changeView("lobby");
     }
@@ -366,6 +461,7 @@ export class MainController {
   destroy() {
     this.isDestroyed = true;
     this.stopRealtime();
+    document.body.classList.remove("mq-modal-open");
     document.removeEventListener("visibilitychange", this.visibilityHandler);
   }
 }

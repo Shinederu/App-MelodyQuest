@@ -42,6 +42,9 @@ Le repo frontend ne contient pas de dossier `client/` ou `backend/` actif. Ne pa
 - YouTube reste la source principale. Ne pas introduire d'hebergement audio local.
 - La presence est manuelle: un joueur ou le createur bascule present/absent; fermer l'onglet ne marque pas automatiquement absent.
 - Les pages management reposent sur la permission backend `melodyquest.catalog.manage`.
+- La racine ouvre `#/main`; un compte n'est pas requis pour jouer.
+- L'identite joueur repose sur `actor_id`: compte positif, invite negatif, brouillon local a `0`.
+- Ne jamais creer de faux utilisateur central pour un invite. La session serveur `mq_guest` expire apres 2 heures d'inactivite.
 - Toute suppression de catalogue ou de salon demande une confirmation nommee via `confirmDialog.js`.
 
 ## Organisation
@@ -63,13 +66,13 @@ Helpers a reutiliser:
 - `youtube.js`: extraction/build d'URL YouTube, API iframe.
 - `ClockSync.js`: synchronisation d'horloge backend/client.
 - `LobbyState.js`: stockage du lobby courant.
+- `PlayerIdentity.js`: identite compte/invite et pseudo local provisoire.
 
 Le dossier `output/` n'est pas requis. S'il reapparait vide, il peut etre supprime.
 
 ## Routes
 
-- Publiques: `#/public`, `#/suggest-track`, `/tv`
-- Joueur: `#/main`, `#/lobby`, `#/game`, `#/result`, `#/autoplay`, `#/tv-link`
+- Publiques/joueur: `#/main`, `#/public`, `#/suggest-track`, `#/lobby`, `#/game`, `#/result`, `#/autoplay`, `#/tv-link`, `/tv`
 - Compatibilite: `#/lobby-list`, `#/autoplay-setup`
 - Admin: `#/management`, `#/management-categories`, `#/management-families`, `#/management-tracks`, `#/management-validation`, `#/management-suggestions`, `#/management-answers`
 
@@ -83,7 +86,7 @@ Quand un JS, une vue HTML ou le CSS change, mettre a jour:
 
 Format conseille: `YYYYMMDD-sujet`.
 
-Cache-bust courant: `20260828-ai-details`.
+Cache-bust courant: `20260831-guest-mode`.
 
 Le theme visuel partage la palette de ShinedeWake: surfaces charbon, action
 principale ambre/orange, information bleue, succes vert menthe et danger
@@ -99,20 +102,21 @@ Verification minimale:
 
 ```powershell
 Get-ChildItem P:\DEV\GitHub\App-MelodyQuest\assets\js -Recurse -Filter *.js | % { node --check $_.FullName }
-node --test P:\DEV\GitHub\App-MelodyQuest\tests\confirmDialog.test.js
+npm test --prefix P:\DEV\GitHub\App-MelodyQuest
 git -c safe.directory=* diff --check
 rg -n "console\.|alert\(|debugger" P:\DEV\GitHub\App-MelodyQuest\assets
 ```
 
 Smoke test a privilegier selon la zone touchee:
 
-1. `#/public`: connexion et inscription.
-2. `#/main`: switch actif/passif, creation/rejoindre, liste publique.
-3. `#/lobby`: reglages, joueurs, partage, TV.
-4. `#/game`: reponse, video cachee, solution, votes, classement.
-5. `#/autoplay`: lecture passive et retour lobby en fin de partie.
-6. `/tv` + `#/tv-link`: QR et liaison.
-7. `#/management*`: catalogue, suggestions et analyse admin.
+1. Racine/`#/main`: navigation sans compte, pseudo invite et changement de pseudo.
+2. Deux invites: creation/rejoindre, proprietaire, presence, exclusion, jeu et scores.
+3. `#/public`: connexion/inscription et bascule propre depuis une session invitee.
+4. `#/lobby`: reglages, joueurs, partage, TV.
+5. `#/game`: reponse, video cachee, solution, votes, classement.
+6. `#/autoplay`: lecture passive et retour lobby en fin de partie.
+7. `/tv` + `#/tv-link`: QR et liaison.
+8. `#/management*`: catalogue, suggestions et analyse admin avec compte admin.
 
 ## Deploiement
 

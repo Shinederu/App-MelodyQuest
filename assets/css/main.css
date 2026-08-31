@@ -1007,6 +1007,40 @@ body.mq-modal-open {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.mq-guest-identity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--mq-line);
+  border-radius: var(--mq-radius);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.mq-guest-identity[hidden] {
+  display: none;
+}
+
+.mq-guest-identity__copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mq-guest-identity__copy strong {
+  overflow-wrap: anywhere;
+}
+
+.mq-guest-identity__copy small {
+  color: var(--mq-text-muted);
+  line-height: 1.35;
+}
+
+.mq-guest-modal {
+  width: min(480px, 100%);
+}
+
 .mq-main-mode-switch {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4388,6 +4422,15 @@ body:has(.mq-tv-page) #footer {
 
   .mq-main-mode-switch {
     grid-template-columns: 1fr;
+  }
+
+  .mq-guest-identity {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .mq-guest-identity > button {
+    width: 100%;
   }
 
   .mq-chip-row .mq-chip {

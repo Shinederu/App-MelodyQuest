@@ -1,5 +1,6 @@
 import { renderQrSvg } from "../utils/qr.js?v=20260617-passive-tv-cleanup";
 import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260617-passive-tv-cleanup";
+import { getActorId } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
 import { escapeHtml, renderAvatar } from "../utils/ui.js?v=20260617-passive-tv-cleanup";
 import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=20260617-passive-tv-cleanup";
 
@@ -378,12 +379,13 @@ export class TvController {
     const answers = this.snapshot?.round?.answers || [];
     const solvedUsers = new Set(answers
       .filter((answer) => Number(answer?.score_awarded || 0) > 0)
-      .map((answer) => Number(answer.user_id || 0)));
+      .map((answer) => getActorId(answer)));
     const players = this.snapshot?.players || [];
     const scoreboard = this.snapshot?.scoreboard?.items || [];
     const source = (scoreboard.length ? scoreboard : players)
       .map((entry, index) => ({
-        user_id: Number(entry.user_id || 0),
+        actor_id: getActorId(entry),
+        user_id: entry.user_id ?? null,
         username: String(entry.username || "Joueur"),
         avatar_url: String(entry.avatar_url || ""),
         score: Number(entry.score || 0),
@@ -394,11 +396,11 @@ export class TvController {
         return a._order - b._order;
       });
     const renderKey = JSON.stringify(source.map((player) => [
-      player.user_id,
+      getActorId(player),
       player.username,
       player.avatar_url,
       player.score,
-      solvedUsers.has(player.user_id),
+      solvedUsers.has(getActorId(player)),
     ]));
 
     if (!force && renderKey === this.lastRenderedPlayersKey) {
@@ -408,7 +410,7 @@ export class TvController {
 
     list.innerHTML = source.length
       ? source.map((player, index) => `
-        <li class="mq-list-row ${solvedUsers.has(player.user_id) ? "mq-list-row--solved" : ""}">
+        <li class="mq-list-row ${solvedUsers.has(getActorId(player)) ? "mq-list-row--solved" : ""}">
           <div class="mq-player-line">
             ${this.renderAvatar(player)}
             <div>
@@ -416,7 +418,7 @@ export class TvController {
               <span class="mq-muted">${index + 1}e - ${player.score} pt</span>
             </div>
           </div>
-          ${solvedUsers.has(player.user_id) ? `<span class="mq-chip mq-chip--success">Trouvé</span>` : ""}
+          ${solvedUsers.has(getActorId(player)) ? `<span class="mq-chip mq-chip--success">Trouvé</span>` : ""}
         </li>
       `).join("")
       : `<li class="mq-tv-empty">En attente des joueurs...</li>`;

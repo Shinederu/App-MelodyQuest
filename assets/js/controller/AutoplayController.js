@@ -1,4 +1,5 @@
 import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
+import { getActorId } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
 import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260717-compact-landscape";
 import { escapeHtml } from "../utils/ui.js?v=20260717-compact-landscape";
 
@@ -515,7 +516,14 @@ export class AutoplayController {
   }
 
   isOwner() {
-    return Number(this.lobby?.owner_user_id || this.currentLobby?.owner_user_id || 0) === Number(this.user?.id || 0);
+    const ownerActorId = Number(
+      this.lobby?.owner_actor_id
+      ?? this.currentLobby?.owner_actor_id
+      ?? this.lobby?.owner_user_id
+      ?? this.currentLobby?.owner_user_id
+      ?? 0
+    );
+    return ownerActorId === getActorId(this.user);
   }
 
   getProgressRatio(now, start, end) {

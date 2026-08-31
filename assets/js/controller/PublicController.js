@@ -1,4 +1,5 @@
-import { UserModel } from "../model/UserModel.js?v=20260610-shared-utils";
+import { UserModel } from "../model/UserModel.js?v=20260831-guest-mode";
+import { clearCurrentLobby, getCurrentLobby } from "../utils/LobbyState.js";
 
 export class PublicController {
   constructor() {
@@ -33,6 +34,10 @@ export class PublicController {
     this.setAuthStatus("login", "Connexion en cours...", null);
 
     try {
+      if (!await this.prepareIdentitySwitch()) {
+        this.setAuthStatus("login", "Connexion annulée.", false);
+        return;
+      }
       const response = await this.userModel.submitLogin(username, password);
       if (!response?.success) {
         this.setAuthStatus("login", response?.error || "Connexion impossible.", false);
@@ -125,5 +130,24 @@ export class PublicController {
     const confirmPassword = document.getElementById("register-confirm-password");
     if (password) password.value = "";
     if (confirmPassword) confirmPassword.value = "";
+  }
+
+  async prepareIdentitySwitch() {
+    const lobby = getCurrentLobby();
+    const lobbyId = Number(lobby?.id || 0);
+    if (lobbyId <= 0) return true;
+
+    const confirmed = window.confirm(
+      "Te connecter avec un compte te fera quitter le salon actuel. Continuer ?"
+    );
+    if (!confirmed) return false;
+
+    try {
+      await window.httpClient.leaveLobby(lobbyId);
+    } catch {
+      // The account switch remains possible if the old lobby is already gone.
+    }
+    clearCurrentLobby();
+    return true;
   }
 }

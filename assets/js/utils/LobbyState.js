@@ -14,6 +14,8 @@ export function setCurrentLobby(lobby) {
     lobby_code: String(lobby.lobby_code || "").toUpperCase(),
     name: String(lobby.name || ""),
     game_mode: String(lobby.game_mode || "participative"),
+    owner_actor_id: Number(lobby.owner_actor_id ?? lobby.owner_user_id ?? 0),
+    current_actor_id: Number(lobby.current_actor_id ?? 0),
   };
   localStorage.setItem("mq_current_lobby", JSON.stringify(payload));
 }

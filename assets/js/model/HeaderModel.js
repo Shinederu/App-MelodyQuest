@@ -1,4 +1,5 @@
 import { escapeHtml } from "../utils/ui.js?v=20260617-admin-workflow";
+import { clearPlayerIdentity } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
 
 const PAGE_META = {
   main: {
@@ -87,20 +88,28 @@ const PAGE_META = {
 };
 
 export class HeaderModel {
-  refresh(headerElement, view, role, username, isAdmin = false) {
-    if (view === "public" || view === "tv") {
+  refresh(headerElement, view, user = null) {
+    if (view === "tv") {
       headerElement.innerHTML = "";
       return;
     }
 
-    const hasUser = Boolean(username);
-    const canLogout = view !== "public" && hasUser;
+    const username = String(user?.username || "");
+    const isGuest = Boolean(user?.is_guest);
+    const isAuthenticated = Boolean(user?.is_authenticated) && !isGuest;
+    const isAdmin = Boolean(user?.is_admin) && isAuthenticated;
+    const canLogout = isAuthenticated;
 
-    const buttonHtml = canLogout
-      ? `<button id="header-btn-logout" type="button" class="mq-danger">Déconnexion</button>`
-      : "";
+    let buttonHtml = "";
+    if (canLogout) {
+      buttonHtml = `<button id="header-btn-logout" type="button" class="mq-danger">Déconnexion</button>`;
+    } else if (view === "public") {
+      buttonHtml = `<button id="header-btn-play-as-guest" type="button">Continuer sans compte</button>`;
+    } else {
+      buttonHtml = `<button id="header-btn-login" type="button">Se connecter</button>`;
+    }
 
-    const roleLabel = isAdmin ? "admin" : (role || "user");
+    const roleLabel = isGuest ? "invité" : (isAdmin ? "admin" : (user?.role || "user"));
     const safeUsername = this.escapeHtml(username || "visiteur");
     const safeRole = this.escapeHtml(roleLabel);
     const page = this.getPageMeta(view);
@@ -110,11 +119,11 @@ export class HeaderModel {
       <div class="mq-topbar">
         <div class="mq-topbar__brand">
           <div class="mq-topbar__eyebrow">MelodyQuest</div>
-          <div class="mq-topbar__user">${hasUser ? `Bonjour ${safeUsername}` : "MelodyQuest"}</div>
+          <div class="mq-topbar__user">${username ? `Bonjour ${safeUsername}` : "MelodyQuest"}</div>
         </div>
         ${pageHtml}
         <div class="mq-topbar__actions">
-          ${hasUser ? `<span class="mq-topbar__role">${safeRole}</span>` : ""}
+          ${username ? `<span class="mq-topbar__role">${safeRole}</span>` : ""}
           ${buttonHtml}
         </div>
       </div>
@@ -123,6 +132,8 @@ export class HeaderModel {
     headerElement.innerHTML = headerHtml;
 
     if (canLogout) this.bindLogout();
+    document.getElementById("header-btn-login")?.addEventListener("click", () => window.appCtrl.changeView("public"));
+    document.getElementById("header-btn-play-as-guest")?.addEventListener("click", () => window.appCtrl.changeView("main"));
   }
 
   getPageMeta(view) {
@@ -163,8 +174,8 @@ export class HeaderModel {
 
       const response = await window.httpClient.logout();
       if (response.success) {
-        localStorage.removeItem("user");
-        window.appCtrl.changeView("public");
+        clearPlayerIdentity();
+        window.appCtrl.changeView("main", { force: true });
         return;
       }
 

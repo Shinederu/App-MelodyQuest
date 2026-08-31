@@ -179,6 +179,7 @@ export class LobbyListController {
       return;
     }
 
+    window.appCtrl.adoptPlayerIdentity(joinRes.data.identity);
     setCurrentLobby(joinRes.data.lobby);
     this.setStatus("Salon rejoint", true);
     window.appCtrl.changeView("lobby");

@@ -119,14 +119,26 @@ export class HttpService {
   }
 
   // MelodyQuest API Section
+  async getPlayerIdentity() {
+    return this.request(MELODY_BASE_URL, "GET", "getPlayerIdentity");
+  }
+
+  async updateGuestNickname(nickname) {
+    return this.request(MELODY_BASE_URL, "POST", "updateGuestNickname", { nickname });
+  }
+
+  async endGuestSession() {
+    return this.request(MELODY_BASE_URL, "POST", "endGuestSession", {});
+  }
+
   async createLobby(data) {
-    return this.request(MELODY_BASE_URL, "POST", "createLobby", data);
+    return this.request(MELODY_BASE_URL, "POST", "createLobby", this.withGuestNickname(data));
   }
 
   async joinLobby(lobbyCode) {
-    return this.request(MELODY_BASE_URL, "POST", "joinLobby", {
+    return this.request(MELODY_BASE_URL, "POST", "joinLobby", this.withGuestNickname({
       lobby_code: lobbyCode,
-    });
+    }));
   }
 
   async leaveLobby(lobbyId) {
@@ -135,14 +147,14 @@ export class HttpService {
     });
   }
 
-  async touchLobby(lobbyId, presenceStatus = "active", targetUserId = null) {
+  async touchLobby(lobbyId, presenceStatus = "active", targetActorId = null) {
     const payload = {
       lobby_id: lobbyId,
       presence_status: presenceStatus,
     };
-    const targetId = Number(targetUserId || 0);
-    if (targetId > 0) {
-      payload.target_user_id = targetId;
+    const targetId = Number(targetActorId || 0);
+    if (targetId !== 0) {
+      payload.target_actor_id = targetId;
     }
 
     return this.request(MELODY_BASE_URL, "POST", "touchLobby", payload);
@@ -169,10 +181,10 @@ export class HttpService {
     }).catch(() => {});
   }
 
-  async kickPlayer(lobbyId, targetUserId) {
+  async kickPlayer(lobbyId, targetActorId) {
     return this.request(MELODY_BASE_URL, "POST", "kickPlayer", {
       lobby_id: lobbyId,
-      target_user_id: targetUserId,
+      target_actor_id: targetActorId,
     });
   }
 
@@ -420,6 +432,19 @@ export class HttpService {
 
   async deleteTrack(id) {
     return this.request(MELODY_BASE_URL, "DELETE", "deleteTrack", { id });
+  }
+
+  withGuestNickname(data = {}) {
+    const payload = { ...(data || {}) };
+    try {
+      const identity = JSON.parse(localStorage.getItem("user") || "null");
+      if (identity?.is_guest && identity?.username) {
+        payload.guest_nickname = String(identity.username);
+      }
+    } catch {
+      // The backend will generate a name if local state is unavailable.
+    }
+    return payload;
   }
 
   buildMercureUrl(hubUrl, topics = []) {

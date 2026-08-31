@@ -1,17 +1,21 @@
-import { HttpService } from "../utils/HttpService.js?v=20260811-answer-insights";
-import { HeaderModel } from "../model/HeaderModel.js?v=20260810-history-safety";
+import { HttpService } from "../utils/HttpService.js?v=20260831-guest-mode";
+import { HeaderModel } from "../model/HeaderModel.js?v=20260831-guest-mode";
 import { WakeLockService } from "../utils/WakeLockService.js?v=20260810-history-safety";
 import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260810-history-safety";
-import { PublicController } from "./PublicController.js?v=20260810-history-safety";
+import {
+  getOrCreateProvisionalGuest,
+  persistPlayerIdentity,
+} from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
+import { PublicController } from "./PublicController.js?v=20260831-guest-mode";
 import { SuggestTrackController } from "./SuggestTrackController.js?v=20260810-history-safety";
-import { MainController } from "./MainController.js?v=20260810-history-safety";
-import { AutoplaySetupController } from "./AutoplaySetupController.js?v=20260810-history-safety";
-import { AutoplayController } from "./AutoplayController.js?v=20260810-history-safety";
-import { LobbyController } from "./LobbyController.js?v=20260810-history-safety";
-import { LobbyListController } from "./LobbyListController.js?v=20260810-history-safety";
-import { GameController } from "./GameController.js?v=20260810-history-safety";
+import { MainController } from "./MainController.js?v=20260831-guest-mode";
+import { AutoplaySetupController } from "./AutoplaySetupController.js?v=20260831-guest-mode";
+import { AutoplayController } from "./AutoplayController.js?v=20260831-guest-mode";
+import { LobbyController } from "./LobbyController.js?v=20260831-guest-mode";
+import { LobbyListController } from "./LobbyListController.js?v=20260831-guest-mode";
+import { GameController } from "./GameController.js?v=20260831-guest-mode";
 import { ResultController } from "./ResultController.js?v=20260810-history-safety";
-import { TvController } from "./TvController.js?v=20260810-history-safety";
+import { TvController } from "./TvController.js?v=20260831-guest-mode";
 import { TvLinkController } from "./TvLinkController.js?v=20260810-history-safety";
 import { ManagementController } from "./ManagementController.js?v=20260810-history-safety";
 import { ManagementCategoriesController } from "./ManagementCategoriesController.js?v=20260810-history-safety";
@@ -21,7 +25,7 @@ import { ManagementValidationController } from "./ManagementValidationController
 import { ManagementSuggestionsController } from "./ManagementSuggestionsController.js?v=20260810-history-safety";
 import { ManagementAnswersController } from "./ManagementAnswersController.js?v=20260811-answer-insights";
 
-const ASSET_VERSION = "20260828-ai-details";
+const ASSET_VERSION = "20260831-guest-mode";
 const YOUTUBE_PREWARM_ROUTES = new Set(["lobby", "game", "autoplay", "tv"]);
 const WAKE_LOCK_ROUTES = new Set(["lobby", "game", "autoplay", "result", "tv-link", "tv"]);
 
@@ -29,17 +33,17 @@ let currentUser = null;
 let headerManager = null;
 
 const ROUTES = {
-  public: { auth: false, admin: false, controller: PublicController },
+  public: { auth: false, admin: false, allowAuthed: true, controller: PublicController },
   "suggest-track": { auth: false, admin: false, allowAuthed: true, controller: SuggestTrackController },
   tv: { auth: false, admin: false, allowAuthed: true, controller: TvController },
-  "tv-link": { auth: true, admin: false, controller: TvLinkController },
-  main: { auth: true, admin: false, controller: MainController },
-  "autoplay-setup": { auth: true, admin: false, controller: AutoplaySetupController },
-  autoplay: { auth: true, admin: false, controller: AutoplayController },
-  "lobby-list": { auth: true, admin: false, controller: LobbyListController },
-  lobby: { auth: true, admin: false, controller: LobbyController },
-  game: { auth: true, admin: false, controller: GameController },
-  result: { auth: true, admin: false, controller: ResultController },
+  "tv-link": { auth: false, admin: false, controller: TvLinkController },
+  main: { auth: false, admin: false, controller: MainController },
+  "autoplay-setup": { auth: false, admin: false, controller: AutoplaySetupController },
+  autoplay: { auth: false, admin: false, controller: AutoplayController },
+  "lobby-list": { auth: false, admin: false, controller: LobbyListController },
+  lobby: { auth: false, admin: false, controller: LobbyController },
+  game: { auth: false, admin: false, controller: GameController },
+  result: { auth: false, admin: false, controller: ResultController },
   management: { auth: true, admin: true, controller: ManagementController },
   "management-categories": { auth: true, admin: true, controller: ManagementCategoriesController },
   "management-families": { auth: true, admin: true, controller: ManagementFamiliesController },
@@ -127,7 +131,7 @@ export class AppController {
     let requested = requestedPath.toLowerCase() || this.resolvePathRoute();
     const initialRequested = requested;
     const routeParams = new URLSearchParams(requestedQuery);
-    if (!requested) requested = "public";
+    if (!requested) requested = "main";
 
     if (this.ctrl && typeof this.ctrl.destroy === "function") {
       this.ctrl.destroy();
@@ -143,7 +147,7 @@ export class AppController {
     let shouldPreserveQuery = Boolean(requestedQuery) && requested === initialRequested;
 
     if (!ROUTES[requested]) {
-      requested = session ? "main" : "public";
+      requested = "main";
       shouldPreserveQuery = false;
     }
 
@@ -160,9 +164,6 @@ export class AppController {
       requested = "public";
       shouldPreserveQuery = false;
     } else if (route.admin && !isAdmin) {
-      requested = "main";
-      shouldPreserveQuery = false;
-    } else if (!route.auth && session && !route.allowAuthed) {
       requested = "main";
       shouldPreserveQuery = false;
     }
@@ -202,17 +203,46 @@ export class AppController {
     try {
       const response = await window.httpClient.accountDetails();
       if (response.success && response.data?.user) {
-        currentUser = normalizeUser(response.data.user);
-        localStorage.setItem("user", JSON.stringify(currentUser));
+        currentUser = persistPlayerIdentity(normalizeUser({
+          ...response.data.user,
+          actor_id: Number(response.data.user.id || 0),
+          is_guest: false,
+          is_authenticated: true,
+        }));
         return true;
       }
     } catch {
       // noop
     }
 
-    currentUser = null;
-    localStorage.removeItem("user");
+    try {
+      const response = await window.httpClient.getPlayerIdentity();
+      if (response.success && response.data?.identity?.is_guest) {
+        currentUser = persistPlayerIdentity(response.data.identity);
+        return false;
+      }
+    } catch {
+      // A local provisional identity keeps the public menu usable offline.
+    }
+
+    currentUser = getOrCreateProvisionalGuest();
     return false;
+  }
+
+  adoptPlayerIdentity(identity) {
+    if (!identity || typeof identity !== "object") return currentUser;
+
+    const accountContext = currentUser && !currentUser.is_guest ? currentUser : {};
+    currentUser = persistPlayerIdentity(normalizeUser({
+      ...accountContext,
+      ...identity,
+      is_admin: identity.is_guest ? false : Boolean(accountContext.is_admin),
+    }));
+    return currentUser;
+  }
+
+  getCurrentUser() {
+    return currentUser;
   }
 
   async loadView(view) {
@@ -238,7 +268,7 @@ export class AppController {
     const head = document.getElementById("header");
     if (!head || !headerManager) return;
 
-    headerManager.refresh(head, view, currentUser?.role ?? "", currentUser?.username ?? "", Boolean(currentUser?.is_admin));
+    headerManager.refresh(head, view, currentUser);
   }
 
   renderViewLoadError(app, view) {

@@ -155,6 +155,7 @@ export class AutoplaySetupController {
       return;
     }
 
+    window.appCtrl.adoptPlayerIdentity(res.data.identity);
     setCurrentLobby(res.data.lobby);
     window.appCtrl.changeView("lobby");
   }

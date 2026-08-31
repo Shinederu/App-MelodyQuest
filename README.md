@@ -28,7 +28,7 @@ petit changement complet.
 - API MelodyQuest: `https://api.shinederu.ch/melodyquest/`
 - API Auth: `https://api.shinederu.ch/auth/`
 - Hub Mercure: `https://mercure.shinederu.ch/.well-known/mercure`
-- Cache-bust JS/CSS courant: `20260828-ai-details`
+- Cache-bust JS/CSS courant: `20260831-guest-mode`
 
 Identite visuelle:
 
@@ -46,6 +46,13 @@ Etat player a preserver:
 - L'hebergement local de fichiers audio a ete refuse.
 
 Le mode passif revient automatiquement au lobby a la fin de toutes les manches.
+
+L'entree du site est publique et ouvre directement `#/main`. Un visiteur recoit
+un pseudo local temporaire et peut creer ou rejoindre un salon sans compte. La
+session invitee serveur n'est creee qu'au premier changement de pseudo ou a la
+premiere action de salon, puis expire apres 2 heures d'inactivite glissantes.
+Les invites ne creent aucune ligne dans `users` et ne conservent pas de
+statistiques de profil.
 
 Les suppressions de categories, œuvres, musiques et salons passent par une modale commune qui nomme l'element avant confirmation.
 
@@ -84,6 +91,7 @@ Helpers importants:
 
 - `assets/js/utils/HttpService.js`: appels API JSON.
 - `assets/js/utils/LobbyState.js`: lobby courant/persistant cote navigateur.
+- `assets/js/utils/PlayerIdentity.js`: identite unifiee compte/invite, pseudo provisoire et `actor_id`.
 - `assets/js/utils/ClockSync.js`: correction d'horloge client/backend.
 - `assets/js/utils/WakeLockService.js`: verrou d'ecran best-effort.
 - `assets/js/utils/ui.js`: echappement HTML, normalisation de recherche, avatars, rangs et roles.
@@ -99,7 +107,7 @@ Le dossier `output/` n'est pas utilise. S'il reapparait vide, il peut etre suppr
 
 Les routes sont gerees dans `assets/js/controller/AppController.js`.
 
-- `#/public`: connexion, inscription, presentation joueur et entree vers le mode TV.
+- `#/public`: connexion/inscription facultative, presentation joueur et entree vers le mode TV.
 - `#/suggest-track`: proposition publique de nouvelle musique.
 - `/tv`: ecran TV public, sans header/footer.
 - `#/tv-link`: liaison d'une TV au salon courant, avec saisie ou scan QR.
@@ -120,8 +128,8 @@ Les routes sont gerees dans `assets/js/controller/AppController.js`.
 
 Redirections importantes:
 
-- utilisateur non connecte vers `#/public`;
-- utilisateur connecte hors pages publiques vers `#/main`;
+- racine vide ou route inconnue vers `#/main`;
+- visiteur libre d'ouvrir `#/public` depuis le bouton `Se connecter`;
 - non-admin hors pages management vers `#/main`;
 - `#/game` sans salon valide renvoie vers `#/main`;
 - `#/lobby?code=...` et `#/tv-link?code=...` conservent le code pendant la connexion.
@@ -129,6 +137,7 @@ Redirections importantes:
 ## Fonctionnalites produit
 
 - Authentification centralisee via `@shinederu/auth-core`.
+- Jeu sans compte avec pseudo temporaire modifiable et session invitee de 2 heures glissantes.
 - Salons publics ou prives, rejoignables par code ou URL partagee.
 - Switch d'accueil entre mode actif et mode passif.
 - Mode actif:
@@ -187,6 +196,10 @@ Redirections importantes:
 - Auth navigateur via `@shinederu/auth-core`, vendore depuis `Module-Auth-Core`.
 - Base auth: `https://api.shinederu.ch/auth/`.
 - Cookie session partage: `sid`, domaine `.shinederu.ch`.
+- Le compte est facultatif pour les parcours joueur; il reste requis pour le management.
+- L'invite utilise un cookie API HttpOnly `mq_guest`; le token n'est jamais accessible au JavaScript.
+- Le frontend manipule un `actor_id`: positif pour `users.id`, negatif pour une session invitee, `0` uniquement avant la premiere action serveur.
+- Une connexion depuis un salon invite demande confirmation, quitte le salon puis termine la session invitee.
 - Le frontend n'est pas source de verite des droits.
 - Les pages management sont protegees cote interface, mais les controles reels restent cote API.
 - Permission admin catalogue attendue cote backend:
@@ -217,6 +230,7 @@ Tables/fonctions principales cote API:
 
 - catalogue: categories, familles, alias, pistes;
 - lobbies et joueurs;
+- sessions invitees temporaires et identites `actor_id`;
 - manches, reponses, votes et scores;
 - presence manuelle et exclusions;
 - tentatives de reponse;
@@ -323,11 +337,12 @@ YYYYMMDD-sujet-court
 Cache-bust courant:
 
 ```text
-20260828-ai-details
+20260831-guest-mode
 ```
 
 Historique utile:
 
+- `20260831-guest-mode`: entree directe sur le menu, pseudo invite temporaire, jeu sans compte et identite `actor_id`.
 - `20260828-ai-details`: note de transparence repliee par defaut pour alleger la page publique.
 - `20260828-ai-disclosure`: ajout d'une note de transparence discrete sur l'experimentation du developpement assiste par IA en bas de la page publique.
 - `20260828-wake-theme`: suppression des transitions directes ambre-bleu; les bandeaux utilisent un degrade ambre-orange et le bleu reste un accent separe.
@@ -384,24 +399,28 @@ Verification minimale frontend:
 
 ```powershell
 Get-ChildItem P:\DEV\GitHub\App-MelodyQuest\assets\js -Recurse -Filter *.js | % { node --check $_.FullName }
-node --test P:\DEV\GitHub\App-MelodyQuest\tests\confirmDialog.test.js
+npm test --prefix P:\DEV\GitHub\App-MelodyQuest
 git -c safe.directory=* diff --check
 rg -n "console\.|alert\(|debugger" P:\DEV\GitHub\App-MelodyQuest\assets
 ```
 
 Smoke test recommande:
 
-1. `#/public`: login/register et entree TV.
-2. `#/main`: switch actif/passif, creation/rejoindre, liste publique.
-3. `#/lobby`: reglages, categories, joueurs, partage, liaison TV.
-4. Mode actif: `#/game`, champ reponse, timer, video cachee, solution, votes, classement.
-5. Mode passif: lancement depuis lobby, lecture `#/autoplay`, retour automatique au lobby en fin de partie.
-6. `/tv` + `#/tv-link`: QR, scan/saisie, affichage TV actif et TV passive sans score.
-7. Pages `#/management*` si catalogue, suggestions ou analyse admin sont touches.
+1. Racine/`#/main` sans cookie: pseudo invite, changement de pseudo, switch actif/passif, creation/rejoindre et liste publique.
+2. Deux navigateurs invites: lobby, presence, exclusion, reponses, votes et scores sans collision.
+3. `#/public`: connexion/inscription, retour invite et confirmation de sortie d'un salon actif.
+4. `#/lobby`: reglages, categories, joueurs, partage, liaison TV.
+5. Mode actif: `#/game`, champ reponse, timer, video cachee, solution, votes, classement.
+6. Mode passif: lancement depuis lobby, lecture `#/autoplay`, retour automatique au lobby en fin de partie.
+7. `/tv` + `#/tv-link`: QR, scan/saisie, affichage TV actif et TV passive sans score.
+8. Pages `#/management*` avec un compte admin.
 
 ## Deploiement
 
 Copier uniquement le runtime public:
+
+Le frontend invite suppose que la migration API `020_melodyquest_guest_players.sql`
+et le runtime API associe sont deja en production. Deployer le frontend en dernier.
 
 ```powershell
 Copy-Item P:\DEV\GitHub\App-MelodyQuest\index.html P:\PROD\MelodyQuest\index.html -Force
@@ -483,7 +502,7 @@ server {
 - Aucun dossier temporaire inutile.
 - Pas de `console.log`, `alert()` ou `debugger` dans le code applicatif.
 - JS valide avec `node --check`.
-- Tests Node valides avec `node --test tests\confirmDialog.test.js`.
+- Tests Node valides avec `npm test`.
 - Cache-bust mis a jour si un asset deploye change.
 - Runtime public copie en PROD si le changement touche le site.
 - Aucun README/AGENTS/docs internes copies en PROD.

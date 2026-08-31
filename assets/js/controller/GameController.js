@@ -1,4 +1,5 @@
 import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
+import { getActorId } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
 import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260616-answer-visibility";
 import { escapeAttribute, escapeHtml, formatPlayerRole, formatRank, renderAvatar } from "../utils/ui.js?v=20260616-answer-visibility";
 import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=20260616-answer-visibility";
@@ -261,7 +262,7 @@ export class GameController {
     [...previous, ...next].forEach((item, index) => {
       const key = item?.id
         ? `id:${item.id}`
-        : `fallback:${item?.user_id || 0}:${item?.guess_title || ""}:${item?.guess_artist || ""}:${item?.created_at || item?.answered_at || index}`;
+        : `fallback:${getActorId(item)}:${item?.guess_title || ""}:${item?.guess_artist || ""}:${item?.created_at || item?.answered_at || index}`;
       byKey.set(key, item);
     });
 
@@ -295,18 +296,18 @@ export class GameController {
   }
 
   hasCurrentUserSolvedRoundState(roundState) {
-    const currentUserId = Number(this.user?.id || 0);
-    if (currentUserId <= 0) {
+    const currentActorId = getActorId(this.user);
+    if (currentActorId === 0) {
       return false;
     }
 
     const answers = Array.isArray(roundState?.answers) ? roundState.answers : [];
-    if (answers.some((answer) => Number(answer?.user_id || 0) === currentUserId && Number(answer?.score_awarded || 0) > 0)) {
+    if (answers.some((answer) => getActorId(answer) === currentActorId && Number(answer?.score_awarded || 0) > 0)) {
       return true;
     }
 
     return Array.isArray(roundState?.solved_players)
-      && roundState.solved_players.some((player) => Number(player?.user_id || 0) === currentUserId);
+      && roundState.solved_players.some((player) => getActorId(player) === currentActorId);
   }
 
   schedulePersonalRoundRefresh() {
@@ -463,8 +464,8 @@ export class GameController {
     }
 
     if (Array.isArray(snapshot?.players)) {
-      const currentUserId = Number(this.user?.id || 0);
-      const stillPresent = snapshot.players.some((player) => Number(player.user_id || 0) === currentUserId);
+      const currentActorId = getActorId(this.user);
+      const stillPresent = snapshot.players.some((player) => getActorId(player) === currentActorId);
       if (!stillPresent) {
         this.exitLobbyIfActive();
         return;
@@ -576,7 +577,8 @@ export class GameController {
     if (!list) return;
 
     const fallbackEntries = this.players.map((player, index) => ({
-      user_id: Number(player.user_id || 0),
+      actor_id: getActorId(player),
+      user_id: player.user_id ?? null,
       username: String(player.username || "joueur"),
       avatar_url: String(player.avatar_url || ""),
       role: String(player.role || "player"),
@@ -586,7 +588,8 @@ export class GameController {
     }));
     const source = (this.scoreboard?.length ? this.scoreboard : fallbackEntries)
       .map((entry, index) => ({
-        user_id: Number(entry.user_id || 0),
+        actor_id: getActorId(entry),
+        user_id: entry.user_id ?? null,
         username: String(entry.username || "joueur"),
         avatar_url: String(entry.avatar_url || ""),
         role: String(entry.role || "player"),
@@ -604,13 +607,13 @@ export class GameController {
       : (this.roundState?.answers || []);
     const solvedUsers = new Set(solvedSource
       .filter((answer) => Number(answer?.score_awarded || 0) > 0)
-      .map((answer) => Number(answer.user_id || 0)));
+      .map((answer) => getActorId(answer)));
 
     list.innerHTML = source.map((entry, index) => {
-      const hasSolved = solvedUsers.has(Number(entry.user_id || 0));
+      const hasSolved = solvedUsers.has(getActorId(entry));
       const actions = this.renderOwnerPlayerActions(entry);
       return `
-      <li class="mq-list-row${hasSolved ? " mq-list-row--solved" : ""}${actions ? " mq-list-row--manageable" : ""}"${actions ? ` data-game-player-menu-row="${Number(entry.user_id || 0)}"` : ""}>
+      <li class="mq-list-row${hasSolved ? " mq-list-row--solved" : ""}${actions ? " mq-list-row--manageable" : ""}"${actions ? ` data-game-player-menu-row="${getActorId(entry)}"` : ""}>
         <div class="mq-player-line">
           ${this.renderAvatar(entry)}
           <div>
@@ -669,8 +672,8 @@ export class GameController {
   }
 
   renderOwnerPlayerActions(player) {
-    const playerId = Number(player?.user_id || 0);
-    const canManage = this.isOwner() && playerId > 0 && playerId !== Number(this.user?.id || 0);
+    const playerId = getActorId(player);
+    const canManage = this.isOwner() && playerId !== 0 && playerId !== getActorId(this.user);
     if (!canManage) {
       return "";
     }
@@ -1160,8 +1163,8 @@ export class GameController {
 
     const playersCount = Math.max(1, this.getEligiblePlayers().length);
     const requiredCount = Math.max(1, Math.ceil(playersCount * 0.5));
-    const currentUserId = Number(this.user?.id || 0);
-    const serverHasCurrentVote = this.players.some((player) => Number(player.user_id || 0) === currentUserId && Number(player.is_ready || 0) === 1);
+    const currentActorId = getActorId(this.user);
+    const serverHasCurrentVote = this.players.some((player) => getActorId(player) === currentActorId && Number(player.is_ready || 0) === 1);
     const readyCount = this.getEligiblePlayers().filter((player) => Number(player.is_ready || 0) === 1).length
       + (!serverHasCurrentVote && this.localNextVoteRoundId === Number(round?.id || 0) ? 1 : 0);
     const hasVoted = this.hasCurrentUserVoted(round);
@@ -1315,8 +1318,8 @@ export class GameController {
   }
 
   getCurrentUserAnswer() {
-    const currentUserId = Number(this.user?.id || 0);
-    return (this.roundState?.answers ?? []).find((answer) => Number(answer.user_id || 0) === currentUserId) || null;
+    const currentActorId = getActorId(this.user);
+    return (this.roundState?.answers ?? []).find((answer) => getActorId(answer) === currentActorId) || null;
   }
 
   hasCorrectAnswer(round, userAnswer) {
@@ -1335,8 +1338,8 @@ export class GameController {
       return true;
     }
 
-    const currentUserId = Number(this.user?.id || 0);
-    return this.players.some((player) => Number(player.user_id || 0) === currentUserId && Number(player.is_ready || 0) === 1);
+    const currentActorId = getActorId(this.user);
+    return this.players.some((player) => getActorId(player) === currentActorId && Number(player.is_ready || 0) === 1);
   }
 
   hasCurrentUserVotedReveal(round) {
@@ -1345,34 +1348,34 @@ export class GameController {
       return true;
     }
 
-    const currentUserId = Number(this.user?.id || 0);
+    const currentActorId = getActorId(this.user);
     return (this.roundState?.early_reveal_votes ?? [])
-      .some((vote) => Number(vote.user_id || 0) === currentUserId);
+      .some((vote) => getActorId(vote) === currentActorId);
   }
 
   getEarlyRevealVoteCount(round) {
-    const currentUserId = Number(this.user?.id || 0);
+    const currentActorId = getActorId(this.user);
     const votes = this.roundState?.early_reveal_votes ?? [];
-    const serverHasCurrentVote = votes.some((vote) => Number(vote.user_id || 0) === currentUserId);
+    const serverHasCurrentVote = votes.some((vote) => getActorId(vote) === currentActorId);
     const localVote = !serverHasCurrentVote && this.localRevealVoteRoundId === Number(round?.id || 0) ? 1 : 0;
     return votes.length + localVote;
   }
 
   getActiveSuggestionHold() {
-    const currentUserId = Number(this.user?.id || 0);
+    const currentActorId = getActorId(this.user);
     const holds = Array.isArray(this.roundState?.suggestion_holds)
       ? this.roundState.suggestion_holds
       : [];
-    const serverHold = holds.find((hold) => Number(hold?.user_id || 0) > 0) || null;
+    const serverHold = holds.find((hold) => getActorId(hold) !== 0) || null;
     if (serverHold) {
       return {
         ...serverHold,
-        isCurrentUser: Number(serverHold.user_id || 0) === currentUserId,
+        isCurrentUser: getActorId(serverHold) === currentActorId,
       };
     }
 
     return this.suggestionModalOpen
-      ? { user_id: currentUserId, username: this.user?.username || "", isCurrentUser: true }
+      ? { actor_id: currentActorId, username: this.user?.username || "", isCurrentUser: true }
       : null;
   }
 
@@ -1754,7 +1757,7 @@ export class GameController {
     this.localNextVoteRoundId = Number(round.id || 0);
     if (!res.data?.advanced) {
       this.players = this.players.map((player) => (
-        Number(player.user_id || 0) === Number(this.user?.id || 0)
+        getActorId(player) === getActorId(this.user)
           ? { ...player, is_ready: 1 }
           : player
       ));
@@ -2752,8 +2755,8 @@ export class GameController {
   }
 
   syncPresenceStatusFromPlayers(players = []) {
-    const currentUserId = Number(this.user?.id || 0);
-    const currentPlayer = players.find((player) => Number(player.user_id || 0) === currentUserId);
+    const currentActorId = getActorId(this.user);
+    const currentPlayer = players.find((player) => getActorId(player) === currentActorId);
     const status = String(currentPlayer?.presence_status || this.presenceStatus || "active").toLowerCase();
     this.presenceStatus = status === "away" ? "away" : "active";
   }
@@ -2883,7 +2886,7 @@ export class GameController {
   }
 
   isOwner() {
-    return Number(this.currentLobby?.owner_user_id || 0) === Number(this.user?.id || 0);
+    return Number(this.currentLobby?.owner_actor_id ?? this.currentLobby?.owner_user_id ?? 0) === getActorId(this.user);
   }
 
   formatRank(rank) {
