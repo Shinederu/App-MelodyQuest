@@ -50,7 +50,7 @@ Le repo frontend ne contient pas de dossier `client/` ou `backend/` actif. Ne pa
 ## Organisation
 
 - `index.html`: point d'entree, configuration API publique, declaration PWA et cache-bust global.
-- `manifest.webmanifest`, `service-worker.js`, `pwa-assets.json`: installation PWA et cache local versionne.
+- `manifest.json`, `service-worker.js`, `pwa-assets.json`: installation PWA et cache local versionne.
 - `robots.txt`, `sitemap.xml`, `favicon.svg`: decouverte, URL canonique et identite du resultat de recherche.
 - `assets/css/main.css`: style global sombre/responsive.
 - `assets/icons/`: icones d'installation standard, Apple et maskable.
@@ -89,7 +89,7 @@ Quand un JS, une vue HTML ou le CSS change, mettre a jour:
 
 Format conseille: `YYYYMMDD-sujet`.
 
-Cache-bust courant: `20260904-pwa`.
+Cache-bust courant: `20260904-pwa-manifest`.
 
 La version `RELEASE` de `service-worker.js` et celle de `pwa-assets.json`
 doivent correspondre au cache-bust courant. Apres toute modification de la
@@ -136,7 +136,7 @@ Copier uniquement les fichiers runtime publics vers `P:\PROD\MelodyQuest`:
 - `robots.txt`
 - `sitemap.xml`
 - `favicon.svg`
-- `manifest.webmanifest`
+- `manifest.json`
 - `service-worker.js`
 - `pwa-assets.json`
 - `assets\css\`
@@ -157,7 +157,7 @@ Commande type:
 
 ```powershell
 Copy-Item P:\DEV\GitHub\App-MelodyQuest\index.html P:\PROD\MelodyQuest\index.html -Force
-Copy-Item P:\DEV\GitHub\App-MelodyQuest\manifest.webmanifest P:\PROD\MelodyQuest\manifest.webmanifest -Force
+Copy-Item P:\DEV\GitHub\App-MelodyQuest\manifest.json P:\PROD\MelodyQuest\manifest.json -Force
 Copy-Item P:\DEV\GitHub\App-MelodyQuest\service-worker.js P:\PROD\MelodyQuest\service-worker.js -Force
 Copy-Item P:\DEV\GitHub\App-MelodyQuest\pwa-assets.json P:\PROD\MelodyQuest\pwa-assets.json -Force
 robocopy P:\DEV\GitHub\App-MelodyQuest\assets P:\PROD\MelodyQuest\assets /E /NFL /NDL /NJH /NJS /NP

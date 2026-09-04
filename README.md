@@ -28,7 +28,7 @@ petit changement complet.
 - API MelodyQuest: `https://api.shinederu.ch/melodyquest/`
 - API Auth: `https://api.shinederu.ch/auth/`
 - Hub Mercure: `https://mercure.shinederu.ch/.well-known/mercure`
-- Cache-bust JS/CSS courant: `20260904-pwa`
+- Cache-bust JS/CSS courant: `20260904-pwa-manifest`
 
 Identite visuelle:
 
@@ -78,7 +78,7 @@ git -c safe.directory=* status --short --branch
 - `robots.txt`: autorise l'exploration et declare le sitemap public.
 - `sitemap.xml`: expose uniquement l'URL canonique indexable; les routes `#` restent des etats internes de la SPA.
 - `favicon.svg`: favicon stable et carree pour les navigateurs et les resultats de recherche.
-- `manifest.webmanifest`: identite installable, ecran de demarrage et raccourcis de la PWA.
+- `manifest.json`: identite installable, ecran de demarrage et raccourcis de la PWA.
 - `service-worker.js`: cache local versionne du squelette frontend, limite au domaine MelodyQuest.
 - `pwa-assets.json`: inventaire genere des fichiers publics mis en cache pour le demarrage hors connexion.
 - `assets/css/main.css`: style global sombre et responsive.
@@ -366,12 +366,12 @@ YYYYMMDD-sujet-court
 Cache-bust courant:
 
 ```text
-20260904-pwa
+20260904-pwa-manifest
 ```
 
 Historique utile:
 
-- `20260904-pwa`: installation PWA, icones d'ecran d'accueil et cache local borne aux assets du frontend.
+- `20260904-pwa-manifest`: installation PWA, icones d'ecran d'accueil et cache local borne aux assets du frontend.
 - `20260831-guest-mode`: entree directe sur le menu, pseudo invite temporaire, jeu sans compte et identite `actor_id`.
 - `20260828-ai-details`: note de transparence repliee par defaut pour alleger la page publique.
 - `20260828-ai-disclosure`: ajout d'une note de transparence discrete sur l'experimentation du developpement assiste par IA en bas de la page publique.
@@ -458,7 +458,7 @@ Copy-Item P:\DEV\GitHub\App-MelodyQuest\index.html P:\PROD\MelodyQuest\index.htm
 Copy-Item P:\DEV\GitHub\App-MelodyQuest\robots.txt P:\PROD\MelodyQuest\robots.txt -Force
 Copy-Item P:\DEV\GitHub\App-MelodyQuest\sitemap.xml P:\PROD\MelodyQuest\sitemap.xml -Force
 Copy-Item P:\DEV\GitHub\App-MelodyQuest\favicon.svg P:\PROD\MelodyQuest\favicon.svg -Force
-Copy-Item P:\DEV\GitHub\App-MelodyQuest\manifest.webmanifest P:\PROD\MelodyQuest\manifest.webmanifest -Force
+Copy-Item P:\DEV\GitHub\App-MelodyQuest\manifest.json P:\PROD\MelodyQuest\manifest.json -Force
 Copy-Item P:\DEV\GitHub\App-MelodyQuest\service-worker.js P:\PROD\MelodyQuest\service-worker.js -Force
 Copy-Item P:\DEV\GitHub\App-MelodyQuest\pwa-assets.json P:\PROD\MelodyQuest\pwa-assets.json -Force
 robocopy P:\DEV\GitHub\App-MelodyQuest\assets P:\PROD\MelodyQuest\assets /E /NFL /NDL /NJH /NJS /NP
@@ -520,9 +520,9 @@ server {
         add_header Cache-Control "no-cache";
     }
 
-    location = /manifest.webmanifest {
+    location = /manifest.json {
         try_files $uri =404;
-        default_type application/manifest+json;
+        default_type application/json;
     }
 
     location / {

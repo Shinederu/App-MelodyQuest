@@ -20,7 +20,7 @@ async function readPngDimensions(relativePath) {
 }
 
 test("le manifeste rend MelodyQuest installable depuis le menu principal", async () => {
-  const manifest = JSON.parse(await readText("manifest.webmanifest"));
+  const manifest = JSON.parse(await readText("manifest.json"));
 
   assert.equal(manifest.id, "/");
   assert.equal(manifest.scope, "/");
@@ -55,7 +55,7 @@ test("le service worker limite son cache aux fichiers du site", async () => {
   assert.match(serviceWorker, /url\.origin !== self\.location\.origin/);
   assert.doesNotMatch(serviceWorker, /api\.shinederu\.ch|youtube\.com|mercure\.shinederu\.ch/);
   assert.match(serviceWorker, /request\.mode === "navigate"/);
-  assert.equal(assetIndex.version, "20260904-pwa");
+  assert.equal(assetIndex.version, "20260904-pwa-manifest");
   assert.ok(assetIndex.assets.includes("/assets/js/utils/PwaService.js"));
   assert.ok(assetIndex.assets.includes("/assets/views/mainView.html"));
 });
@@ -66,11 +66,11 @@ test("la page déclare le manifeste et enregistre la PWA", async () => {
   const serviceWorker = await readText("service-worker.js");
   const assetGenerator = await readText("scripts/generate-pwa-assets.mjs");
 
-  assert.match(index, /rel="manifest" href="\/manifest\.webmanifest"/);
+  assert.match(index, /rel="manifest" href="\/manifest\.json"/);
   assert.match(index, /rel="apple-touch-icon"/);
-  assert.match(index, /20260904-pwa/);
+  assert.match(index, /20260904-pwa-manifest/);
   assert.match(appController, /registerPwa\(\)/);
-  assert.match(appController, /ASSET_VERSION = "20260904-pwa"/);
-  assert.match(serviceWorker, /RELEASE = "20260904-pwa"/);
-  assert.match(assetGenerator, /RELEASE = "20260904-pwa"/);
+  assert.match(appController, /ASSET_VERSION = "20260904-pwa-manifest"/);
+  assert.match(serviceWorker, /RELEASE = "20260904-pwa-manifest"/);
+  assert.match(assetGenerator, /RELEASE = "20260904-pwa-manifest"/);
 });

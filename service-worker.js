@@ -1,10 +1,10 @@
-const RELEASE = "20260904-pwa";
+const RELEASE = "20260904-pwa-manifest";
 const CACHE_PREFIX = "melodyquest-shell-";
 const CACHE_NAME = `${CACHE_PREFIX}${RELEASE}`;
 const ASSET_INDEX_URL = `/pwa-assets.json?v=${RELEASE}`;
 const CORE_ASSETS = [
   "/index.html",
-  "/manifest.webmanifest",
+  "/manifest.json",
   "/favicon.svg",
   "/pwa-assets.json",
 ];
