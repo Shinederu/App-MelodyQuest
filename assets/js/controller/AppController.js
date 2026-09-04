@@ -1,6 +1,7 @@
 import { HttpService } from "../utils/HttpService.js?v=20260831-guest-mode";
 import { HeaderModel } from "../model/HeaderModel.js?v=20260831-guest-mode";
 import { WakeLockService } from "../utils/WakeLockService.js?v=20260810-history-safety";
+import { registerPwa } from "../utils/PwaService.js?v=20260904-pwa";
 import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260810-history-safety";
 import {
   getOrCreateProvisionalGuest,
@@ -25,7 +26,7 @@ import { ManagementValidationController } from "./ManagementValidationController
 import { ManagementSuggestionsController } from "./ManagementSuggestionsController.js?v=20260810-history-safety";
 import { ManagementAnswersController } from "./ManagementAnswersController.js?v=20260811-answer-insights";
 
-const ASSET_VERSION = "20260831-guest-mode";
+const ASSET_VERSION = "20260904-pwa";
 const YOUTUBE_PREWARM_ROUTES = new Set(["lobby", "game", "autoplay", "tv"]);
 const WAKE_LOCK_ROUTES = new Set(["lobby", "game", "autoplay", "result", "tv-link", "tv"]);
 
@@ -291,4 +292,5 @@ export class AppController {
   }
 }
 
+registerPwa();
 window.appCtrl = new AppController();

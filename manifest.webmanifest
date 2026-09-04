@@ -1,0 +1,54 @@
+{
+  "id": "/",
+  "name": "MelodyQuest - Blindtest entre amis",
+  "short_name": "MelodyQuest",
+  "description": "Créez ou rejoignez un blindtest musical multijoueur, avec mode actif, mode automatique et écran TV.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": "/#/main",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f1014",
+  "theme_color": "#171820",
+  "categories": [
+    "games",
+    "music",
+    "entertainment"
+  ],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/assets/icons/melodyquest-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/melodyquest-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/melodyquest-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Jouer",
+      "short_name": "Jouer",
+      "description": "Créer ou rejoindre un salon MelodyQuest",
+      "url": "/#/main"
+    },
+    {
+      "name": "Mode TV",
+      "short_name": "TV",
+      "description": "Ouvrir l'écran TV à associer à un salon",
+      "url": "/tv"
+    }
+  ]
+}

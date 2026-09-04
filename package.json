@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "pwa:assets": "node scripts/generate-pwa-assets.mjs",
     "test": "node --test tests/*.test.js"
   }
 }

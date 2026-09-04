@@ -49,15 +49,18 @@ Le repo frontend ne contient pas de dossier `client/` ou `backend/` actif. Ne pa
 
 ## Organisation
 
-- `index.html`: point d'entree, configuration API publique et cache-bust global.
+- `index.html`: point d'entree, configuration API publique, declaration PWA et cache-bust global.
+- `manifest.webmanifest`, `service-worker.js`, `pwa-assets.json`: installation PWA et cache local versionne.
 - `robots.txt`, `sitemap.xml`, `favicon.svg`: decouverte, URL canonique et identite du resultat de recherche.
 - `assets/css/main.css`: style global sombre/responsive.
+- `assets/icons/`: icones d'installation standard, Apple et maskable.
 - `assets/views/*View.html`: fragments HTML par route.
 - `assets/js/controller/*Controller.js`: logique par vue.
 - `assets/js/model/`: header/utilisateur.
 - `assets/js/utils/`: helpers HTTP, lobby, horloge, UI, YouTube, QR, wake lock.
 - `assets/js/vendor/`: bibliotheques vendorees navigateur.
 - `tests/` et `package.json`: tests locaux, jamais deployes en runtime public.
+- `scripts/`: generation locale de l'inventaire et des sources PWA; jamais deploye.
 
 Helpers a reutiliser:
 
@@ -86,7 +89,13 @@ Quand un JS, une vue HTML ou le CSS change, mettre a jour:
 
 Format conseille: `YYYYMMDD-sujet`.
 
-Cache-bust courant: `20260831-guest-mode`.
+Cache-bust courant: `20260904-pwa`.
+
+La version `RELEASE` de `service-worker.js` et celle de `pwa-assets.json`
+doivent correspondre au cache-bust courant. Apres toute modification de la
+liste des fichiers sous `assets/`, lancer `npm run pwa:assets`. Le service
+worker ne doit jamais intercepter l'API, Mercure ou YouTube, et ne doit pas
+forcer une recharge qui interromprait une partie.
 
 Le theme visuel partage la palette de ShinedeWake: surfaces charbon, action
 principale ambre/orange, information bleue, succes vert menthe et danger
@@ -102,6 +111,7 @@ Verification minimale:
 
 ```powershell
 Get-ChildItem P:\DEV\GitHub\App-MelodyQuest\assets\js -Recurse -Filter *.js | % { node --check $_.FullName }
+npm run pwa:assets --prefix P:\DEV\GitHub\App-MelodyQuest
 npm test --prefix P:\DEV\GitHub\App-MelodyQuest
 git -c safe.directory=* diff --check
 rg -n "console\.|alert\(|debugger" P:\DEV\GitHub\App-MelodyQuest\assets
@@ -126,6 +136,9 @@ Copier uniquement les fichiers runtime publics vers `P:\PROD\MelodyQuest`:
 - `robots.txt`
 - `sitemap.xml`
 - `favicon.svg`
+- `manifest.webmanifest`
+- `service-worker.js`
+- `pwa-assets.json`
 - `assets\css\`
 - `assets\views\`
 - `assets\js\`
@@ -144,6 +157,9 @@ Commande type:
 
 ```powershell
 Copy-Item P:\DEV\GitHub\App-MelodyQuest\index.html P:\PROD\MelodyQuest\index.html -Force
+Copy-Item P:\DEV\GitHub\App-MelodyQuest\manifest.webmanifest P:\PROD\MelodyQuest\manifest.webmanifest -Force
+Copy-Item P:\DEV\GitHub\App-MelodyQuest\service-worker.js P:\PROD\MelodyQuest\service-worker.js -Force
+Copy-Item P:\DEV\GitHub\App-MelodyQuest\pwa-assets.json P:\PROD\MelodyQuest\pwa-assets.json -Force
 robocopy P:\DEV\GitHub\App-MelodyQuest\assets P:\PROD\MelodyQuest\assets /E /NFL /NDL /NJH /NJS /NP
 ```
 

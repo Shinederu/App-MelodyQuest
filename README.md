@@ -28,7 +28,7 @@ petit changement complet.
 - API MelodyQuest: `https://api.shinederu.ch/melodyquest/`
 - API Auth: `https://api.shinederu.ch/auth/`
 - Hub Mercure: `https://mercure.shinederu.ch/.well-known/mercure`
-- Cache-bust JS/CSS courant: `20260831-guest-mode`
+- Cache-bust JS/CSS courant: `20260904-pwa`
 
 Identite visuelle:
 
@@ -78,7 +78,11 @@ git -c safe.directory=* status --short --branch
 - `robots.txt`: autorise l'exploration et declare le sitemap public.
 - `sitemap.xml`: expose uniquement l'URL canonique indexable; les routes `#` restent des etats internes de la SPA.
 - `favicon.svg`: favicon stable et carree pour les navigateurs et les resultats de recherche.
+- `manifest.webmanifest`: identite installable, ecran de demarrage et raccourcis de la PWA.
+- `service-worker.js`: cache local versionne du squelette frontend, limite au domaine MelodyQuest.
+- `pwa-assets.json`: inventaire genere des fichiers publics mis en cache pour le demarrage hors connexion.
 - `assets/css/main.css`: style global sombre et responsive.
+- `assets/icons/`: icones navigateur, Apple et maskable pour les ecrans d'accueil.
 - `assets/views/*View.html`: fragments HTML charges par route.
 - `assets/js/controller/*Controller.js`: logique par vue.
 - `assets/js/model/`: modeles UI transverses, notamment header/utilisateur.
@@ -86,6 +90,7 @@ git -c safe.directory=* status --short --branch
 - `assets/js/vendor/`: dependances vendorees navigateur (`@shinederu/auth-core`, `jsQR`).
 - `tests/`: tests Node des helpers sans dependance navigateur.
 - `package.json`: commandes de test locales; ne fait pas partie du runtime public.
+- `scripts/generate-pwa-assets.mjs`: regenere l'inventaire PWA apres ajout ou suppression d'un asset.
 
 Helpers importants:
 
@@ -179,6 +184,7 @@ Redirections importantes:
 - Ergonomie:
   - style sombre;
   - layout responsive desktop/tablette/mobile;
+  - installation comme application autonome sur les navigateurs compatibles;
   - profil paysage compact dedie aux ecrans 7 pouces autour de `800 x 480`, avec TV plein ecran, partie active et mode passif testes sans debordement horizontal;
   - wake lock best-effort sur les routes de jeu/lobby/TV;
   - demande de plein ecran best-effort au lancement d'une partie active ou passive.
@@ -289,6 +295,29 @@ window.__SHINEDERU_API_ROOT__ = "https://api.shinederu.ch";
 
 Aucun secret ne doit etre ajoute au frontend.
 
+## PWA
+
+MelodyQuest est installable comme Progressive Web App depuis les navigateurs
+compatibles. Le lancement installe ouvre directement `#/main` en affichage
+autonome. Le manifeste propose aussi les raccourcis `Jouer` et `Mode TV`.
+
+Le service worker met en cache uniquement les fichiers statiques servis par
+`melodyquest.shinederu.ch`. Il n'intercepte jamais l'API, Mercure, YouTube ni
+les autres origines. Le squelette du menu peut donc s'afficher sans reseau,
+mais une partie reste volontairement dependante d'Internet pour l'identite
+serveur, les salons, le temps reel et la lecture des pistes.
+
+Apres chaque ajout ou suppression dans `assets/`, regenerer l'inventaire:
+
+```powershell
+npm run pwa:assets --prefix P:\DEV\GitHub\App-MelodyQuest
+```
+
+La valeur `RELEASE` doit rester identique dans `service-worker.js`,
+`pwa-assets.json` et le cache-bust principal. Une nouvelle version de service
+worker remplace l'ancien cache lorsque les pages de la version precedente sont
+fermees; aucune recharge forcee ne vient interrompre une partie en cours.
+
 ## Referencement
 
 URL canonique indexable:
@@ -337,11 +366,12 @@ YYYYMMDD-sujet-court
 Cache-bust courant:
 
 ```text
-20260831-guest-mode
+20260904-pwa
 ```
 
 Historique utile:
 
+- `20260904-pwa`: installation PWA, icones d'ecran d'accueil et cache local borne aux assets du frontend.
 - `20260831-guest-mode`: entree directe sur le menu, pseudo invite temporaire, jeu sans compte et identite `actor_id`.
 - `20260828-ai-details`: note de transparence repliee par defaut pour alleger la page publique.
 - `20260828-ai-disclosure`: ajout d'une note de transparence discrete sur l'experimentation du developpement assiste par IA en bas de la page publique.
@@ -399,6 +429,7 @@ Verification minimale frontend:
 
 ```powershell
 Get-ChildItem P:\DEV\GitHub\App-MelodyQuest\assets\js -Recurse -Filter *.js | % { node --check $_.FullName }
+npm run pwa:assets --prefix P:\DEV\GitHub\App-MelodyQuest
 npm test --prefix P:\DEV\GitHub\App-MelodyQuest
 git -c safe.directory=* diff --check
 rg -n "console\.|alert\(|debugger" P:\DEV\GitHub\App-MelodyQuest\assets
@@ -427,6 +458,9 @@ Copy-Item P:\DEV\GitHub\App-MelodyQuest\index.html P:\PROD\MelodyQuest\index.htm
 Copy-Item P:\DEV\GitHub\App-MelodyQuest\robots.txt P:\PROD\MelodyQuest\robots.txt -Force
 Copy-Item P:\DEV\GitHub\App-MelodyQuest\sitemap.xml P:\PROD\MelodyQuest\sitemap.xml -Force
 Copy-Item P:\DEV\GitHub\App-MelodyQuest\favicon.svg P:\PROD\MelodyQuest\favicon.svg -Force
+Copy-Item P:\DEV\GitHub\App-MelodyQuest\manifest.webmanifest P:\PROD\MelodyQuest\manifest.webmanifest -Force
+Copy-Item P:\DEV\GitHub\App-MelodyQuest\service-worker.js P:\PROD\MelodyQuest\service-worker.js -Force
+Copy-Item P:\DEV\GitHub\App-MelodyQuest\pwa-assets.json P:\PROD\MelodyQuest\pwa-assets.json -Force
 robocopy P:\DEV\GitHub\App-MelodyQuest\assets P:\PROD\MelodyQuest\assets /E /NFL /NDL /NJH /NJS /NP
 ```
 
@@ -480,6 +514,17 @@ server {
         add_header Cache-Control "no-store";
     }
 
+    location = /service-worker.js {
+        try_files $uri =404;
+        expires -1;
+        add_header Cache-Control "no-cache";
+    }
+
+    location = /manifest.webmanifest {
+        try_files $uri =404;
+        default_type application/manifest+json;
+    }
+
     location / {
         try_files $uri $uri/ /index.html;
     }
@@ -489,6 +534,7 @@ server {
 ## Points a surveiller
 
 - Les performances YouTube sur certaines Smart TV restent variables selon navigateur, video et reseau.
+- La PWA n'est pas un mode de jeu hors ligne: API, Mercure et YouTube restent necessaires.
 - Ne pas restaurer le double lecteur TV sans nouvelle preuve qu'il corrige le probleme sans casser le son.
 - Tester un vrai salon avec au moins deux joueurs si la modification touche `#/lobby`, `#/game`, votes, presence, scores ou suggestions.
 - Tester `#/management-answers` avec des essais archives et a `800 x 480` si l'analyse ou le catalogue change.
@@ -504,6 +550,7 @@ server {
 - JS valide avec `node --check`.
 - Tests Node valides avec `npm test`.
 - Cache-bust mis a jour si un asset deploye change.
+- `pwa-assets.json` regenere et version PWA alignee si les assets changent.
 - Runtime public copie en PROD si le changement touche le site.
 - Aucun README/AGENTS/docs internes copies en PROD.
 - Commit et push effectues sur `main` si la tache demande une livraison complete.
