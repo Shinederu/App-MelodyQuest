@@ -70,3 +70,12 @@ traitement des invites avant de modifier le filtrage des salons.
 Commit/push main des deux depots. Migration 022 avant runtime API, puis frontend.
 PROD recoit seulement index, assets et PWA pour le front, et les fichiers PHP
 runtime modifies pour l'API. Aucun test, SQL, documentation ou secret copie.
+
+Livraison effective le 2026-09-13 (travail commence le 12): runtime frontend
+`7027d9d`, API `81f6a3b`, pousses sur main. Migration 022 appliquee sur ShinedeCore;
+comptages avant/apres identiques: 2726 pistes, 2146 oeuvres, 75 salons,
+29 propositions, 57 sessions archivees. Les 16 fichiers frontend et 4 fichiers
+API deployes ont ete controles par empreinte SHA-256; endpoints publics HTTP 200.
+Verification finale: 21 tests frontend, 38 tests unitaires API et 8 tests
+d'integration locale. Les serveurs MySQL/PHP de test ont ete arretes. Les
+fixtures jetables restent dans `P:\DEV\Temp\MelodyQuest-20260912`, hors PROD.
