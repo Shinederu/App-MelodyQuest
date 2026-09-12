@@ -28,7 +28,7 @@ petit changement complet.
 - API MelodyQuest: `https://api.shinederu.ch/melodyquest/`
 - API Auth: `https://api.shinederu.ch/auth/`
 - Hub Mercure: `https://mercure.shinederu.ch/.well-known/mercure`
-- Cache-bust JS/CSS courant: `20260912-game-ui-v2`
+- Cache-bust JS/CSS courant: `20260912-header-scroll`
 
 Identite visuelle:
 
@@ -195,6 +195,7 @@ Redirections importantes:
   - profil paysage compact dedie aux ecrans 7 pouces autour de `800 x 480`, avec TV plein ecran, partie active et mode passif testes sans debordement horizontal;
   - wake lock best-effort sur les routes de jeu/lobby/TV;
   - aucun passage automatique en plein ecran au lancement actif/passif;
+  - header dans le flux de la page: il disparait de l'ecran pendant le defilement, y compris sur PC;
   - tiroir de partie commun PC/mobile: compte, salon/code, mode salon, absence, partage, TV, sortie et passage automatique;
   - actions du createur dans une modale au-dessus du decor; seul le statut absent est indique dans le classement;
   - controle du volume et pourcentage regroupes pres de la correction.
@@ -379,11 +380,12 @@ YYYYMMDD-sujet-court
 Cache-bust courant:
 
 ```text
-20260912-game-ui-v2
+20260912-header-scroll
 ```
 
 Historique utile:
 
+- `20260912-header-scroll`: suppression du header sticky sur PC; le header suit le defilement sur tous les formats.
 - `20260912-game-ui-v2`: accueil allege, tiroir de partie, moderation invites, TV compacte, suggestions/management, bornes d'extrait et filtre de notoriété.
 - `20260904-pwa-manifest`: installation PWA, icones d'ecran d'accueil et cache local borne aux assets du frontend.
 - `20260831-guest-mode`: entree directe sur le menu, pseudo invite temporaire, jeu sans compte et identite `actor_id`.

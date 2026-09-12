@@ -40,6 +40,7 @@ Le repo frontend ne contient pas de dossier `client/` ou `backend/` actif. Ne pa
 - Le mode passif passe par un vrai salon, garde le partage et la liaison TV, puis revient au lobby en fin de partie.
 - Nouveaux salons actifs/passifs: publics, 30 manches de 20 secondes. Aucun plein ecran automatique.
 - Le menu de partie PC/mobile est un dialog natif; ne pas remettre les actions du createur dans un parent avec overflow cache.
+- Le header suit le defilement de la page sur tous les formats; ne pas le rendre sticky ou fixe. Seuls les dialogs ouverts se superposent au viewport.
 - Les controles d'acteur doivent accepter les identifiants negatifs des invites (seul 0 est invalide).
 - La TV utilise un lecteur YouTube iframe simple. Le double lecteur TV et `markTvRoundReady` ont ete abandonnes.
 - YouTube reste la source principale. Ne pas introduire d'hebergement audio local.
@@ -95,7 +96,7 @@ Quand un JS, une vue HTML ou le CSS change, mettre a jour:
 
 Format conseille: `YYYYMMDD-sujet`.
 
-Cache-bust courant: `20260912-game-ui-v2`.
+Cache-bust courant: `20260912-header-scroll`.
 
 La version `RELEASE` de `service-worker.js` et celle de `pwa-assets.json`
 doivent correspondre au cache-bust courant. Apres toute modification de la

@@ -2,7 +2,7 @@ import { readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const RELEASE = "20260912-game-ui-v2";
+const RELEASE = "20260912-header-scroll";
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const assetsRoot = path.join(projectRoot, "assets");
 

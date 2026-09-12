@@ -272,8 +272,7 @@ input[type="range"] {
 }
 
 #header {
-  position: sticky;
-  top: 12px;
+  position: relative;
   z-index: 20;
   margin-bottom: 14px;
 }
@@ -4461,7 +4460,6 @@ body:has(.mq-tv-page) #footer {
   }
 
   #header {
-    top: 4px;
     margin-bottom: 6px;
   }
 

@@ -26,7 +26,7 @@ import { ManagementValidationController } from "./ManagementValidationController
 import { ManagementSuggestionsController } from "./ManagementSuggestionsController.js?v=20260912-game-ui-v2";
 import { ManagementAnswersController } from "./ManagementAnswersController.js?v=20260912-game-ui-v2";
 
-const ASSET_VERSION = "20260912-game-ui-v2";
+const ASSET_VERSION = "20260912-header-scroll";
 const YOUTUBE_PREWARM_ROUTES = new Set(["lobby", "game", "autoplay", "tv"]);
 const WAKE_LOCK_ROUTES = new Set(["lobby", "game", "autoplay", "result", "tv-link", "tv"]);
 
