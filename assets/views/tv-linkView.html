@@ -7,16 +7,18 @@
     </div>
 
     <div class="mq-form-stack">
-      <div class="mq-field">
-        <label for="tv-link-code">Code TV</label>
-        <input id="tv-link-code" type="text" inputmode="latin" autocomplete="off" maxlength="6" placeholder="ABC123" />
+      <div class="mq-tv-link-entry">
+        <div class="mq-field">
+          <label for="tv-link-code">Code TV</label>
+          <input id="tv-link-code" type="text" inputmode="latin" autocomplete="off" maxlength="6" placeholder="ABC123" />
+        </div>
+        <button id="btn-tv-link-submit" type="button">Lier la TV</button>
       </div>
+      <button id="btn-tv-link-scan" type="button" class="mq-secondary">Scanner le QR</button>
 
       <p id="tv-link-status" class="status"></p>
 
-      <div class="mq-actions">
-        <button id="btn-tv-link-scan" type="button" class="mq-secondary">Scanner le QR</button>
-        <button id="btn-tv-link-submit" type="button">Lier la TV</button>
+      <div class="mq-menu-action-bar mq-menu-secondary-actions">
         <button id="btn-tv-link-back" type="button" class="mq-secondary">Retour au salon</button>
         <button id="btn-tv-link-open-tv" type="button" class="mq-secondary">Ouvrir le mode TV</button>
       </div>

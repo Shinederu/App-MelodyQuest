@@ -1,6 +1,6 @@
 import { escapeHtml } from "../utils/ui.js?v=20260617-admin-workflow";
 import { clearPlayerIdentity } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
-import { setupGameMenu } from "../utils/GameMenu.js?v=20260912-game-ui-v2";
+import { setupGameMenu } from "../utils/GameMenu.js?v=20260912-menu-layout";
 
 const PAGE_META = {
   "autoplay-setup": {
@@ -122,8 +122,8 @@ export class HeaderModel {
         <div class="mq-topbar__actions">
           ${isGuest && view === "main" ? `<button id="btn-main-guest-rename" type="button" class="mq-secondary mq-icon-button" aria-label="Changer le pseudo" title="Changer le pseudo">✎</button>` : ""}
           ${username && !isGuest ? `<span class="mq-topbar__role">${safeRole}</span>` : ""}
-          ${buttonHtml}
           ${isAdmin && ["game", "autoplay"].includes(view) ? '<a class="mq-nav-link" href="#/management">Administration</a>' : ""}
+          ${buttonHtml}
         </div>
       </div>
     `;
@@ -134,8 +134,13 @@ export class HeaderModel {
       headerElement.innerHTML = headerHtml;
     }
     if (view.startsWith("management")) {
-      const links = [["main", "Jouer"], ["management", "Vue d’ensemble"], ["management-validation", "À valider"], ["management-suggestions", "Propositions"], ["management-tracks", "Musiques"], ["management-families", "Œuvres"], ["management-categories", "Catégories"], ["management-answers", "Réponses"]];
-      headerElement.insertAdjacentHTML("beforeend", `<nav class="mq-management-nav" aria-label="Administration">${links.map(([route, label]) => `<a href="#/${route}"${view === route ? ' aria-current="page"' : ''}>${label}</a>`).join("")}</nav>`);
+      const groups = [
+        ["Accueil", [["management", "Vue d’ensemble"]]],
+        ["À traiter", [["management-validation", "À valider"], ["management-suggestions", "Propositions"]]],
+        ["Catalogue", [["management-tracks", "Musiques"], ["management-families", "Œuvres"], ["management-categories", "Catégories"]]],
+        ["Historique", [["management-answers", "Réponses"]]],
+      ];
+      headerElement.insertAdjacentHTML("beforeend", `<nav class="mq-management-nav" aria-label="Administration">${groups.map(([label, links]) => `<div class="mq-management-nav__group" role="group" aria-label="${label}">${links.map(([route, text]) => `<a href="#/${route}"${view === route ? ' aria-current="page"' : ''}>${text}</a>`).join("")}</div>`).join("")}<a class="mq-management-nav__exit" href="#/main">Retour au jeu</a></nav>`);
       document.getElementById("app")?.classList.add("mq-management-app");
     } else {
       document.getElementById("app")?.classList.remove("mq-management-app");

@@ -54,6 +54,11 @@ export class TvLinkController {
   }
 
   renderLobbyContext() {
+    const backButton = document.getElementById("btn-tv-link-back");
+    if (backButton) {
+      backButton.textContent = !this.currentLobby?.id ? "Retour au menu"
+        : this.returnView === "lobby" ? "Retour au salon" : "Retour à la partie";
+    }
     if (!this.currentLobby?.id) {
       this.setStatus("Rejoins ou crée un salon avant de lier une TV.", false);
       this.submitButton?.setAttribute("disabled", "disabled");

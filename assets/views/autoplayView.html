@@ -5,11 +5,12 @@
       <strong class="mq-round-counter">Manche <span id="autoplay-progress">-- / --</span></strong>
       <div id="autoplay-round-category" class="mq-game-category" hidden></div>
       <p id="autoplay-status" class="status">Préparation...</p>
-      <div class="mq-actions" data-game-menu-options>
+      <section class="mq-drawer-section" data-game-menu-options aria-labelledby="game-menu-invite-title">
+        <h2 id="game-menu-invite-title">Invitations et TV</h2>
         <button id="btn-autoplay-share" type="button" class="mq-secondary">Partager le salon</button>
         <button id="btn-autoplay-link-tv" type="button" class="mq-secondary">Lier une TV</button>
-        <button id="btn-autoplay-leave" type="button" class="mq-danger">Arrêter</button>
-      </div>
+      </section>
+      <button id="btn-autoplay-leave" type="button" class="mq-danger" data-game-menu-exit>Arrêter</button>
     </div>
 
     <div id="autoplay-video" class="mq-video-shell mq-autoplay-video-shell is-concealed">

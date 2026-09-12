@@ -28,7 +28,7 @@ petit changement complet.
 - API MelodyQuest: `https://api.shinederu.ch/melodyquest/`
 - API Auth: `https://api.shinederu.ch/auth/`
 - Hub Mercure: `https://mercure.shinederu.ch/.well-known/mercure`
-- Cache-bust JS/CSS courant: `20260912-header-scroll`
+- Cache-bust JS/CSS courant: `20260912-menu-layout`
 
 Identite visuelle:
 
@@ -380,11 +380,12 @@ YYYYMMDD-sujet-court
 Cache-bust courant:
 
 ```text
-20260912-header-scroll
+20260912-menu-layout
 ```
 
 Historique utile:
 
+- `20260912-menu-layout`: menus regroupes par usage (partie, invitations/TV, compte et sortie), navigation catalogue separee du jeu; boutons du salon et liaison TV reorganises, header mobile aligne.
 - `20260912-header-scroll`: suppression du header sticky sur PC; le header suit le defilement sur tous les formats.
 - `20260912-game-ui-v2`: accueil allege, tiroir de partie, moderation invites, TV compacte, suggestions/management, bornes d'extrait et filtre de notoriété.
 - `20260904-pwa-manifest`: installation PWA, icones d'ecran d'accueil et cache local borne aux assets du frontend.

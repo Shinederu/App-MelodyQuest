@@ -1,4 +1,4 @@
-const RELEASE = "20260912-header-scroll";
+const RELEASE = "20260912-menu-layout";
 const CACHE_PREFIX = "melodyquest-shell-";
 const CACHE_NAME = `${CACHE_PREFIX}${RELEASE}`;
 const ASSET_INDEX_URL = `/pwa-assets.json?v=${RELEASE}`;

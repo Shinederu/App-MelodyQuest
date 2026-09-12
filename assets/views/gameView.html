@@ -6,13 +6,28 @@
         <strong class="mq-round-counter">Manche <span id="game-progress">-- / --</span></strong>
         <div id="game-round-category" class="mq-game-category" hidden></div>
         <p id="game-status" class="status"></p>
-        <div class="mq-actions" data-game-menu-options>
+        <section class="mq-drawer-section" data-game-menu-options aria-labelledby="game-menu-play-title">
+          <h2 id="game-menu-play-title">Ma partie</h2>
           <button id="btn-game-player-mode" type="button" class="mq-secondary" aria-pressed="false">Mode salon</button>
           <button id="btn-game-away" type="button" class="mq-secondary">Me mettre absent</button>
-          <button id="btn-game-share-lobby" type="button" class="mq-secondary">Partager</button>
+          <label class="mq-check">
+            <input id="game-auto-next" type="checkbox" />
+            <span>Suivant automatique</span>
+          </label>
+        </section>
+        <section class="mq-drawer-section" data-game-menu-options aria-labelledby="game-menu-invite-title">
+          <h2 id="game-menu-invite-title">Invitations et TV</h2>
+          <div class="mq-drawer-code">
+            <span>Code du salon</span>
+            <button id="btn-game-toggle-code" type="button" class="mq-game-code" aria-pressed="false">
+              <span id="game-lobby-code">------</span>
+              <small id="game-lobby-code-hint">Masquer</small>
+            </button>
+          </div>
+          <button id="btn-game-share-lobby" type="button" class="mq-secondary">Partager le salon</button>
           <button id="btn-game-link-tv" type="button" class="mq-secondary">Lier une TV</button>
-          <button id="btn-game-leave" type="button" class="mq-danger">Quitter le salon</button>
-        </div>
+        </section>
+        <button id="btn-game-leave" type="button" class="mq-danger" data-game-menu-exit>Quitter le salon</button>
       </div>
 
       <div id="game-video" class="mq-video-shell">
@@ -105,24 +120,10 @@
         </div>
         <div class="mq-game-next-options">
           <p id="game-next-info" class="mq-muted">Le vote sera disponible après quelques secondes de solution.</p>
-          <label class="mq-check" data-game-menu-options>
-            <input id="game-auto-next" type="checkbox" />
-            <span>Suivant automatique</span>
-          </label>
         </div>
       </section>
 
       <section class="mq-card mq-card--accent mq-game-info-card">
-        <div data-game-menu-options>
-          <article class="mq-game-fact">
-            <span>Code du salon</span>
-            <button id="btn-game-toggle-code" type="button" class="mq-game-code" aria-pressed="false">
-              <span id="game-lobby-code">------</span>
-              <small id="game-lobby-code-hint">Masquer</small>
-            </button>
-          </article>
-        </div>
-
         <div class="mq-card-heading mq-card-heading--compact">
           <h3>Classement</h3>
         </div>

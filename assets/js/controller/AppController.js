@@ -1,5 +1,5 @@
 import { HttpService } from "../utils/HttpService.js?v=20260912-game-ui-v2";
-import { HeaderModel } from "../model/HeaderModel.js?v=20260912-game-ui-v2";
+import { HeaderModel } from "../model/HeaderModel.js?v=20260912-menu-layout";
 import { WakeLockService } from "../utils/WakeLockService.js?v=20260912-game-ui-v2";
 import { registerPwa } from "../utils/PwaService.js?v=20260912-game-ui-v2";
 import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260912-game-ui-v2";
@@ -17,7 +17,7 @@ import { LobbyListController } from "./LobbyListController.js?v=20260912-game-ui
 import { GameController } from "./GameController.js?v=20260912-game-ui-v2";
 import { ResultController } from "./ResultController.js?v=20260912-game-ui-v2";
 import { TvController } from "./TvController.js?v=20260912-game-ui-v2";
-import { TvLinkController } from "./TvLinkController.js?v=20260912-game-ui-v2";
+import { TvLinkController } from "./TvLinkController.js?v=20260912-menu-layout";
 import { ManagementController } from "./ManagementController.js?v=20260912-game-ui-v2";
 import { ManagementCategoriesController } from "./ManagementCategoriesController.js?v=20260912-game-ui-v2";
 import { ManagementFamiliesController } from "./ManagementFamiliesController.js?v=20260912-game-ui-v2";
@@ -26,7 +26,7 @@ import { ManagementValidationController } from "./ManagementValidationController
 import { ManagementSuggestionsController } from "./ManagementSuggestionsController.js?v=20260912-game-ui-v2";
 import { ManagementAnswersController } from "./ManagementAnswersController.js?v=20260912-game-ui-v2";
 
-const ASSET_VERSION = "20260912-header-scroll";
+const ASSET_VERSION = "20260912-menu-layout";
 const YOUTUBE_PREWARM_ROUTES = new Set(["lobby", "game", "autoplay", "tv"]);
 const WAKE_LOCK_ROUTES = new Set(["lobby", "game", "autoplay", "result", "tv-link", "tv"]);
 

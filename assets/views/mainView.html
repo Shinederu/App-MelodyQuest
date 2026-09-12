@@ -1,8 +1,13 @@
 <section class="mq-page">
   <nav class="mq-main-navigation" aria-label="MelodyQuest">
     <a href="/tv" class="mq-nav-link">Écran TV</a>
-    <a href="#/public" class="mq-nav-link">À propos de MelodyQuest</a>
-    <button id="btn-main-suggest-track" type="button" class="mq-secondary">Proposer une musique</button>
+    <div class="mq-main-navigation__secondary">
+      <button id="btn-main-suggest-track" type="button" class="mq-secondary">Proposer une musique</button>
+      <div id="main-admin-actions">
+        <button id="btn-main-management" type="button" class="mq-secondary">Gestion du catalogue</button>
+      </div>
+      <a href="#/public" class="mq-nav-link">À propos de MelodyQuest</a>
+    </div>
   </nav>
   <div class="mq-player-dashboard mq-main-dashboard">
     <section class="mq-card mq-card--accent mq-play-card">
@@ -59,9 +64,6 @@
 
       <p id="main-status" class="status"></p>
 
-      <div id="main-admin-actions" class="mq-actions mq-actions--compact mq-actions--full">
-        <button id="btn-main-management" type="button" class="mq-secondary mq-button-block">Gestion du catalogue</button>
-      </div>
     </section>
 
     <section class="mq-card mq-card--soft mq-public-lobbies-card">
