@@ -8,13 +8,13 @@ const GAME_MODES = {
   passive: "autoplay",
 };
 const ACTIVE_DEFAULTS = {
-  rounds: 5,
-  listenSeconds: 30,
+  rounds: 30,
+  listenSeconds: 20,
   revealSeconds: 10,
 };
 const PASSIVE_DEFAULTS = {
-  rounds: 10,
-  listenSeconds: 30,
+  rounds: 30,
+  listenSeconds: 20,
   revealSeconds: 10,
 };
 
@@ -44,7 +44,10 @@ export class MainController {
     document.getElementById("btn-main-suggest-track")?.addEventListener("click", () => window.appCtrl.changeView("suggest-track"));
     document.getElementById("btn-main-management")?.addEventListener("click", () => window.appCtrl.changeView("management"));
     document.getElementById("btn-main-guest-rename")?.addEventListener("click", () => this.openGuestModal());
-    document.getElementById("main-guest-form")?.addEventListener("submit", () => this.submitGuestNickname());
+    document.getElementById("main-guest-form")?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      this.submitGuestNickname();
+    });
     document.getElementById("btn-main-guest-close")?.addEventListener("click", () => this.closeGuestModal());
     document.getElementById("btn-main-guest-cancel")?.addEventListener("click", () => this.closeGuestModal());
     document.querySelector("[data-main-guest-close]")?.addEventListener("click", () => this.closeGuestModal());
@@ -288,7 +291,7 @@ export class MainController {
       this.user = window.appCtrl.adoptPlayerIdentity(res.data.identity) || this.user;
       this.renderGuestIdentity();
       const headerUser = document.querySelector(".mq-topbar__user");
-      if (headerUser) headerUser.textContent = `Bonjour ${this.user.username}`;
+      if (headerUser) headerUser.textContent = this.user.username;
       this.closeGuestModal();
       this.setStatus("Pseudo mis à jour", true);
     } catch {
@@ -335,7 +338,7 @@ export class MainController {
     const publicCopy = document.getElementById("main-public-copy");
 
     if (publicInput && (resetVisibility || publicInput.dataset.modeInitialized !== "1")) {
-      publicInput.checked = !passive;
+      publicInput.checked = true;
       publicInput.dataset.modeInitialized = "1";
     }
 
@@ -349,7 +352,7 @@ export class MainController {
     }
     if (modeCopy) {
       modeCopy.textContent = passive
-        ? "Crée un salon passif, règle les musiques, puis lance une écoute automatique à partager ou à afficher sur TV."
+        ? "Les musiques et les solutions s'enchaînent automatiquement."
         : "Crée un salon actif si tu organises la partie, ou rejoins directement avec un code.";
     }
     if (createTitle) {
@@ -360,7 +363,7 @@ export class MainController {
     }
     if (publicCopy) {
       publicCopy.textContent = passive
-        ? "Les salons passifs sont privés par défaut, mais ceux rendus publics apparaissent ici."
+        ? "Rejoins une écoute publique, ou utilise le code d'un salon privé."
         : "Choisis un salon public disponible. Les salons privés se rejoignent avec un code.";
     }
   }
@@ -381,7 +384,7 @@ export class MainController {
         <li class="mq-list-row mq-empty-row">
           <div>
             <strong>Aucun salon public</strong>
-            <span class="mq-muted">${this.isPassiveMode() ? "Les salons passifs sont souvent privés. Utilise un code si quelqu'un t'en a partagé un." : "Crée ton salon depuis le départ rapide ou utilise un code privé."}</span>
+            <span class="mq-muted">Crée un salon ou utilise un code privé.</span>
           </div>
         </li>
       `;

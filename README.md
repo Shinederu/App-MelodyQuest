@@ -28,7 +28,7 @@ petit changement complet.
 - API MelodyQuest: `https://api.shinederu.ch/melodyquest/`
 - API Auth: `https://api.shinederu.ch/auth/`
 - Hub Mercure: `https://mercure.shinederu.ch/.well-known/mercure`
-- Cache-bust JS/CSS courant: `20260904-pwa-manifest`
+- Cache-bust JS/CSS courant: `20260912-game-ui`
 
 Identite visuelle:
 
@@ -82,6 +82,7 @@ git -c safe.directory=* status --short --branch
 - `service-worker.js`: cache local versionne du squelette frontend, limite au domaine MelodyQuest.
 - `pwa-assets.json`: inventaire genere des fichiers publics mis en cache pour le demarrage hors connexion.
 - `assets/css/main.css`: style global sombre et responsive.
+- `assets/css/play-layout.css`: menu de partie, commandes compactes, management et ajustements TV.
 - `assets/icons/`: icones navigateur, Apple et maskable pour les ecrans d'accueil.
 - `assets/views/*View.html`: fragments HTML charges par route.
 - `assets/js/controller/*Controller.js`: logique par vue.
@@ -103,6 +104,9 @@ Helpers importants:
 - `assets/js/utils/confirmDialog.js`: confirmation accessible et responsive des suppressions destructives.
 - `assets/js/utils/youtube.js`: extraction d'ID YouTube et chargement partage de l'API iframe.
 - `assets/js/utils/qr.js`: generation QR locale.
+- `assets/js/utils/GameMenu.js`: tiroir de partie accessible (dialog natif).
+- `assets/js/utils/PlayerActions.js`: actions du createur en premier plan, comptes et invites.
+- `assets/js/utils/PlaybackBounds.js`: arret a la fin optionnelle d'un extrait, sans boucle de seek.
 
 Il n'y a plus de dossier `client/` ou `backend/` actif dans ce repo. L'API MelodyQuest est dans `App-MelodyQuest-API`.
 
@@ -145,6 +149,7 @@ Redirections importantes:
 - Jeu sans compte avec pseudo temporaire modifiable et session invitee de 2 heures glissantes.
 - Salons publics ou prives, rejoignables par code ou URL partagee.
 - Switch d'accueil entre mode actif et mode passif.
+- Acces direct au mode TV et a la presentation publique depuis le menu; pseudo invite modifiable dans le header.
 - Mode actif:
   - saisie de reponse;
   - scoring;
@@ -156,16 +161,17 @@ Redirections importantes:
   - derniers essais rates visibles limites a 5;
   - reponses validees visibles entre joueurs ayant trouve, puis visibles a tous apres revelation.
 - Mode passif:
-  - salons prives par defaut;
+  - salons publics par defaut, avec option privee;
   - partage et liaison TV conserves;
   - enchainement automatique ecoute/revelation;
   - pas de score, pas de vote, pas de reponse attendue;
   - retour automatique au lobby a la fin de toutes les manches.
 - Reglages de lobby:
-  - nombre de manches;
-  - duree de reponse/ecoute;
+  - nombre de manches, `30` par defaut;
+  - duree de reponse/ecoute, `20` secondes par defaut;
   - duree de revelation;
   - categories;
+  - notoriété minimale de `1` a `10` (toutes les musiques par defaut); les pistes non notees ne sont pas proposees avec un seuil superieur a `1`;
   - salon public/prive;
   - categorie visible, activee par defaut;
   - revelation anticipee;
@@ -179,7 +185,8 @@ Redirections importantes:
 - TV et soiree locale:
   - `/tv` genere un QR code;
   - `#/tv-link` lie la TV au salon;
-  - le mode joueur de salon evite de charger la video sur le telephone/PC quand une TV sert d'ecran principal;
+  - le mode salon evite de charger la video sur le telephone/PC quand une TV sert d'ecran principal;
+  - la TV active affiche les votes de manche suivante et les cinq derniers essais rates; aucun score ni vote en passif;
   - le son TV est actif, sans bouton d'activation manuel.
 - Ergonomie:
   - style sombre;
@@ -187,12 +194,18 @@ Redirections importantes:
   - installation comme application autonome sur les navigateurs compatibles;
   - profil paysage compact dedie aux ecrans 7 pouces autour de `800 x 480`, avec TV plein ecran, partie active et mode passif testes sans debordement horizontal;
   - wake lock best-effort sur les routes de jeu/lobby/TV;
-  - demande de plein ecran best-effort au lancement d'une partie active ou passive.
+  - aucun passage automatique en plein ecran au lancement actif/passif;
+  - tiroir de partie commun PC/mobile: compte, salon/code, mode salon, absence, partage, TV, sortie et passage automatique;
+  - actions du createur dans une modale au-dessus du decor; seul le statut absent est indique dans le classement;
+  - controle du volume et pourcentage regroupes pres de la correction.
 - Administration:
   - catalogue categories/oeuvres/pistes;
   - validation des pistes en attente avec modification des champs et alias;
   - suggestions de correction ou nouvelle musique;
   - application directe des suggestions au catalogue;
+  - correction du nom de l'oeuvre a deviner ou ajout d'un alias, sans confondre avec le libelle de la musique;
+  - debut/fin d'extrait en secondes et note de notoriété sur les pistes; timestamps egalement proposables par les joueurs;
+  - notifications de moderation par mail gerees par l'API;
   - analyse des reponses joueurs avec filtres resultat/categorie/periode/texte;
   - regroupement des fautes proches et ajout d'un candidat comme alias;
   - idees de contenu transferables vers le formulaire de nouvelle musique.
@@ -366,11 +379,12 @@ YYYYMMDD-sujet-court
 Cache-bust courant:
 
 ```text
-20260904-pwa-manifest
+20260912-game-ui
 ```
 
 Historique utile:
 
+- `20260912-game-ui`: accueil allege, tiroir de partie, moderation invites, TV compacte, suggestions/management, bornes d'extrait et filtre de notoriété.
 - `20260904-pwa-manifest`: installation PWA, icones d'ecran d'accueil et cache local borne aux assets du frontend.
 - `20260831-guest-mode`: entree directe sur le menu, pseudo invite temporaire, jeu sans compte et identite `actor_id`.
 - `20260828-ai-details`: note de transparence repliee par defaut pour alleger la page publique.
@@ -450,8 +464,8 @@ Smoke test recommande:
 
 Copier uniquement le runtime public:
 
-Le frontend invite suppose que la migration API `020_melodyquest_guest_players.sql`
-et le runtime API associe sont deja en production. Deployer le frontend en dernier.
+Le frontend suppose les migrations API jusqu'a `021_melodyquest_track_preferences.sql`
+et le runtime API associe deja en production. Deployer le frontend en dernier.
 
 ```powershell
 Copy-Item P:\DEV\GitHub\App-MelodyQuest\index.html P:\PROD\MelodyQuest\index.html -Force
@@ -533,6 +547,8 @@ server {
 
 ## Points a surveiller
 
+- Compte-rendu de la livraison UI/catalogue: `docs/2026-09-12-game-ui.md`.
+- Les timestamps bornent la lecture, pas le chrono de jeu: une fin atteinte coupe l'extrait jusqu'a la manche suivante.
 - Les performances YouTube sur certaines Smart TV restent variables selon navigateur, video et reseau.
 - La PWA n'est pas un mode de jeu hors ligne: API, Mercure et YouTube restent necessaires.
 - Ne pas restaurer le double lecteur TV sans nouvelle preuve qu'il corrige le probleme sans casser le son.

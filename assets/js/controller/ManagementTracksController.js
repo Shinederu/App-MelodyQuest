@@ -372,6 +372,8 @@ export class ManagementTracksController {
   }
 
   fillForm(item) {
+    document.getElementById("track-end-offset").value = item.end_offset_seconds ?? "";
+    document.getElementById("track-familiarity").value = item.familiarity ?? "";
     this.selectedId = Number(item.id);
 
     const form = document.getElementById("track-form");
@@ -412,6 +414,8 @@ export class ManagementTracksController {
   }
 
   resetForm() {
+    document.getElementById("track-end-offset").value = "";
+    document.getElementById("track-familiarity").value = "";
     const form = document.getElementById("track-form");
     const category = document.getElementById("track-category");
     const familyName = document.getElementById("track-family-name");
@@ -502,6 +506,8 @@ export class ManagementTracksController {
       artist,
       youtube_video_id,
       start_offset_seconds,
+      end_offset_seconds: document.getElementById("track-end-offset").value || null,
+      familiarity: document.getElementById("track-familiarity").value || null,
     });
 
     this.setStatus(res.success ? "Musique créée en attente de validation" : (res.error || "Erreur"), res.success);
@@ -537,6 +543,8 @@ export class ManagementTracksController {
       artist,
       youtube_video_id,
       start_offset_seconds,
+      end_offset_seconds: document.getElementById("track-end-offset").value || null,
+      familiarity: document.getElementById("track-familiarity").value || null,
     });
 
     this.setStatus(res.success ? "Musique mise à jour et repassée en attente de validation" : (res.error || "Erreur"), res.success);

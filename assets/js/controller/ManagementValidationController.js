@@ -158,6 +158,8 @@ export class ManagementValidationController {
     const reject = document.getElementById("btn-validation-reject");
 
     const item = this.getSelectedItem();
+    const pane = title?.closest(".mq-admin-pane");
+    pane?.querySelectorAll(":scope > .mq-admin-form-grid, :scope > .mq-admin-form-actions").forEach((element) => { element.hidden = !item; });
     if (!item) {
       if (title) title.textContent = "Aucune musique sélectionnée";
       if (helper) helper.textContent = "Choisis une piste en attente pour vérifier sa vidéo YouTube et la valider.";
@@ -193,6 +195,8 @@ export class ManagementValidationController {
   }
 
   fillForm(item) {
+    document.getElementById("validation-end-offset").value = item.end_offset_seconds ?? "";
+    document.getElementById("validation-familiarity").value = item.familiarity ?? "";
     this.setFormDisabled(false);
 
     const category = document.getElementById("validation-category");
@@ -215,6 +219,8 @@ export class ManagementValidationController {
   }
 
   clearForm() {
+    document.getElementById("validation-end-offset").value = "";
+    document.getElementById("validation-familiarity").value = "";
     const category = document.getElementById("validation-category");
     const family = document.getElementById("validation-family-name");
     const title = document.getElementById("validation-track-title");
@@ -243,6 +249,8 @@ export class ManagementValidationController {
       "validation-track-artist",
       "validation-youtube-url",
       "validation-start-offset",
+      "validation-end-offset",
+      "validation-familiarity",
     ].forEach((id) => {
       const el = document.getElementById(id);
       if (el) el.disabled = disabled;
@@ -367,6 +375,8 @@ export class ManagementValidationController {
       artist,
       youtube_video_id: youtubeVideoId,
       start_offset_seconds: startOffset,
+      end_offset_seconds: document.getElementById("validation-end-offset").value || null,
+      familiarity: document.getElementById("validation-familiarity").value || null,
     };
 
     if (this.aliasesAvailable) {

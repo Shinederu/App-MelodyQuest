@@ -1,17 +1,14 @@
-const MANAGEMENT_NAVIGATION = [
-  ["btn-mgmt-main", "main"],
-  ["btn-mgmt-categories", "management-categories"],
-  ["btn-mgmt-families", "management-families"],
-  ["btn-mgmt-tracks", "management-tracks"],
-  ["btn-mgmt-validation", "management-validation"],
-  ["btn-mgmt-suggestions", "management-suggestions"],
-  ["btn-mgmt-answers", "management-answers"],
-];
-
 export class ManagementController {
   constructor() {
-    MANAGEMENT_NAVIGATION.forEach(([buttonId, route]) => {
-      document.getElementById(buttonId)?.addEventListener("click", () => window.appCtrl.changeView(route));
+    this.loadCounts();
+  }
+
+  async loadCounts() {
+    const results = await Promise.allSettled([window.httpClient.listPendingTracks(), window.httpClient.listSuggestions("pending")]);
+    ["management-pending-tracks", "management-pending-suggestions"].forEach((id, index) => {
+      const result = results[index];
+      const badge = document.getElementById(id);
+      if (badge) badge.textContent = result.status === "fulfilled" && result.value.success ? String(result.value.data?.items?.length || 0) : "Indisponible";
     });
   }
 }

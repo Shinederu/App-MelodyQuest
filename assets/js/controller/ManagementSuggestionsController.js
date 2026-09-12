@@ -139,7 +139,9 @@ export class ManagementSuggestionsController {
 
   renderSuggestionCompare(item) {
     const rows = [
-      ["Œuvre / réponse", item.current_family_name, item.proposed_alias],
+      [item.proposed_family_name ? "Renommer l’œuvre" : "Alias à ajouter", item.current_family_name, item.proposed_family_name || item.proposed_alias],
+      ["Début (s)", item.current_start_offset_seconds == null ? null : String(item.current_start_offset_seconds), item.proposed_start_offset_seconds == null ? null : String(item.proposed_start_offset_seconds)],
+      ["Fin (s)", item.current_end_offset_seconds == null ? null : String(item.current_end_offset_seconds), item.proposed_end_offset_seconds == null ? null : String(item.proposed_end_offset_seconds)],
       ["Libellé piste", item.current_title, item.proposed_title],
       ["Artiste / licence", item.current_artist, item.proposed_artist],
       ["YouTube", item.current_youtube_video_id, item.proposed_youtube_url || item.proposed_youtube_video_id],
@@ -147,7 +149,7 @@ export class ManagementSuggestionsController {
 
     return `
       <div class="mq-suggestion-compare">
-        ${rows.map(([label, current, proposed]) => this.renderCompareRow(label, current, proposed)).join("")}
+        ${rows.filter(([, , proposed]) => proposed != null && proposed !== "").map(([label, current, proposed]) => this.renderCompareRow(label, current, proposed)).join("")}
       </div>
       ${item.applied_at ? `
         <div class="mq-suggestion-note">
@@ -176,6 +178,11 @@ export class ManagementSuggestionsController {
   }
 
   fillEditor(item) {
+    const newTrack = item.suggestion_type === "new_track";
+    const newFields = document.getElementById("suggestion-new-track-fields");
+    if (newFields) newFields.hidden = !newTrack;
+    const replacement = document.getElementById("suggestion-replacement-family");
+    if (replacement) replacement.closest(".mq-field").hidden = newTrack;
     this.setValue("suggestion-admin-category", item.admin_category_id || "");
     this.setValue("suggestion-admin-family", item.admin_family_name || (item.suggestion_type === "new_track" ? item.proposed_alias || "" : ""));
     this.setValue("suggestion-title", item.proposed_title || "");
@@ -183,7 +190,13 @@ export class ManagementSuggestionsController {
     this.setValue("suggestion-youtube", item.proposed_youtube_url || item.proposed_youtube_video_id || "");
     this.setValue("suggestion-alias", item.proposed_alias || "");
     this.setValue("suggestion-start-offset", item.admin_start_offset_seconds ?? "");
+    this.setValue("suggestion-end-offset", item.admin_end_offset_seconds ?? "");
+    this.setValue("suggestion-replacement-family", item.proposed_family_name ?? "");
     this.setValue("suggestion-note", item.note || "");
+    for (const [id, value] of [["suggestion-title", item.current_title], ["suggestion-artist", item.current_artist], ["suggestion-youtube", item.current_youtube_video_id], ["suggestion-start-offset", item.current_start_offset_seconds], ["suggestion-end-offset", item.current_end_offset_seconds]]) {
+      const input = document.getElementById(id);
+      if (input) input.placeholder = value == null ? "" : String(value);
+    }
     this.renderCategoryOptions();
     this.renderFamilyOptions();
 
@@ -240,6 +253,8 @@ export class ManagementSuggestionsController {
       admin_category_id: Number(document.getElementById("suggestion-admin-category")?.value || 0) || null,
       admin_family_name: this.value("suggestion-admin-family"),
       admin_start_offset_seconds: this.optionalNumber("suggestion-start-offset"),
+      admin_end_offset_seconds: this.optionalNumber("suggestion-end-offset"),
+      proposed_family_name: this.value("suggestion-replacement-family"),
       note: this.value("suggestion-note"),
     };
   }
@@ -303,6 +318,13 @@ export class ManagementSuggestionsController {
       const button = document.getElementById(id);
       if (button) button.disabled = !enabled || this.inFlight;
     });
+    const item = this.getSelectedItem();
+    for (const [id, status] of [["btn-suggestion-reviewed", "reviewed"], ["btn-suggestion-rejected", "rejected"], ["btn-suggestion-pending", "pending"]]) {
+      const button = document.getElementById(id);
+      if (button) button.hidden = !item || item.status === status;
+    }
+    const apply = document.getElementById("btn-suggestion-apply");
+    if (apply && item?.applied_at) apply.disabled = true;
   }
 
   getSuggestionTitle(item) {
@@ -323,9 +345,7 @@ export class ManagementSuggestionsController {
 
   optionalNumber(id) {
     const raw = String(document.getElementById(id)?.value || "").trim();
-    if (!raw) return null;
-    const value = Number.parseInt(raw, 10);
-    return Number.isFinite(value) ? Math.max(0, value) : null;
+    return raw || null;
   }
 
   setValue(id, value) {

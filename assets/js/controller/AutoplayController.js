@@ -2,6 +2,7 @@ import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/Lo
 import { getActorId } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
 import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260717-compact-landscape";
 import { escapeHtml } from "../utils/ui.js?v=20260717-compact-landscape";
+import { pauseAtTrackEnd } from "../utils/PlaybackBounds.js?v=20260912-game-ui";
 
 const DEFAULT_VOLUME = 70;
 const VOLUME_STORAGE_KEY = "mq_autoplay_volume";
@@ -29,6 +30,16 @@ export class AutoplayController {
     this.volume = this.loadVolume();
 
     document.getElementById("btn-autoplay-leave")?.addEventListener("click", () => this.leave());
+    document.getElementById("btn-autoplay-link-tv")?.addEventListener("click", () => window.appCtrl.changeView("tv-link?from=autoplay"));
+    document.getElementById("btn-autoplay-share")?.addEventListener("click", async () => {
+      const url = `${window.location.origin}/#/lobby?code=${encodeURIComponent(this.getLobbyCode())}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        this.setStatus("Lien du salon copié", true);
+      } catch {
+        this.setStatus(`Code du salon : ${this.getLobbyCode()}`, true);
+      }
+    });
     document.getElementById("autoplay-volume")?.addEventListener("input", (event) => this.handleVolume(event));
 
     this.updateVolumeUi();
@@ -255,6 +266,11 @@ export class AutoplayController {
 
   renderRound() {
     const round = this.roundState?.round;
+    const category = document.getElementById("autoplay-round-category");
+    if (category) {
+      category.textContent = round?.track?.category_name || "";
+      category.hidden = !this.lobby?.show_track_category || !category.textContent;
+    }
     if (!round) {
       this.setPhase("Préparation");
       this.setProgress(null);
@@ -344,6 +360,7 @@ export class AutoplayController {
   }
 
   syncPlayer(round) {
+    if (pauseAtTrackEnd(this.player, round, this.nowServer())) return;
     const track = round?.track;
     const videoId = String(track?.youtube_video_id || "");
     if (!videoId) return;

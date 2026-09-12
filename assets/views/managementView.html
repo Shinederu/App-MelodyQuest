@@ -1,88 +1,21 @@
-<section class="mq-page">
-  <section class="mq-card mq-card--soft mq-admin-dashboard">
-    <div class="mq-admin-toolbar">
-      <div class="mq-card-heading mq-card-heading--compact">
-        <div class="mq-kicker">Administration</div>
-        <h2>Choisir quoi gérer</h2>
-        <p class="mq-card-copy">Le catalogue se travaille dans cet ordre: catégories, œuvres, musiques, puis validation.</p>
-      </div>
-      <div class="mq-row">
-        <button id="btn-mgmt-main" type="button" class="mq-secondary">Retour menu principal</button>
-      </div>
+<section class="mq-page mq-management-home">
+  <section>
+    <h2>À traiter</h2>
+    <div class="mq-management-links">
+      <a class="mq-management-link" href="#/management-validation"><strong>Musiques à valider</strong><span id="management-pending-tracks" class="mq-chip">--</span></a>
+      <a class="mq-management-link" href="#/management-suggestions"><strong>Propositions et corrections</strong><span id="management-pending-suggestions" class="mq-chip">--</span></a>
     </div>
-
-    <div class="mq-admin-step-grid">
-      <button id="btn-mgmt-categories" type="button" class="mq-admin-nav-card">
-        <div>
-          <span class="mq-kicker">Étape 1</span>
-          <strong>Catégories</strong>
-          <p>Définis les grandes thématiques proposées dans les lobbies avant de descendre au niveau détail.</p>
-        </div>
-        <div class="mq-admin-nav-card__footer">
-          <span class="mq-admin-nav-card__index">01</span>
-          <span>Ouvrir le niveau parent</span>
-        </div>
-      </button>
-
-      <button id="btn-mgmt-families" type="button" class="mq-admin-nav-card">
-        <div>
-          <span class="mq-kicker">Étape 2</span>
-          <strong>Œuvres</strong>
-          <p>Regroupe les morceaux qui doivent partager la même réponse attendue pendant la partie.</p>
-        </div>
-        <div class="mq-admin-nav-card__footer">
-          <span class="mq-admin-nav-card__index">02</span>
-          <span>Structurer les réponses</span>
-        </div>
-      </button>
-
-      <button id="btn-mgmt-tracks" type="button" class="mq-admin-nav-card">
-        <div>
-          <span class="mq-kicker">Étape 3</span>
-          <strong>Musiques</strong>
-          <p>Ajoute les pistes jouables, rattache-les à une œuvre et laisse l'interface créer le regroupement si besoin.</p>
-        </div>
-        <div class="mq-admin-nav-card__footer">
-          <span class="mq-admin-nav-card__index">03</span>
-          <span>Finaliser le contenu</span>
-        </div>
-      </button>
-
-      <button id="btn-mgmt-validation" type="button" class="mq-admin-nav-card">
-        <div>
-          <span class="mq-kicker">Étape 4</span>
-          <strong>Validation</strong>
-          <p>Contrôle les nouvelles vidéos YouTube avant de les rendre jouables dans les lobbies et les manches.</p>
-        </div>
-        <div class="mq-admin-nav-card__footer">
-          <span class="mq-admin-nav-card__index">04</span>
-          <span>Vérifier les ajouts</span>
-        </div>
-      </button>
-
-      <button id="btn-mgmt-suggestions" type="button" class="mq-admin-nav-card">
-        <div>
-          <span class="mq-kicker">Joueurs</span>
-          <strong>Suggestions</strong>
-          <p>Consulte les alias, corrections et nouvelles musiques proposés pendant les parties ou depuis la page publique.</p>
-        </div>
-        <div class="mq-admin-nav-card__footer">
-          <span class="mq-admin-nav-card__index">05</span>
-          <span>Traiter les retours</span>
-        </div>
-      </button>
-
-      <button id="btn-mgmt-answers" type="button" class="mq-admin-nav-card">
-        <div>
-          <span class="mq-kicker">Analyse</span>
-          <strong>Réponses joueurs</strong>
-          <p>Explore les essais ratés et les réponses fréquentes pour repérer des alias, corrections ou idées de musiques.</p>
-        </div>
-        <div class="mq-admin-nav-card__footer">
-          <span class="mq-admin-nav-card__index">06</span>
-          <span>Analyser les parties</span>
-        </div>
-      </button>
+  </section>
+  <section>
+    <h2>Catalogue</h2>
+    <div class="mq-management-links">
+      <a class="mq-management-link" href="#/management-tracks"><strong>Musiques</strong><span>Vidéos, extraits et notoriété</span></a>
+      <a class="mq-management-link" href="#/management-families"><strong>Œuvres</strong><span>Noms et alias acceptés</span></a>
+      <a class="mq-management-link" href="#/management-categories"><strong>Catégories</strong><span>Thèmes des parties</span></a>
     </div>
+  </section>
+  <section>
+    <h2>Réponses des joueurs</h2>
+    <a class="mq-management-link" href="#/management-answers"><strong>Historique et idées de musiques</strong></a>
   </section>
 </section>

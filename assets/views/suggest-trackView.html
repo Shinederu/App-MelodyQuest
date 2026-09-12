@@ -37,7 +37,17 @@
 
         <div class="mq-field">
           <label for="suggest-track-note">Note</label>
-          <textarea id="suggest-track-note" placeholder="Contexte, moment conseillé dans la vidéo, raison de l'ajout..."></textarea>
+          <textarea id="suggest-track-note" placeholder="Contexte, raison de l'ajout..."></textarea>
+        </div>
+        <div class="mq-grid">
+          <div class="mq-field">
+            <label for="suggest-track-start">Début de la musique (secondes)</label>
+            <input id="suggest-track-start" type="number" min="0" max="86400" step="1" placeholder="0" />
+          </div>
+          <div class="mq-field">
+            <label for="suggest-track-end">Fin de la musique (secondes)</label>
+            <input id="suggest-track-end" type="number" min="1" max="86400" step="1" placeholder="Fin de la vidéo" />
+          </div>
         </div>
 
         <div class="mq-actions">

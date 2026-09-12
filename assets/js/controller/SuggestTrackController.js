@@ -4,16 +4,22 @@ export class SuggestTrackController {
       const user = JSON.parse(localStorage.getItem("user") || "null");
       window.appCtrl.changeView(user ? "main" : "public");
     });
-    document.getElementById("suggest-track-form")?.addEventListener("submit", () => this.submit());
+    document.getElementById("suggest-track-form")?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      this.submit();
+    });
   }
 
   async submit() {
+    if (this.submitting) return;
     const payload = {
       suggestion_type: "new_track",
       proposed_title: this.value("suggest-track-title"),
       proposed_artist: this.value("suggest-track-artist"),
       proposed_youtube_url: this.value("suggest-track-url"),
       proposed_alias: this.value("suggest-track-alias"),
+      proposed_start_offset_seconds: this.value("suggest-track-start") || null,
+      proposed_end_offset_seconds: this.value("suggest-track-end") || null,
       note: this.value("suggest-track-note"),
     };
 
@@ -22,15 +28,24 @@ export class SuggestTrackController {
       return;
     }
 
-    this.setStatus("Envoi de la proposition...", null);
-    const res = await window.httpClient.submitSuggestion(payload);
-    if (!res.success) {
-      this.setStatus(res.error || "Erreur pendant l'envoi.", false);
-      return;
+    this.submitting = true;
+    const button = document.querySelector('#suggest-track-form [type="submit"]');
+    if (button) button.disabled = true;
+    try {
+      this.setStatus("Envoi de la proposition...", null);
+      const res = await window.httpClient.submitSuggestion(payload);
+      if (!res.success) {
+        this.setStatus(res.error || "Erreur pendant l'envoi.", false);
+        return;
+      }
+      this.clearForm();
+      this.setStatus("Proposition envoyée. Merci !", true);
+    } catch {
+      this.setStatus("Envoi impossible. Réessaie dans un instant.", false);
+    } finally {
+      this.submitting = false;
+      if (button) button.disabled = false;
     }
-
-    this.clearForm();
-    this.setStatus("Proposition envoyée. Merci !", true);
   }
 
   clearForm() {
@@ -40,6 +55,8 @@ export class SuggestTrackController {
       "suggest-track-url",
       "suggest-track-alias",
       "suggest-track-note",
+      "suggest-track-start",
+      "suggest-track-end",
     ].forEach((id) => {
       const el = document.getElementById(id);
       if (el) el.value = "";

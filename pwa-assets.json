@@ -1,7 +1,8 @@
 {
-  "version": "20260904-pwa-manifest",
+  "version": "20260912-game-ui",
   "assets": [
     "/assets/css/main.css",
+    "/assets/css/play-layout.css",
     "/assets/icons/melodyquest-180.png",
     "/assets/icons/melodyquest-192.png",
     "/assets/icons/melodyquest-512.png",
@@ -29,8 +30,11 @@
     "/assets/js/model/UserModel.js",
     "/assets/js/utils/ClockSync.js",
     "/assets/js/utils/confirmDialog.js",
+    "/assets/js/utils/GameMenu.js",
     "/assets/js/utils/HttpService.js",
     "/assets/js/utils/LobbyState.js",
+    "/assets/js/utils/PlaybackBounds.js",
+    "/assets/js/utils/PlayerActions.js",
     "/assets/js/utils/PlayerIdentity.js",
     "/assets/js/utils/PwaService.js",
     "/assets/js/utils/qr.js",

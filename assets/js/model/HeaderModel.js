@@ -1,12 +1,8 @@
 import { escapeHtml } from "../utils/ui.js?v=20260617-admin-workflow";
 import { clearPlayerIdentity } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
+import { setupGameMenu } from "../utils/GameMenu.js?v=20260912-game-ui";
 
 const PAGE_META = {
-  main: {
-    eyebrow: "Blindtest entre amis",
-    title: "Jouer maintenant",
-    description: "Créer un salon, partager le code, lancer la musique.",
-  },
   "autoplay-setup": {
     eyebrow: "Mode automatique",
     title: "Préparer un blindtest",
@@ -15,6 +11,7 @@ const PAGE_META = {
   autoplay: {
     eyebrow: "Mode automatique",
     title: "Lecture en cours",
+    titleId: "autoplay-title",
     description: "Les musiques et les réponses s'enchaînent seules.",
   },
   "suggest-track": {
@@ -119,17 +116,30 @@ export class HeaderModel {
       <div class="mq-topbar">
         <div class="mq-topbar__brand">
           <div class="mq-topbar__eyebrow">MelodyQuest</div>
-          <div class="mq-topbar__user">${username ? `Bonjour ${safeUsername}` : "MelodyQuest"}</div>
+          <div class="mq-topbar__user">${username ? safeUsername : "MelodyQuest"}</div>
         </div>
         ${pageHtml}
         <div class="mq-topbar__actions">
-          ${username ? `<span class="mq-topbar__role">${safeRole}</span>` : ""}
+          ${isGuest && view === "main" ? `<button id="btn-main-guest-rename" type="button" class="mq-secondary">Changer le pseudo</button>` : ""}
+          ${username && !isGuest ? `<span class="mq-topbar__role">${safeRole}</span>` : ""}
           ${buttonHtml}
+          ${isAdmin && ["game", "autoplay"].includes(view) ? '<a class="mq-nav-link" href="#/management">Administration</a>' : ""}
         </div>
       </div>
     `;
 
-    headerElement.innerHTML = headerHtml;
+    if (view === "game" || view === "autoplay") {
+      setupGameMenu(headerElement, headerHtml);
+    } else {
+      headerElement.innerHTML = headerHtml;
+    }
+    if (view.startsWith("management")) {
+      const links = [["main", "Jouer"], ["management", "Vue d’ensemble"], ["management-validation", "À valider"], ["management-suggestions", "Propositions"], ["management-tracks", "Musiques"], ["management-families", "Œuvres"], ["management-categories", "Catégories"], ["management-answers", "Réponses"]];
+      headerElement.insertAdjacentHTML("beforeend", `<nav class="mq-management-nav" aria-label="Administration">${links.map(([route, label]) => `<a href="#/${route}"${view === route ? ' aria-current="page"' : ''}>${label}</a>`).join("")}</nav>`);
+      document.getElementById("app")?.classList.add("mq-management-app");
+    } else {
+      document.getElementById("app")?.classList.remove("mq-management-app");
+    }
 
     if (canLogout) this.bindLogout();
     document.getElementById("header-btn-login")?.addEventListener("click", () => window.appCtrl.changeView("public"));

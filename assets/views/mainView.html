@@ -1,19 +1,13 @@
 <section class="mq-page">
+  <nav class="mq-main-navigation" aria-label="MelodyQuest">
+    <a href="/tv" class="mq-nav-link">Écran TV</a>
+    <a href="#/public" class="mq-nav-link">À propos de MelodyQuest</a>
+    <button id="btn-main-suggest-track" type="button" class="mq-secondary">Proposer une musique</button>
+  </nav>
   <div class="mq-player-dashboard mq-main-dashboard">
     <section class="mq-card mq-card--accent mq-play-card">
       <div class="mq-card-heading">
-        <div class="mq-kicker">Départ rapide</div>
         <h2>Jouer</h2>
-        <p id="main-mode-copy" class="mq-card-copy">Crée un salon si tu organises la partie, ou rejoins directement avec un code.</p>
-      </div>
-
-      <div id="main-guest-identity" class="mq-guest-identity" hidden>
-        <div class="mq-guest-identity__copy">
-          <span class="mq-section-label">Tu joues en invité</span>
-          <strong id="main-guest-nickname">Invité</strong>
-          <small>Ce pseudo et tes statistiques ne sont pas conservés durablement.</small>
-        </div>
-        <button id="btn-main-guest-rename" type="button" class="mq-secondary">Changer le pseudo</button>
       </div>
 
       <div class="mq-main-mode-switch" role="group" aria-label="Mode de jeu">
@@ -23,7 +17,7 @@
         </button>
         <button id="btn-main-mode-passive" type="button" data-main-mode="autoplay">
           <span>Passif</span>
-          <small>Écoute automatique, TV possible</small>
+          <small>Écoute automatique</small>
         </button>
       </div>
 
@@ -65,10 +59,6 @@
 
       <p id="main-status" class="status"></p>
 
-      <div class="mq-actions mq-actions--compact mq-actions--full">
-        <button id="btn-main-suggest-track" type="button" class="mq-secondary mq-button-block">Proposer une musique</button>
-      </div>
-
       <div id="main-admin-actions" class="mq-actions mq-actions--compact mq-actions--full">
         <button id="btn-main-management" type="button" class="mq-secondary mq-button-block">Gestion du catalogue</button>
       </div>
@@ -97,9 +87,7 @@
     <section class="mq-card mq-card--accent mq-modal__panel mq-guest-modal" role="dialog" aria-modal="true" aria-labelledby="main-guest-modal-title">
       <div class="mq-modal__header">
         <div class="mq-card-heading mq-card-heading--compact">
-          <div class="mq-kicker">Identité temporaire</div>
           <h2 id="main-guest-modal-title">Choisir ton pseudo</h2>
-          <p class="mq-card-copy">Il restera disponible pendant ta session invitée.</p>
         </div>
         <button id="btn-main-guest-close" type="button" class="mq-icon-button mq-secondary" aria-label="Fermer" title="Fermer">×</button>
       </div>

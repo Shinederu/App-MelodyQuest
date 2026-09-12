@@ -1,7 +1,8 @@
 import { renderQrSvg } from "../utils/qr.js?v=20260617-passive-tv-cleanup";
 import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260617-passive-tv-cleanup";
 import { getActorId } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
-import { escapeHtml, renderAvatar } from "../utils/ui.js?v=20260617-passive-tv-cleanup";
+import { pauseAtTrackEnd } from "../utils/PlaybackBounds.js?v=20260912-game-ui";
+import { escapeHtml, renderAvatar, formatRank, formatPlayerRole } from "../utils/ui.js?v=20260912-game-ui";
 import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=20260617-passive-tv-cleanup";
 
 const TV_TOKEN_STORAGE_KEY = "mq_tv_device_token";
@@ -302,6 +303,7 @@ export class TvController {
     this.renderMode();
     this.renderLobby(revisionChanged || roundChanged);
     this.renderPlayers(revisionChanged || roundChanged);
+    this.renderRoundActivity();
     this.updateRoundPresentation(revisionChanged || roundChanged);
     this.startTimer();
   }
@@ -376,7 +378,7 @@ export class TvController {
       return;
     }
 
-    const answers = this.snapshot?.round?.answers || [];
+    const answers = this.snapshot?.round?.solved_players || this.snapshot?.round?.answers || [];
     const solvedUsers = new Set(answers
       .filter((answer) => Number(answer?.score_awarded || 0) > 0)
       .map((answer) => getActorId(answer)));
@@ -389,6 +391,8 @@ export class TvController {
         username: String(entry.username || "Joueur"),
         avatar_url: String(entry.avatar_url || ""),
         score: Number(entry.score || 0),
+        role: entry.role || "player",
+        presence_status: entry.presence_status || "active",
         _order: index,
       }))
       .sort((a, b) => {
@@ -400,6 +404,8 @@ export class TvController {
       player.username,
       player.avatar_url,
       player.score,
+      player.role,
+      player.presence_status,
       solvedUsers.has(getActorId(player)),
     ]));
 
@@ -414,17 +420,19 @@ export class TvController {
           <div class="mq-player-line">
             ${this.renderAvatar(player)}
             <div>
-              <strong>${this.escapeHtml(player.username)}</strong>
-              <span class="mq-muted">${index + 1}e - ${player.score} pt</span>
+              <strong>${formatRank(index + 1)} ${this.escapeHtml(player.username)}</strong>
+              <span class="mq-muted">${this.escapeHtml(formatPlayerRole(player.role))}</span>
             </div>
           </div>
-          ${solvedUsers.has(getActorId(player)) ? `<span class="mq-chip mq-chip--success">Trouvé</span>` : ""}
+          ${player.presence_status === "away" ? `<span class="mq-chip mq-chip--presence">Absent</span>` : ""}
+          <span class="mq-chip">${player.score} pt</span>
         </li>
       `).join("")
       : `<li class="mq-tv-empty">En attente des joueurs...</li>`;
   }
 
   updateRoundPresentation(force = false) {
+    this.renderRoundActivity();
     const round = this.snapshot?.round?.round || null;
     const track = round?.track || null;
     const pendingStart = this.isRoundPendingStart(round);
@@ -481,7 +489,7 @@ export class TvController {
       }
       if (hintEl) {
         hintEl.textContent = acceptingAnswers
-          ? "Les joueurs répondent sur leur téléphone ou ordinateur."
+          ? (this.isPassiveMode() ? "La réponse arrive à la fin de l'extrait." : "Les joueurs répondent sur leur téléphone ou ordinateur.")
           : solutionVisible
             ? "La solution est affichée pour tout le monde."
             : "La solution arrive sur l'écran TV.";
@@ -523,6 +531,26 @@ export class TvController {
 
     this.ensurePlayer(videoId, round);
     this.maybeCueUpcomingTrack();
+  }
+
+  renderRoundActivity() {
+    const round = this.snapshot?.round?.round;
+    const vote = document.getElementById("tv-next-votes");
+    const list = document.getElementById("tv-missed-answers");
+    if (!vote || !list || this.isPassiveMode()) return;
+    vote.hidden = !round || !this.isRoundRevealVisible(round);
+    if (!vote.hidden) {
+      const players = (this.snapshot?.players || []).filter((p) => !["away", "removed"].includes(p.presence_status));
+      const count = players.filter((p) => Number(p.is_ready) === 1).length;
+      const required = Math.max(1, Math.ceil(players.length / 2));
+      const remaining = Math.max(0, Math.ceil(Number(round.next_vote_available_unix || 0) - this.getServerNowUnix()));
+      const hold = (this.snapshot?.round?.suggestion_holds || []).length > 0;
+      const text = `Manche suivante : ${count} / ${required} votes${hold ? " · Correction en cours" : remaining ? ` · dans ${remaining}s` : ""}`;
+      if (vote.textContent !== text) vote.textContent = text;
+    }
+    const attempts = (this.snapshot?.round?.answer_attempts || []).filter((a) => Number(a.is_correct || 0) !== 1 && Number(a.score_awarded || 0) <= 0 && String(a.guess_title || a.guess_artist || "").trim()).slice(-5).reverse();
+    const html = attempts.length ? attempts.map((a) => `<li class="mq-missed-answer"><span>${this.escapeHtml(a.username || "Joueur")}</span><strong>${this.escapeHtml(a.guess_title || a.guess_artist || "")}</strong></li>`).join("") : `<li class="mq-missed-answer mq-missed-answer--empty">Aucun essai raté</li>`;
+    if (list.innerHTML !== html) list.innerHTML = html;
   }
 
   buildRoundPresentationKey({ round, track, pendingStart, revealVisible, acceptingAnswers }) {
@@ -629,7 +657,7 @@ export class TvController {
       const deadline = Number(round.answer_deadline_unix || 0);
       if (!deadline) return null;
       return {
-        label: "Réponses ouvertes",
+        label: this.isPassiveMode() ? "Écoute" : "Réponses ouvertes",
         remaining: Math.max(0, deadline - now),
         total: Math.max(1, Number(lobby.round_duration_seconds || 1)),
       };
@@ -1017,6 +1045,7 @@ export class TvController {
   }
 
   syncPlayer(round, force = false) {
+    if (pauseAtTrackEnd(this.player, round, this.getServerNowUnix())) return;
     if (!this.playerReady || !this.player || !round?.id || typeof this.player.getCurrentTime !== "function") {
       return;
     }
@@ -1262,6 +1291,7 @@ export class TvController {
   }
 
   applyAudioState({ allowPlayback = true } = {}) {
+    if (pauseAtTrackEnd(this.player, this.snapshot?.round?.round, this.getServerNowUnix())) return;
     if (!this.player) return;
 
     if (typeof this.player.setVolume === "function") {

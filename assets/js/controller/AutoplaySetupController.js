@@ -1,8 +1,8 @@
 ﻿import { setCurrentLobby } from "../utils/LobbyState.js";
 import { escapeHtml } from "../utils/ui.js?v=20260617-lobby-mode-review";
 
-const DEFAULT_AUTOPLAY_ROUNDS = 10;
-const DEFAULT_LISTEN_SECONDS = 30;
+const DEFAULT_AUTOPLAY_ROUNDS = 30;
+const DEFAULT_LISTEN_SECONDS = 20;
 const DEFAULT_REVEAL_SECONDS = 10;
 
 export class AutoplaySetupController {
@@ -134,7 +134,7 @@ export class AutoplaySetupController {
     const values = this.getPlannerValues();
     const res = await window.httpClient.createLobby({
       name: values.name,
-      visibility: "private",
+      visibility: "public",
       game_mode: "autoplay",
       max_players: 2,
       total_rounds: values.rounds,

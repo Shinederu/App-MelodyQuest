@@ -1,32 +1,32 @@
-import { HttpService } from "../utils/HttpService.js?v=20260831-guest-mode";
-import { HeaderModel } from "../model/HeaderModel.js?v=20260831-guest-mode";
-import { WakeLockService } from "../utils/WakeLockService.js?v=20260810-history-safety";
-import { registerPwa } from "../utils/PwaService.js?v=20260904-pwa-manifest";
-import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260810-history-safety";
+import { HttpService } from "../utils/HttpService.js?v=20260912-game-ui";
+import { HeaderModel } from "../model/HeaderModel.js?v=20260912-game-ui";
+import { WakeLockService } from "../utils/WakeLockService.js?v=20260912-game-ui";
+import { registerPwa } from "../utils/PwaService.js?v=20260912-game-ui";
+import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260912-game-ui";
 import {
   getOrCreateProvisionalGuest,
   persistPlayerIdentity,
-} from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
-import { PublicController } from "./PublicController.js?v=20260831-guest-mode";
-import { SuggestTrackController } from "./SuggestTrackController.js?v=20260810-history-safety";
-import { MainController } from "./MainController.js?v=20260831-guest-mode";
-import { AutoplaySetupController } from "./AutoplaySetupController.js?v=20260831-guest-mode";
-import { AutoplayController } from "./AutoplayController.js?v=20260831-guest-mode";
-import { LobbyController } from "./LobbyController.js?v=20260831-guest-mode";
-import { LobbyListController } from "./LobbyListController.js?v=20260831-guest-mode";
-import { GameController } from "./GameController.js?v=20260831-guest-mode";
-import { ResultController } from "./ResultController.js?v=20260810-history-safety";
-import { TvController } from "./TvController.js?v=20260831-guest-mode";
-import { TvLinkController } from "./TvLinkController.js?v=20260810-history-safety";
-import { ManagementController } from "./ManagementController.js?v=20260810-history-safety";
-import { ManagementCategoriesController } from "./ManagementCategoriesController.js?v=20260810-history-safety";
-import { ManagementFamiliesController } from "./ManagementFamiliesController.js?v=20260810-history-safety";
-import { ManagementTracksController } from "./ManagementTracksController.js?v=20260811-answer-insights";
-import { ManagementValidationController } from "./ManagementValidationController.js?v=20260810-history-safety";
-import { ManagementSuggestionsController } from "./ManagementSuggestionsController.js?v=20260810-history-safety";
-import { ManagementAnswersController } from "./ManagementAnswersController.js?v=20260811-answer-insights";
+} from "../utils/PlayerIdentity.js?v=20260912-game-ui";
+import { PublicController } from "./PublicController.js?v=20260912-game-ui";
+import { SuggestTrackController } from "./SuggestTrackController.js?v=20260912-game-ui";
+import { MainController } from "./MainController.js?v=20260912-game-ui";
+import { AutoplaySetupController } from "./AutoplaySetupController.js?v=20260912-game-ui";
+import { AutoplayController } from "./AutoplayController.js?v=20260912-game-ui";
+import { LobbyController } from "./LobbyController.js?v=20260912-game-ui";
+import { LobbyListController } from "./LobbyListController.js?v=20260912-game-ui";
+import { GameController } from "./GameController.js?v=20260912-game-ui";
+import { ResultController } from "./ResultController.js?v=20260912-game-ui";
+import { TvController } from "./TvController.js?v=20260912-game-ui";
+import { TvLinkController } from "./TvLinkController.js?v=20260912-game-ui";
+import { ManagementController } from "./ManagementController.js?v=20260912-game-ui";
+import { ManagementCategoriesController } from "./ManagementCategoriesController.js?v=20260912-game-ui";
+import { ManagementFamiliesController } from "./ManagementFamiliesController.js?v=20260912-game-ui";
+import { ManagementTracksController } from "./ManagementTracksController.js?v=20260912-game-ui";
+import { ManagementValidationController } from "./ManagementValidationController.js?v=20260912-game-ui";
+import { ManagementSuggestionsController } from "./ManagementSuggestionsController.js?v=20260912-game-ui";
+import { ManagementAnswersController } from "./ManagementAnswersController.js?v=20260912-game-ui";
 
-const ASSET_VERSION = "20260904-pwa-manifest";
+const ASSET_VERSION = "20260912-game-ui";
 const YOUTUBE_PREWARM_ROUTES = new Set(["lobby", "game", "autoplay", "tv"]);
 const WAKE_LOCK_ROUTES = new Set(["lobby", "game", "autoplay", "result", "tv-link", "tv"]);
 
@@ -138,6 +138,7 @@ export class AppController {
       this.ctrl.destroy();
       this.ctrl = null;
     }
+    document.getElementById("player-actions-dialog")?.remove();
 
     const session = await this.resolveSession();
     if (runId !== this.selectViewRunId) {

@@ -26,7 +26,6 @@
     <div class="mq-actions">
       <button id="btn-lobby-share" type="button" class="mq-secondary">Partager le salon</button>
       <button id="btn-lobby-link-tv" type="button" class="mq-secondary">Lier une TV</button>
-      <button id="btn-lobby-away" type="button" class="mq-secondary">Me mettre absent</button>
       <button id="btn-lobby-leave" type="button" class="mq-danger">Quitter le salon</button>
       <button id="btn-lobby-delete" type="button" class="mq-danger owner-only" style="display:none;">Supprimer le salon</button>
     </div>
@@ -132,6 +131,21 @@
           </div>
 
           <div id="lobby-config-categories" class="mq-check-grid mq-category-grid"></div>
+          <div class="mq-field">
+            <label for="lobby-config-familiarity">Notoriété des musiques</label>
+            <select id="lobby-config-familiarity">
+              <option value="1">Toutes les musiques</option>
+              <option value="2">Au moins 2 / 10</option>
+              <option value="3">Au moins 3 / 10</option>
+              <option value="4">Au moins 4 / 10</option>
+              <option value="5">Au moins 5 / 10</option>
+              <option value="6">Au moins 6 / 10</option>
+              <option value="7">Connues : au moins 7 / 10</option>
+              <option value="8">Très connues : au moins 8 / 10</option>
+              <option value="9">Au moins 9 / 10</option>
+              <option value="10">Incontournables : 10 / 10</option>
+            </select>
+          </div>
         </div>
       </div>
 

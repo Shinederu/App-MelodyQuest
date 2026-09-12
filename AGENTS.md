@@ -38,6 +38,9 @@ Le repo frontend ne contient pas de dossier `client/` ou `backend/` actif. Ne pa
 
 - MelodyQuest a deux modes: `participative` (actif) et `autoplay` (passif).
 - Le mode passif passe par un vrai salon, garde le partage et la liaison TV, puis revient au lobby en fin de partie.
+- Nouveaux salons actifs/passifs: publics, 30 manches de 20 secondes. Aucun plein ecran automatique.
+- Le menu de partie PC/mobile est un dialog natif; ne pas remettre les actions du createur dans un parent avec overflow cache.
+- Les controles d'acteur doivent accepter les identifiants negatifs des invites (seul 0 est invalide).
 - La TV utilise un lecteur YouTube iframe simple. Le double lecteur TV et `markTvRoundReady` ont ete abandonnes.
 - YouTube reste la source principale. Ne pas introduire d'hebergement audio local.
 - La presence est manuelle: un joueur ou le createur bascule present/absent; fermer l'onglet ne marque pas automatiquement absent.
@@ -53,6 +56,7 @@ Le repo frontend ne contient pas de dossier `client/` ou `backend/` actif. Ne pa
 - `manifest.json`, `service-worker.js`, `pwa-assets.json`: installation PWA et cache local versionne.
 - `robots.txt`, `sitemap.xml`, `favicon.svg`: decouverte, URL canonique et identite du resultat de recherche.
 - `assets/css/main.css`: style global sombre/responsive.
+- `assets/css/play-layout.css`: dispositions de partie, tiroir, management et TV.
 - `assets/icons/`: icones d'installation standard, Apple et maskable.
 - `assets/views/*View.html`: fragments HTML par route.
 - `assets/js/controller/*Controller.js`: logique par vue.
@@ -70,6 +74,8 @@ Helpers a reutiliser:
 - `ClockSync.js`: synchronisation d'horloge backend/client.
 - `LobbyState.js`: stockage du lobby courant.
 - `PlayerIdentity.js`: identite compte/invite et pseudo local provisoire.
+- `GameMenu.js` / `PlayerActions.js`: dialogs natifs pour le menu de partie et les actions du createur.
+- `PlaybackBounds.js`: fin d'extrait optionnelle; ne change pas les seuils de resynchronisation du lecteur.
 
 Le dossier `output/` n'est pas requis. S'il reapparait vide, il peut etre supprime.
 
@@ -89,7 +95,7 @@ Quand un JS, une vue HTML ou le CSS change, mettre a jour:
 
 Format conseille: `YYYYMMDD-sujet`.
 
-Cache-bust courant: `20260904-pwa-manifest`.
+Cache-bust courant: `20260912-game-ui`.
 
 La version `RELEASE` de `service-worker.js` et celle de `pwa-assets.json`
 doivent correspondre au cache-bust courant. Apres toute modification de la
@@ -106,6 +112,8 @@ transitions continues et garder le bleu dans un composant ou un fond separe.
 Le CSS contient un profil paysage compact pour les petits ecrans autour de `800 x 480`. Toute modification de la TV, de `#/game` ou de `#/autoplay` doit conserver un viewport sans debordement horizontal a cette resolution.
 
 ## Verification
+
+Derniere livraison et limites de verification: `docs/2026-09-12-game-ui.md`.
 
 Verification minimale:
 

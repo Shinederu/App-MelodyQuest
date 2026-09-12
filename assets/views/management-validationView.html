@@ -87,6 +87,14 @@
             <label for="validation-start-offset">Début de lecture (secondes)</label>
             <input id="validation-start-offset" type="number" min="0" step="1" placeholder="0" disabled />
           </div>
+        <div class="mq-field">
+          <label for="validation-end-offset">Fin de la musique (secondes)</label>
+          <input id="validation-end-offset" type="number" min="1" max="86400" step="1" placeholder="Fin de la vidéo" />
+        </div>
+        <div class="mq-field">
+          <label for="validation-familiarity">Notoriété (1 : niche, 10 : très connue)</label>
+          <input id="validation-familiarity" type="number" min="1" max="10" step="1" placeholder="Non évaluée" />
+        </div>
         </div>
 
         <div class="mq-validation-video-shell">

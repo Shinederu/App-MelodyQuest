@@ -371,6 +371,15 @@ export class LobbyController {
 
     const editable = this.isOwner();
     const source = this.configDirty ? this.getDraftConfig(lobby) : this.getServerConfig(lobby);
+    const familiarityInput = document.getElementById("lobby-config-familiarity");
+    if (familiarityInput) {
+      familiarityInput.value = String(source.min_familiarity || 1);
+      familiarityInput.disabled = !editable;
+      familiarityInput.onchange = () => {
+        this.handleConfigInput(lobby, true);
+        this.renderOwnerForm(lobby);
+      };
+    }
     const passive = this.isPassiveLobby(lobby);
     if (roundsLabel) roundsLabel.textContent = passive ? "Musiques" : "Manches";
     if (timerLabel) timerLabel.textContent = passive ? "Écoute par musique" : "Secondes par réponse";
@@ -579,7 +588,7 @@ export class LobbyController {
 
   async setPlayerPresence(targetUserId, status) {
     const lobbyId = this.getLobbyId();
-    if (!this.isOwner() || !lobbyId || targetUserId <= 0 || targetUserId === Number(this.user?.id || 0)) {
+    if (!this.isOwner() || !lobbyId || !Number.isInteger(targetUserId) || targetUserId === 0 || targetUserId === getActorId(this.user)) {
       return;
     }
 
@@ -609,8 +618,9 @@ export class LobbyController {
       name: this.normalizeLobbyName(lobby?.name, "Nouveau salon"),
       visibility: String(lobby?.visibility || "private").toLowerCase() === "private" ? "private" : "public",
       game_mode: this.normalizeGameMode(lobby?.game_mode),
-      total_rounds: Number.parseInt(lobby?.total_rounds ?? 5, 10),
-      round_duration_seconds: Number.parseInt(lobby?.round_duration_seconds ?? 30, 10),
+      total_rounds: Number.parseInt(lobby?.total_rounds ?? 30, 10),
+      round_duration_seconds: Number.parseInt(lobby?.round_duration_seconds ?? 20, 10),
+      min_familiarity: Number(lobby?.min_familiarity || 1),
       reveal_duration_seconds: Number.parseInt(lobby?.reveal_duration_seconds ?? 10, 10),
       show_track_category: this.toBool(lobby?.show_track_category),
       allow_early_reveal_vote: this.toBool(lobby?.allow_early_reveal_vote ?? true),
@@ -632,6 +642,7 @@ export class LobbyController {
         this.getServerConfig(lobby).name
       ),
       visibility: document.getElementById("lobby-config-public")?.checked ? "public" : "private",
+      min_familiarity: Number(document.getElementById("lobby-config-familiarity")?.value || 1),
       game_mode: this.normalizeGameMode(lobby?.game_mode),
       total_rounds: this.parseIntegerInput(document.getElementById("lobby-config-rounds")?.value),
       round_duration_seconds: this.parseIntegerInput(document.getElementById("lobby-config-timer")?.value),
@@ -700,8 +711,9 @@ export class LobbyController {
       name: draft.name,
       visibility: draft.visibility === "private" ? "private" : "public",
       game_mode: this.normalizeGameMode(draft.game_mode),
-      total_rounds: Number(draft.total_rounds || 5),
-      round_duration_seconds: Number(draft.round_duration_seconds || 30),
+      total_rounds: Number(draft.total_rounds || 30),
+      round_duration_seconds: Number(draft.round_duration_seconds || 20),
+      min_familiarity: Number(draft.min_familiarity || 1),
       reveal_duration_seconds: Number(draft.reveal_duration_seconds || 10),
       show_track_category: Boolean(draft.show_track_category),
       allow_early_reveal_vote: Boolean(draft.allow_early_reveal_vote),
@@ -731,67 +743,18 @@ export class LobbyController {
     }
   }
 
-  linkTv() {
-    window.appCtrl.changeView("tv-link?from=lobby");
-  }
-
-  requestLaunchFullscreen() {
-    if (this.isFullscreenActive()) {
-      return null;
-    }
-
-    const target = document.documentElement;
-    if (!target) {
-      return null;
-    }
-
-    try {
-      if (typeof target.requestFullscreen === "function") {
-        const result = target.requestFullscreen({ navigationUI: "hide" });
-        return result && typeof result.catch === "function" ? result.catch(() => {}) : Promise.resolve();
-      }
-      if (typeof target.webkitRequestFullscreen === "function") {
-        const result = target.webkitRequestFullscreen();
-        return result && typeof result.catch === "function" ? result.catch(() => {}) : Promise.resolve();
-      }
-      if (typeof target.msRequestFullscreen === "function") {
-        const result = target.msRequestFullscreen();
-        return result && typeof result.catch === "function" ? result.catch(() => {}) : Promise.resolve();
-      }
-    } catch {
-      return null;
-    }
-
-    return null;
-  }
-
-  isFullscreenActive() {
-    return Boolean(
-      document.fullscreenElement ||
-      document.webkitFullscreenElement ||
-      document.msFullscreenElement
-    );
-  }
-
-  rollbackLaunchFullscreen(fullscreenRequest) {
-    if (!fullscreenRequest || typeof fullscreenRequest.then !== "function") {
+  async linkTv() {
+    if (this.configSaveInFlight) {
+      this.setStatus("Enregistrement des réglages en cours...", null);
       return;
     }
-
-    fullscreenRequest.then(() => {
-      if (!this.isFullscreenActive()) {
-        return;
-      }
-
-      try {
-        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
-        if (typeof exit === "function") {
-          exit.call(document);
-        }
-      } catch {
-        // Le plein ecran est une amelioration de confort, jamais un prerequis.
-      }
-    });
+    if (this.isOwner() && this.configDirty) {
+      clearTimeout(this.configSaveTimeout);
+      this.configSaveTimeout = null;
+      await this.saveConfig();
+      if (this.configDirty) return;
+    }
+    window.appCtrl.changeView("tv-link?from=lobby");
   }
 
   async startGame() {
@@ -807,8 +770,6 @@ export class LobbyController {
       return;
     }
 
-    const fullscreenRequest = this.requestLaunchFullscreen();
-
     if (this.configSaveTimeout) {
       clearTimeout(this.configSaveTimeout);
       this.configSaveTimeout = null;
@@ -816,18 +777,22 @@ export class LobbyController {
     if (this.configDirty || this.configSaveInFlight) {
       await this.saveConfig();
       if (this.configSaveInFlight || this.configDirty) {
-        this.rollbackLaunchFullscreen(fullscreenRequest);
         return;
       }
     }
 
+    if (this.currentLobby?.status === "finished") {
+      const reset = await window.httpClient.resetLobbyForReplay(lobbyId);
+      if (!reset.success) {
+        this.setStatus(reset.error || "Impossible de préparer une nouvelle partie", false);
+        return;
+      }
+    }
     const res = await window.httpClient.startRound(lobbyId);
     this.setStatus(res.success ? "Partie lancée" : (res.error || "Erreur"), res.success);
     if (res.success) {
       localStorage.removeItem("mq_last_scoreboard");
       window.appCtrl.changeView(this.getPlayRoute());
-    } else {
-      this.rollbackLaunchFullscreen(fullscreenRequest);
     }
   }
 
@@ -851,7 +816,7 @@ export class LobbyController {
 
   async kickPlayer(targetUserId) {
     const lobbyId = this.getLobbyId();
-    if (!lobbyId || targetUserId <= 0) return;
+    if (!this.isOwner() || !lobbyId || !Number.isInteger(targetUserId) || targetUserId === 0 || targetUserId === getActorId(this.user)) return;
 
     const res = await window.httpClient.kickPlayer(lobbyId, targetUserId);
     this.setStatus(res.success ? "Joueur retiré du salon" : (res.error || "Erreur"), res.success);
@@ -976,6 +941,7 @@ export class LobbyController {
       visibility: config.visibility === "private" ? "private" : "public",
       game_mode: this.normalizeGameMode(config.game_mode),
       total_rounds: Number.parseInt(config.total_rounds ?? 0, 10),
+      min_familiarity: Number(config.min_familiarity || 1),
       round_duration_seconds: Number.parseInt(config.round_duration_seconds ?? 0, 10),
       reveal_duration_seconds: Number.parseInt(config.reveal_duration_seconds ?? 0, 10),
       show_track_category: Boolean(config.show_track_category),
@@ -1025,6 +991,10 @@ export class LobbyController {
   }
 
   getCategoryTrackCount(category) {
+    const min = Number(this.getDraftConfig(this.currentLobby)?.min_familiarity || 1);
+    if (min > 1 && category?.track_counts_by_familiarity) {
+      return Object.entries(category.track_counts_by_familiarity).reduce((count, [rating, amount]) => count + (Number(rating) >= min ? Number(amount) : 0), 0);
+    }
     return Math.max(0, Number(category?.track_count || 0));
   }
 

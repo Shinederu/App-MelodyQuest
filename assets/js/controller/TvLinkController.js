@@ -17,7 +17,7 @@ export class TvLinkController {
   constructor() {
     this.currentLobby = getCurrentLobby();
     this.routeParams = getRouteParams();
-    this.returnView = this.routeParams.get("from") === "game" ? "game" : "lobby";
+    this.returnView = ["game", "autoplay"].includes(this.routeParams.get("from")) ? this.routeParams.get("from") : "lobby";
     this.submitButton = document.getElementById("btn-tv-link-submit");
     this.codeInput = document.getElementById("tv-link-code");
     this.scanStream = null;
@@ -54,17 +54,12 @@ export class TvLinkController {
   }
 
   renderLobbyContext() {
-    const lobbyLabel = document.getElementById("tv-link-lobby");
-    if (!lobbyLabel) return;
-
     if (!this.currentLobby?.id) {
-      lobbyLabel.textContent = "Aucun salon actif";
       this.setStatus("Rejoins ou crée un salon avant de lier une TV.", false);
       this.submitButton?.setAttribute("disabled", "disabled");
       return;
     }
 
-    lobbyLabel.textContent = `${this.currentLobby.name || "Salon"} - ${this.currentLobby.lobby_code || "------"}`;
   }
 
   async linkTv() {

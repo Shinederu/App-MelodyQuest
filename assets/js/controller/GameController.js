@@ -3,6 +3,8 @@ import { getActorId } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
 import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260616-answer-visibility";
 import { escapeAttribute, escapeHtml, formatPlayerRole, formatRank, renderAvatar } from "../utils/ui.js?v=20260616-answer-visibility";
 import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=20260616-answer-visibility";
+import { openPlayerActions } from "../utils/PlayerActions.js?v=20260912-game-ui";
+import { pauseAtTrackEnd } from "../utils/PlaybackBounds.js?v=20260912-game-ui";
 
 const PLAYER_VOLUME_STORAGE_KEY = "mq_game_volume";
 const PLAYER_ONLY_MODE_STORAGE_KEY = "mq_game_player_only_mode";
@@ -97,6 +99,10 @@ export class GameController {
     document.getElementById("btn-game-link-tv")?.addEventListener("click", () => this.linkTv());
     document.getElementById("btn-game-suggest-correction")?.addEventListener("click", () => this.openSuggestionModal());
     document.getElementById("btn-game-suggestion-submit")?.addEventListener("click", () => this.submitSuggestion());
+    document.getElementById("game-suggestion-name-mode")?.addEventListener("change", (event) => {
+      document.getElementById("game-suggestion-name-label").textContent = event.target.value === "replace" ? "Nouveau nom de l’œuvre" : "Nouvel alias";
+      document.getElementById("game-suggestion-alias").maxLength = event.target.value === "replace" ? 140 : 160;
+    });
     document.getElementById("btn-game-suggestion-close")?.addEventListener("click", () => this.closeSuggestionModal());
     document.getElementById("btn-game-suggestion-cancel")?.addEventListener("click", () => this.closeSuggestionModal());
     document.querySelector("[data-game-suggestion-close]")?.addEventListener("click", () => this.closeSuggestionModal());
@@ -542,7 +548,7 @@ export class GameController {
       this.destroyPlayer();
       this.destroyPreloadPlayer();
       this.videoRenderKey = "player-only";
-      this.setStatus("Mode joueur activé", true);
+      this.setStatus("Mode salon activé", true);
     } else {
       this.setStatus("Mode complet activé", true);
     }
@@ -561,11 +567,18 @@ export class GameController {
     const button = document.getElementById("btn-game-player-mode");
     if (button) {
       button.setAttribute("aria-pressed", this.playerOnlyMode ? "true" : "false");
-      button.textContent = this.playerOnlyMode ? "Mode complet" : "Mode joueur";
+      button.textContent = this.playerOnlyMode ? "Mode complet" : "Mode salon";
       button.classList.toggle("is-active", this.playerOnlyMode);
     }
 
     const summary = document.getElementById("game-player-mode-summary");
+    const nextPanel = document.getElementById("game-next-panel");
+    const side = document.querySelector(".mq-game-side");
+    if (this.playerOnlyMode && summary && nextPanel && nextPanel.parentElement !== summary.parentElement) {
+      summary.after(nextPanel);
+    } else if (!this.playerOnlyMode && side && nextPanel && nextPanel.parentElement !== side) {
+      side.prepend(nextPanel);
+    }
     if (summary && !this.playerOnlyMode) {
       summary.hidden = true;
       summary.textContent = "";
@@ -628,37 +641,20 @@ export class GameController {
     `;
     }).join("");
 
-    list.querySelectorAll("[data-game-presence-user]").forEach((button) => {
-      button.addEventListener("click", () => {
-        button.closest("details")?.removeAttribute("open");
-        this.setPlayerPresence(
-          Number(button.dataset.gamePresenceUser || 0),
-          String(button.dataset.gamePresenceStatus || "active")
-        );
-      });
-    });
-    list.querySelectorAll("[data-game-kick-user]").forEach((button) => {
-      button.addEventListener("click", () => {
-        button.closest("details")?.removeAttribute("open");
-        this.kickPlayer(Number(button.dataset.gameKickUser || 0));
-      });
-    });
-    list.querySelectorAll(".mq-player-actions-menu").forEach((menu) => {
-      menu.addEventListener("toggle", () => {
-        if (!menu.open) return;
-        list.querySelectorAll(".mq-player-actions-menu[open]").forEach((otherMenu) => {
-          if (otherMenu !== menu) {
-            otherMenu.removeAttribute("open");
-          }
-        });
-      });
+    const showActions = (actorId) => {
+      const player = source.find((entry) => getActorId(entry) === actorId);
+      if (!player) return;
+      openPlayerActions(player,
+        () => this.setPlayerPresence(actorId, player.presence_status === "away" ? "active" : "away"),
+        () => this.kickPlayer(actorId));
+    };
+    list.querySelectorAll("[data-player-actions]").forEach((button) => {
+      button.addEventListener("click", () => showActions(Number(button.dataset.playerActions)));
     });
     list.querySelectorAll("[data-game-player-menu-row]").forEach((row) => {
       row.addEventListener("click", (event) => {
         if (event.target.closest("button, a, input, select, textarea, summary, details")) return;
-        const menu = row.querySelector(".mq-player-actions-menu");
-        if (!menu) return;
-        menu.open = !menu.open;
+        showActions(Number(row.dataset.gamePlayerMenuRow));
       });
     });
   }
@@ -668,7 +664,7 @@ export class GameController {
     if (status === "away") {
       return `<span class="mq-chip mq-chip--presence">Absent</span>`;
     }
-    return `<span class="mq-chip mq-chip--presence mq-chip--presence-active">Présent</span>`;
+    return "";
   }
 
   renderOwnerPlayerActions(player) {
@@ -678,20 +674,9 @@ export class GameController {
       return "";
     }
 
-    const isAway = String(player?.presence_status || "active").toLowerCase() === "away";
-    const nextStatus = isAway ? "active" : "away";
-    const presenceLabel = isAway ? "Remettre présent" : "Mettre absent";
-
     return `
-      <details class="mq-player-actions-menu">
-        <summary aria-label="Actions pour ${this.escapeAttr(player?.username || "joueur")}" title="Actions joueur">
-          <span aria-hidden="true">...</span>
-        </summary>
-        <div class="mq-player-actions mq-player-actions--menu">
-        <button type="button" class="mq-secondary mq-inline-btn" data-game-presence-user="${playerId}" data-game-presence-status="${this.escapeAttr(nextStatus)}">${this.escapeHtml(presenceLabel)}</button>
-        <button type="button" class="mq-danger mq-inline-btn" data-game-kick-user="${playerId}">Exclure</button>
-        </div>
-      </details>
+      <button type="button" class="mq-secondary mq-icon-button" data-player-actions="${playerId}"
+        aria-label="Actions pour ${this.escapeAttr(player?.username || "joueur")}" title="Actions joueur">⋯</button>
     `;
   }
 
@@ -873,7 +858,7 @@ export class GameController {
       return;
     }
 
-    let title = "Mode joueur";
+    let title = "Mode salon";
     let copy = "La vidéo n'est pas chargée sur cet appareil.";
 
     if (this.isRoundPendingStart(round)) {
@@ -1815,6 +1800,9 @@ export class GameController {
   }
 
   fillSuggestionModal(track) {
+    document.getElementById("game-suggestion-name-mode").value = "alias";
+    document.getElementById("game-suggestion-name-label").textContent = "Nouvel alias";
+    document.getElementById("game-suggestion-alias").maxLength = 160;
     const parts = this.buildSolutionParts(track);
     const placeholders = {
       "game-suggestion-url": track?.youtube_url || (track?.youtube_video_id ? `https://www.youtube.com/watch?v=${track.youtube_video_id}` : ""),
@@ -1822,13 +1810,15 @@ export class GameController {
       "game-suggestion-title-input": track?.title || "",
       "game-suggestion-artist": track?.artist || "",
       "game-suggestion-note": "",
+      "game-suggestion-start": track?.start_offset_seconds ?? 0,
+      "game-suggestion-end": track?.end_offset_seconds ?? "Fin de la vidéo",
     };
 
     Object.entries(placeholders).forEach(([id, placeholder]) => {
       const el = document.getElementById(id);
       if (!el) return;
       el.value = "";
-      el.placeholder = String(placeholder || "");
+      el.placeholder = String(placeholder ?? "");
     });
   }
 
@@ -1871,7 +1861,10 @@ export class GameController {
       round_id: Number(round.id || 0),
       track_id: Number(track.id || 0),
       proposed_youtube_url: this.getFieldValue("game-suggestion-url"),
-      proposed_alias: this.getFieldValue("game-suggestion-alias"),
+      proposed_alias: document.getElementById("game-suggestion-name-mode").value === "alias" ? this.getFieldValue("game-suggestion-alias") : "",
+      proposed_family_name: document.getElementById("game-suggestion-name-mode").value === "replace" ? this.getFieldValue("game-suggestion-alias") : "",
+      proposed_start_offset_seconds: this.getFieldValue("game-suggestion-start") || null,
+      proposed_end_offset_seconds: this.getFieldValue("game-suggestion-end") || null,
       proposed_title: this.getFieldValue("game-suggestion-title-input"),
       proposed_artist: this.getFieldValue("game-suggestion-artist"),
       note: this.getFieldValue("game-suggestion-note"),
@@ -1880,6 +1873,9 @@ export class GameController {
     const hasProposal = [
       payload.proposed_youtube_url,
       payload.proposed_alias,
+      payload.proposed_family_name,
+      payload.proposed_start_offset_seconds,
+      payload.proposed_end_offset_seconds,
       payload.proposed_title,
       payload.proposed_artist,
       payload.note,
@@ -2243,6 +2239,7 @@ export class GameController {
   }
 
   syncPlayerPlayback(force = false) {
+    if (pauseAtTrackEnd(this.player, this.roundState?.round, this.getNowMs() / 1000)) return;
     if (this.playerOnlyMode || !this.player || !this.playerReady || !this.roundState?.round || !window.YT?.PlayerState) {
       return;
     }
@@ -2302,6 +2299,7 @@ export class GameController {
   }
 
   ensurePlayerIsPlaying() {
+    if (pauseAtTrackEnd(this.player, this.roundState?.round, this.getNowMs() / 1000)) return;
     if (this.playerOnlyMode || !this.player || !this.playerReady || !window.YT?.PlayerState) {
       return;
     }
@@ -2512,6 +2510,7 @@ export class GameController {
   }
 
   applyPlayerVolume({ allowPlayback = true } = {}) {
+    if (pauseAtTrackEnd(this.player, this.roundState?.round, this.getNowMs() / 1000)) return;
     if (!this.player || !this.playerReady) {
       return;
     }
@@ -2798,7 +2797,7 @@ export class GameController {
 
   async kickPlayer(targetUserId) {
     const lobbyId = this.getLobbyId();
-    if (!this.isOwner() || !lobbyId || targetUserId <= 0 || targetUserId === Number(this.user?.id || 0)) {
+    if (!this.isOwner() || !lobbyId || !Number.isInteger(targetUserId) || targetUserId === 0 || targetUserId === getActorId(this.user)) {
       return;
     }
 
@@ -2808,7 +2807,7 @@ export class GameController {
       this.applySnapshot({
         lobby: res.data.lobby,
         players: res.data.players ?? this.players,
-        scoreboard: { items: this.scoreboard },
+        scoreboard: { items: this.scoreboard.filter((entry) => getActorId(entry) !== targetUserId) },
         round: this.roundState,
         realtime: this.realtimeConfig,
       });
@@ -2819,7 +2818,7 @@ export class GameController {
 
   async setPlayerPresence(targetUserId, status) {
     const lobbyId = this.getLobbyId();
-    if (!this.isOwner() || !lobbyId || targetUserId <= 0 || targetUserId === Number(this.user?.id || 0)) {
+    if (!this.isOwner() || !lobbyId || !Number.isInteger(targetUserId) || targetUserId === 0 || targetUserId === getActorId(this.user)) {
       return;
     }
 
