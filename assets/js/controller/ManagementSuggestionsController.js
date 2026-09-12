@@ -1,4 +1,5 @@
 import { escapeAttribute, escapeHtml, formatDate } from "../utils/ui.js?v=20260617-admin-workflow";
+import { confirmDeletion } from "../utils/confirmDialog.js?v=20260810-history-safety";
 
 export class ManagementSuggestionsController {
   constructor() {
@@ -82,7 +83,7 @@ export class ManagementSuggestionsController {
             <span class="mq-admin-badge">${this.escapeHtml(this.formatType(item.suggestion_type))}</span>
             <span class="mq-admin-badge ${this.getStatusClass(item.status)}">${this.escapeHtml(this.formatStatus(item.status))}</span>
             ${item.applied_at ? `<span class="mq-admin-badge mq-admin-badge--success">Appliquée</span>` : ""}
-            <span class="mq-muted">${this.escapeHtml(item.username || "Anonyme")}</span>
+            <span class="mq-muted">${this.escapeHtml(this.formatSubmitter(item))}</span>
             <span class="mq-muted">${this.escapeHtml(this.formatDate(item.created_at))}</span>
           </div>
         </button>
@@ -119,7 +120,9 @@ export class ManagementSuggestionsController {
 
     if (title) title.textContent = this.getSuggestionTitle(item);
     if (helper) {
-      helper.textContent = item.suggestion_type === "new_track"
+      helper.textContent = item.suggestion_type === "track_removal"
+        ? "Demande de suppression. Vérifie le motif avant de supprimer définitivement la musique."
+        : item.suggestion_type === "new_track"
         ? "Choisis la catégorie et l'œuvre, ajuste les champs, puis crée la musique validée."
         : "Ajuste les champs proposés, puis applique la correction sur la musique existante.";
     }
@@ -127,7 +130,7 @@ export class ManagementSuggestionsController {
       meta.innerHTML = `
         <span class="mq-admin-badge">${this.escapeHtml(this.formatType(item.suggestion_type))}</span>
         <span class="mq-admin-badge ${this.getStatusClass(item.status)}">${this.escapeHtml(this.formatStatus(item.status))}</span>
-        <span class="mq-muted">Envoyée par ${this.escapeHtml(item.username || "Anonyme")}</span>
+        <span class="mq-muted">${item.suggestion_type === "video_unavailable" ? "" : "Envoyée par "}${this.escapeHtml(this.formatSubmitter(item))}</span>
         <span class="mq-muted">${this.escapeHtml(this.formatDate(item.created_at))}</span>
       `;
     }
@@ -179,6 +182,11 @@ export class ManagementSuggestionsController {
 
   fillEditor(item) {
     const newTrack = item.suggestion_type === "new_track";
+    const removal = item.suggestion_type === "track_removal";
+    document.querySelector("#suggestions-editor > .mq-admin-form-grid").hidden = removal;
+    const apply = document.getElementById("btn-suggestion-apply");
+    apply.textContent = removal ? "Supprimer la musique" : "Appliquer au catalogue";
+    apply.classList.toggle("mq-danger", removal);
     const newFields = document.getElementById("suggestion-new-track-fields");
     if (newFields) newFields.hidden = !newTrack;
     const replacement = document.getElementById("suggestion-replacement-family");
@@ -277,11 +285,19 @@ export class ManagementSuggestionsController {
 
   async applySelected() {
     if (this.inFlight || !this.getSelectedItem()) return;
+    const item = this.getSelectedItem();
+    const payload = this.getEditorPayload();
+    if (item.suggestion_type === "track_removal") {
+      const itemName = [item.current_family_name, item.current_title].filter(Boolean).join(" - ") || `Musique #${item.track_id}`;
+      const confirmed = await confirmDeletion({ entityLabel: "la musique", itemName });
+      if (!confirmed || this.selectedId !== Number(item.id) || this.inFlight) return;
+      payload.confirm_removal = true;
+    }
     this.inFlight = true;
     this.setActionButtonsEnabled(false);
     this.setStatus("Application au catalogue...", null);
 
-    const res = await window.httpClient.applySuggestion(this.getEditorPayload());
+    const res = await window.httpClient.applySuggestion(payload);
     this.inFlight = false;
     this.setStatus(res.success ? "Suggestion appliquée au catalogue." : (res.error || "Erreur"), res.success);
     if (res.success) {
@@ -354,7 +370,11 @@ export class ManagementSuggestionsController {
   }
 
   formatType(type) {
-    return type === "new_track" ? "Nouvelle musique" : "Correction";
+    return ({ new_track: "Nouvelle musique", track_removal: "Suppression", video_unavailable: "Vidéo indisponible" })[type] || "Correction";
+  }
+
+  formatSubmitter(item) {
+    return item.suggestion_type === "video_unavailable" ? "Signalement automatique" : (item.username || "Anonyme");
   }
 
   formatStatus(status) {

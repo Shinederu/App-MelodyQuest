@@ -5,6 +5,7 @@ import { escapeAttribute, escapeHtml, formatPlayerRole, formatRank, renderAvatar
 import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=20260616-answer-visibility";
 import { openPlayerActions } from "../utils/PlayerActions.js?v=20260912-game-ui-v2";
 import { pauseAtTrackEnd } from "../utils/PlaybackBounds.js?v=20260912-game-ui-v2";
+import { PlaybackFailure, isUnavailableRound } from "../utils/PlaybackFailure.js?v=20260912-playback-reports";
 
 const PLAYER_VOLUME_STORAGE_KEY = "mq_game_volume";
 const PLAYER_ONLY_MODE_STORAGE_KEY = "mq_game_player_only_mode";
@@ -49,6 +50,9 @@ export class GameController {
     this.autoNextEnabled = false;
     this.resultNavigationTriggered = false;
     this.clockSync = new ClockSync("game");
+    this.playbackFailure = new PlaybackFailure({ prefix: "game", getRound: () => this.roundState?.round,
+      getContext: () => ({ lobby_id: this.getLobbyId() }), refresh: () => this.refreshGameState(),
+      now: () => this.getNowMs() / 1000, isDestroyed: () => this.isDestroyed });
     this.realtimeConnected = false;
     this.hasRealtimeOpened = false;
     this.lastRealtimeRevision = "";
@@ -99,6 +103,7 @@ export class GameController {
     document.getElementById("btn-game-link-tv")?.addEventListener("click", () => this.linkTv());
     document.getElementById("btn-game-suggest-correction")?.addEventListener("click", () => this.openSuggestionModal());
     document.getElementById("btn-game-suggestion-submit")?.addEventListener("click", () => this.submitSuggestion());
+    document.getElementById("game-suggestion-type")?.addEventListener("change", () => this.updateSuggestionType());
     document.getElementById("game-suggestion-name-mode")?.addEventListener("change", (event) => {
       document.getElementById("game-suggestion-name-label").textContent = event.target.value === "replace" ? "Nouveau nom de l’œuvre" : "Nouvel alias";
       document.getElementById("game-suggestion-alias").maxLength = event.target.value === "replace" ? 140 : 160;
@@ -688,6 +693,10 @@ export class GameController {
     this.updatePlayerOnlyModeUi();
 
     const round = this.roundState?.round;
+    if (this.playbackFailure.update(round, this.player)) {
+      this.setStatus("Vidéo indisponible", false);
+      return;
+    }
     if (!round) {
       this.renderPlayerOnlyRoundSummary(null);
       this.renderVideo(null, false);
@@ -1592,6 +1601,10 @@ export class GameController {
 
   async submitAnswer() {
     const round = this.roundState?.round;
+    if (this.playbackFailure.update(round, this.player)) {
+      this.setStatus("Vidéo indisponible", false);
+      return;
+    }
     if (!round) {
       this.setStatus("Aucune manche en cours", false);
       return;
@@ -1800,6 +1813,8 @@ export class GameController {
   }
 
   fillSuggestionModal(track) {
+    document.getElementById("game-suggestion-type").value = "track_correction";
+    this.updateSuggestionType();
     document.getElementById("game-suggestion-name-mode").value = "alias";
     document.getElementById("game-suggestion-name-label").textContent = "Nouvel alias";
     document.getElementById("game-suggestion-alias").maxLength = 160;
@@ -1855,8 +1870,9 @@ export class GameController {
       return;
     }
 
+    const removal = this.getFieldValue("game-suggestion-type") === "track_removal";
     const payload = {
-      suggestion_type: "track_correction",
+      suggestion_type: removal ? "track_removal" : "track_correction",
       lobby_id: this.getLobbyId(),
       round_id: Number(round.id || 0),
       track_id: Number(track.id || 0),
@@ -1869,6 +1885,16 @@ export class GameController {
       proposed_artist: this.getFieldValue("game-suggestion-artist"),
       note: this.getFieldValue("game-suggestion-note"),
     };
+
+    if (removal) {
+      for (const key of Object.keys(payload)) {
+        if (key.startsWith("proposed_")) delete payload[key];
+      }
+      if (!payload.note) {
+        this.setSuggestionStatus("Indique pourquoi cette musique devrait être supprimée.", false);
+        return;
+      }
+    }
 
     const hasProposal = [
       payload.proposed_youtube_url,
@@ -1898,6 +1924,13 @@ export class GameController {
     this.setSuggestionStatus("Proposition envoyée, merci !", true);
     this.setStatus("Proposition envoyée", true);
     await this.closeSuggestionModal({ release: true });
+  }
+
+  updateSuggestionType() {
+    const removal = this.getFieldValue("game-suggestion-type") === "track_removal";
+    document.getElementById("game-suggestion-correction-fields").hidden = removal;
+    document.getElementById("game-suggestion-note-label").textContent = removal ? "Motif de la demande" : "Note";
+    document.getElementById("game-suggestion-note").required = removal;
   }
 
   getFieldValue(id) {
@@ -2214,6 +2247,7 @@ export class GameController {
     const message = this.describeYouTubeError(event?.data);
     this.playerErrorVideoId = String(this.playerVideoId || this.playerRequestedVideoId || "");
     this.playerErrorMessage = message;
+    this.playbackFailure.report(event, this.playerErrorVideoId);
     this.setStatus(message, false);
     const hint = document.getElementById("game-video-overlay-hint");
     if (hint) {
@@ -2239,6 +2273,7 @@ export class GameController {
   }
 
   syncPlayerPlayback(force = false) {
+    if (isUnavailableRound(this.roundState?.round)) return;
     if (pauseAtTrackEnd(this.player, this.roundState?.round, this.getNowMs() / 1000)) return;
     if (this.playerOnlyMode || !this.player || !this.playerReady || !this.roundState?.round || !window.YT?.PlayerState) {
       return;

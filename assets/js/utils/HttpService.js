@@ -295,6 +295,14 @@ export class HttpService {
     return this.request(MELODY_BASE_URL, "POST", "submitSuggestion", data);
   }
 
+  async reportPlaybackError(data) {
+    return this.request(MELODY_BASE_URL, "POST", "reportPlaybackError", data);
+  }
+
+  async advanceUnavailableRound(data) {
+    return this.request(MELODY_BASE_URL, "POST", "advanceUnavailableRound", data);
+  }
+
   async createTvPairing() {
     return this.request(MELODY_BASE_URL, "POST", "createTvPairing", {});
   }

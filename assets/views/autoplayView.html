@@ -3,7 +3,6 @@
     <div class="mq-autoplay-head">
       <button id="btn-game-menu" type="button" class="mq-secondary mq-icon-button" aria-label="Menu de la partie" title="Menu de la partie" aria-controls="game-menu" aria-expanded="false">☰</button>
       <strong class="mq-round-counter">Manche <span id="autoplay-progress">-- / --</span></strong>
-      <div id="autoplay-round-category" class="mq-game-category" hidden></div>
       <p id="autoplay-status" class="status">Préparation...</p>
       <section class="mq-drawer-section" data-game-menu-options aria-labelledby="game-menu-invite-title">
         <h2 id="game-menu-invite-title">Invitations et TV</h2>
@@ -32,9 +31,13 @@
       </div>
     </div>
 
-    <div id="autoplay-solution" class="mq-game-solution mq-autoplay-solution" hidden>
-      <strong id="autoplay-solution-family"></strong>
-      <span id="autoplay-solution-track"></span>
+    <div class="mq-track-caption">
+      <p id="autoplay-playback-failure" class="mq-playback-failure" role="status" hidden></p>
+      <div id="autoplay-round-category" class="mq-game-category mq-track-category" hidden></div>
+      <div id="autoplay-solution" class="mq-game-solution mq-autoplay-solution" hidden>
+        <strong id="autoplay-solution-family"></strong>
+        <span id="autoplay-solution-track"></span>
+      </div>
     </div>
 
     <div class="mq-autoplay-footer">

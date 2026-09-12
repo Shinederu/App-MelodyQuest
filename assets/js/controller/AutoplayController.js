@@ -3,6 +3,7 @@ import { getActorId } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
 import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260717-compact-landscape";
 import { escapeHtml } from "../utils/ui.js?v=20260717-compact-landscape";
 import { pauseAtTrackEnd } from "../utils/PlaybackBounds.js?v=20260912-game-ui-v2";
+import { PlaybackFailure, isUnavailableRound } from "../utils/PlaybackFailure.js?v=20260912-playback-reports";
 
 const DEFAULT_VOLUME = 70;
 const VOLUME_STORAGE_KEY = "mq_autoplay_volume";
@@ -26,6 +27,9 @@ export class AutoplayController {
     this.playerRoundId = 0;
     this.audioStartedRoundId = 0;
     this.serverOffsetSeconds = 0;
+    this.playbackFailure = new PlaybackFailure({ prefix: "autoplay", getRound: () => this.roundState?.round,
+      getContext: () => ({ lobby_id: this.getLobbyId() }), refresh: () => this.refreshRoundState(true),
+      now: () => this.nowServer(), isDestroyed: () => this.isDestroyed });
     this.finished = false;
     this.volume = this.loadVolume();
 
@@ -123,6 +127,13 @@ export class AutoplayController {
     }
 
     this.roundState = res.data || { round: null };
+    if (!this.roundState.round) {
+      const detail = await window.httpClient.getLobbyByCode(this.getLobbyCode());
+      if (detail.success && detail.data?.lobby?.status === "finished") {
+        this.returnToLobbyAfterFinish();
+        return;
+      }
+    }
     const serverTime = Number(this.roundState.server_time_unix || 0);
     if (serverTime > 0) {
       this.serverOffsetSeconds = serverTime - (Date.now() / 1000);
@@ -160,6 +171,8 @@ export class AutoplayController {
 
     this.renderRound();
     this.syncPlayer(round);
+
+    if (isUnavailableRound(round)) return;
 
     if (round.is_waiting_to_start) {
       return;
@@ -266,6 +279,11 @@ export class AutoplayController {
 
   renderRound() {
     const round = this.roundState?.round;
+    if (this.playbackFailure.update(round, this.player)) {
+      this.setVideoConcealed(true);
+      this.renderSolution(null, false);
+      return;
+    }
     const category = document.getElementById("autoplay-round-category");
     if (category) {
       category.textContent = round?.track?.category_name || "";
@@ -360,6 +378,7 @@ export class AutoplayController {
   }
 
   syncPlayer(round) {
+    if (isUnavailableRound(round)) return;
     if (pauseAtTrackEnd(this.player, round, this.nowServer())) return;
     const track = round?.track;
     const videoId = String(track?.youtube_video_id || "");
@@ -425,7 +444,10 @@ export class AutoplayController {
               }
               this.tick();
             },
-            onError: () => this.setStatus("Impossible de lire cette vidéo YouTube.", false),
+            onError: (event) => {
+              this.setStatus("Impossible de lire cette vidéo YouTube.", false);
+              this.playbackFailure.report(event, this.playerVideoId);
+            },
           },
         });
         return;

@@ -78,6 +78,7 @@ Helpers a reutiliser:
 - `PlayerIdentity.js`: identite compte/invite et pseudo local provisoire.
 - `GameMenu.js` / `PlayerActions.js`: dialogs natifs pour le menu de partie et les actions du createur.
 - `PlaybackBounds.js`: fin d'extrait optionnelle; ne change pas les seuils de resynchronisation du lecteur.
+- `PlaybackFailure.js`: uniquement les erreurs YouTube 100/101/150, deduplication des appels, affichage de l'echeance serveur et commande HTTP idempotente de passage. Ne pas assimiler buffering, autoplay bloque ou erreur 153 a une video supprimee.
 
 Le dossier `output/` n'est pas requis. S'il reapparait vide, il peut etre supprime.
 
@@ -97,7 +98,7 @@ Quand un JS, une vue HTML ou le CSS change, mettre a jour:
 
 Format conseille: `YYYYMMDD-sujet`.
 
-Cache-bust courant: `20260912-menu-layout`.
+Cache-bust courant: `20260912-playback-reports`.
 
 La version `RELEASE` de `service-worker.js` et celle de `pwa-assets.json`
 doivent correspondre au cache-bust courant. Apres toute modification de la
@@ -116,6 +117,9 @@ Le CSS contient un profil paysage compact pour les petits ecrans autour de `800 
 ## Verification
 
 Derniere livraison et limites de verification: `docs/2026-09-12-game-ui.md`.
+Complement courant: `docs/2026-09-12-playback-reports.md`. La migration API 022
+doit preceder ce frontend. Pas de reprise des reglages du lecteur sain: un
+seul iframe TV, memes seuils de derive et meme prechargement qu'avant.
 
 Verification minimale:
 

@@ -2,6 +2,7 @@ import { renderQrSvg } from "../utils/qr.js?v=20260617-passive-tv-cleanup";
 import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260617-passive-tv-cleanup";
 import { getActorId } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
 import { pauseAtTrackEnd } from "../utils/PlaybackBounds.js?v=20260912-game-ui-v2";
+import { PlaybackFailure, isUnavailableRound } from "../utils/PlaybackFailure.js?v=20260912-playback-reports";
 import { escapeHtml, renderAvatar, formatRank, formatPlayerRole } from "../utils/ui.js?v=20260912-game-ui-v2";
 import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=20260617-passive-tv-cleanup";
 
@@ -32,6 +33,9 @@ export class TvController {
     this.isDestroyed = false;
     this.snapshot = null;
     this.clockSync = new ClockSync("tv");
+    this.playbackFailure = new PlaybackFailure({ prefix: "tv", getRound: () => this.snapshot?.round?.round,
+      getContext: () => ({ lobby_id: Number(this.snapshot?.lobby?.id || 0), device_token: this.deviceToken }),
+      refresh: () => this.refreshState(), now: () => this.clockSync.getNowUnix(), isDestroyed: () => this.isDestroyed });
     this.currentRoundId = 0;
     this.lastSnapshotRevision = "";
     this.lastRenderedLobbyKey = "";
@@ -434,6 +438,11 @@ export class TvController {
   updateRoundPresentation(force = false) {
     this.renderRoundActivity();
     const round = this.snapshot?.round?.round || null;
+    if (this.playbackFailure.update(round, this.player)) {
+      this.setVideoConcealed(true);
+      this.renderSolution(null, false);
+      return;
+    }
     const track = round?.track || null;
     const pendingStart = this.isRoundPendingStart(round);
     const revealVisible = this.isRoundRevealVisible(round);
@@ -951,6 +960,7 @@ export class TvController {
     const message = this.describeYouTubeError(event?.data);
     this.playerErrorVideoId = String(this.playerVideoId || this.playerRequestedVideoId || "");
     this.playerErrorMessage = message;
+    this.playbackFailure.report(event, this.playerErrorVideoId);
     this.renderPlayerError();
   }
 
@@ -1045,6 +1055,7 @@ export class TvController {
   }
 
   syncPlayer(round, force = false) {
+    if (isUnavailableRound(round)) return;
     if (pauseAtTrackEnd(this.player, round, this.getServerNowUnix())) return;
     if (!this.playerReady || !this.player || !round?.id || typeof this.player.getCurrentTime !== "function") {
       return;

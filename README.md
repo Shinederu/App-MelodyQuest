@@ -28,7 +28,7 @@ petit changement complet.
 - API MelodyQuest: `https://api.shinederu.ch/melodyquest/`
 - API Auth: `https://api.shinederu.ch/auth/`
 - Hub Mercure: `https://mercure.shinederu.ch/.well-known/mercure`
-- Cache-bust JS/CSS courant: `20260912-menu-layout`
+- Cache-bust JS/CSS courant: `20260912-playback-reports`
 
 Identite visuelle:
 
@@ -55,6 +55,14 @@ Les invites ne creent aucune ligne dans `users` et ne conservent pas de
 statistiques de profil.
 
 Les suppressions de categories, œuvres, musiques et salons passent par une modale commune qui nomme l'element avant confirmation.
+
+Derniere livraison: [ergonomie et signalements de lecture](docs/2026-09-12-playback-reports.md).
+La categorie est placee sous la video; le bouton et le tiroir de partie sont a
+droite, sans acces Administration pendant le jeu. Les actions des joueurs du
+lobby utilisent un dialog natif, y compris pour les invites. Une proposition
+peut demander la suppression d'une musique, avec motif et validation admin.
+Les erreurs YouTube definitives sont signalees automatiquement; les chargements
+lents et la logique de synchronisation normale du lecteur restent inchanges.
 
 ## Reprise rapide agent
 
@@ -380,11 +388,12 @@ YYYYMMDD-sujet-court
 Cache-bust courant:
 
 ```text
-20260912-menu-layout
+20260912-playback-reports
 ```
 
 Historique utile:
 
+- `20260912-playback-reports`: categorie sous le lecteur, actions lobby en dialog, fiche joueur du tiroir, demandes de suppression et signalements automatiques des videos indisponibles avec transition serveur apres six secondes. Migration API 022 requise.
 - `20260912-menu-layout`: menus regroupes par usage (partie, invitations/TV, compte et sortie), navigation catalogue separee du jeu; boutons du salon et liaison TV reorganises, header mobile aligne.
 - `20260912-header-scroll`: suppression du header sticky sur PC; le header suit le defilement sur tous les formats.
 - `20260912-game-ui-v2`: accueil allege, tiroir de partie, moderation invites, TV compacte, suggestions/management, bornes d'extrait et filtre de notoriété.

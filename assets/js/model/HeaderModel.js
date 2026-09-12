@@ -1,6 +1,6 @@
-import { escapeHtml } from "../utils/ui.js?v=20260617-admin-workflow";
+import { escapeHtml, renderAvatar } from "../utils/ui.js?v=20260617-admin-workflow";
 import { clearPlayerIdentity } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
-import { setupGameMenu } from "../utils/GameMenu.js?v=20260912-menu-layout";
+import { setupGameMenu } from "../utils/GameMenu.js?v=20260912-playback-reports";
 
 const PAGE_META = {
   "autoplay-setup": {
@@ -122,14 +122,18 @@ export class HeaderModel {
         <div class="mq-topbar__actions">
           ${isGuest && view === "main" ? `<button id="btn-main-guest-rename" type="button" class="mq-secondary mq-icon-button" aria-label="Changer le pseudo" title="Changer le pseudo">✎</button>` : ""}
           ${username && !isGuest ? `<span class="mq-topbar__role">${safeRole}</span>` : ""}
-          ${isAdmin && ["game", "autoplay"].includes(view) ? '<a class="mq-nav-link" href="#/management">Administration</a>' : ""}
           ${buttonHtml}
         </div>
       </div>
     `;
 
     if (view === "game" || view === "autoplay") {
-      setupGameMenu(headerElement, headerHtml);
+      setupGameMenu(headerElement, `${pageHtml}
+        <div class="mq-drawer-player">
+          ${renderAvatar(user)}
+          <div><strong>${safeUsername}</strong><span>${isGuest ? "Invité" : "Joueur connecté"}</span></div>
+        </div>
+        <div class="mq-drawer-account-actions">${buttonHtml}</div>`);
     } else {
       headerElement.innerHTML = headerHtml;
     }

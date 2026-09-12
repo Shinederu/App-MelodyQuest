@@ -4,7 +4,6 @@
       <div class="mq-game-stage__head mq-game-stage__head--compact">
         <button id="btn-game-menu" type="button" class="mq-secondary mq-icon-button" aria-label="Menu de la partie" title="Menu de la partie" aria-controls="game-menu" aria-expanded="false">☰</button>
         <strong class="mq-round-counter">Manche <span id="game-progress">-- / --</span></strong>
-        <div id="game-round-category" class="mq-game-category" hidden></div>
         <p id="game-status" class="status"></p>
         <section class="mq-drawer-section" data-game-menu-options aria-labelledby="game-menu-play-title">
           <h2 id="game-menu-play-title">Ma partie</h2>
@@ -51,6 +50,8 @@
       </div>
 
       <section class="mq-card mq-game-answer-card mq-game-stage-action">
+        <div id="game-round-category" class="mq-game-category mq-track-category" hidden></div>
+        <p id="game-playback-failure" class="mq-playback-failure" role="status" hidden></p>
         <div id="game-player-mode-summary" class="mq-game-player-summary" hidden></div>
 
         <div id="game-answer-shell" class="mq-form-stack">
@@ -137,14 +138,20 @@
     <section class="mq-card mq-card--accent mq-modal__panel" role="dialog" aria-modal="true" aria-labelledby="game-suggestion-title">
       <div class="mq-modal__header">
         <div class="mq-card-heading mq-card-heading--compact">
-          <div class="mq-kicker">Correction</div>
-          <h2 id="game-suggestion-title">Proposer une correction</h2>
-          <p class="mq-card-copy">Remplis uniquement les champs que tu veux corriger. La manche attendra pendant que tu fais ta proposition.</p>
+          <h2 id="game-suggestion-title">Faire une proposition</h2>
         </div>
         <button id="btn-game-suggestion-close" type="button" class="mq-secondary mq-icon-button" aria-label="Fermer">X</button>
       </div>
 
       <div class="mq-form-stack">
+        <div class="mq-field">
+          <label for="game-suggestion-type">Proposition</label>
+          <select id="game-suggestion-type">
+            <option value="track_correction">Corriger cette musique</option>
+            <option value="track_removal">Demander sa suppression</option>
+          </select>
+        </div>
+        <div id="game-suggestion-correction-fields" class="mq-form-stack">
         <div class="mq-field">
           <label for="game-suggestion-url">Nouvelle URL YouTube</label>
           <input id="game-suggestion-url" type="text" placeholder="" />
@@ -180,8 +187,9 @@
           <label for="game-suggestion-end">Fin de la musique (secondes)</label>
           <input id="game-suggestion-end" type="number" min="1" max="86400" step="1" />
         </div>
+        </div>
         <div class="mq-field">
-          <label for="game-suggestion-note">Note</label>
+          <label id="game-suggestion-note-label" for="game-suggestion-note">Note</label>
           <textarea id="game-suggestion-note" placeholder="Contexte utile pour l'admin"></textarea>
         </div>
 

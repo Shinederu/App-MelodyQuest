@@ -2,6 +2,7 @@ import { confirmDeletion } from "../utils/confirmDialog.js?v=20260810-history-sa
 import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/LobbyState.js";
 import { getActorId } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
 import { escapeAttribute, escapeHtml, formatPlayerRole, renderAvatar } from "../utils/ui.js?v=20260617-launch-fullscreen";
+import { openPlayerActions } from "../utils/PlayerActions.js?v=20260912-game-ui-v2";
 
 const MIN_TOTAL_ROUNDS = 1;
 const MAX_TOTAL_ROUNDS = 1000;
@@ -311,37 +312,20 @@ export class LobbyController {
         `;
       }).join("");
 
-      playersHost.querySelectorAll("[data-presence-user]").forEach((button) => {
-        button.addEventListener("click", () => {
-          button.closest("details")?.removeAttribute("open");
-          this.setPlayerPresence(
-            Number(button.dataset.presenceUser || 0),
-            String(button.dataset.presenceStatus || "active")
-          );
-        });
-      });
-      playersHost.querySelectorAll("[data-kick-user]").forEach((button) => {
-        button.addEventListener("click", () => {
-          button.closest("details")?.removeAttribute("open");
-          this.kickPlayer(Number(button.dataset.kickUser || 0));
-        });
-      });
-      playersHost.querySelectorAll(".mq-player-actions-menu").forEach((menu) => {
-        menu.addEventListener("toggle", () => {
-          if (!menu.open) return;
-          playersHost.querySelectorAll(".mq-player-actions-menu[open]").forEach((otherMenu) => {
-            if (otherMenu !== menu) {
-              otherMenu.removeAttribute("open");
-            }
-          });
-        });
+      const showActions = (actorId) => {
+        const player = players.find((entry) => getActorId(entry) === actorId);
+        if (!player || !this.renderOwnerPlayerActions(player)) return;
+        openPlayerActions(player,
+          () => this.setPlayerPresence(actorId, player.presence_status === "away" ? "active" : "away"),
+          () => this.kickPlayer(actorId));
+      };
+      playersHost.querySelectorAll("[data-player-actions]").forEach((button) => {
+        button.addEventListener("click", () => showActions(Number(button.dataset.playerActions)));
       });
       playersHost.querySelectorAll("[data-lobby-player-menu-row]").forEach((row) => {
         row.addEventListener("click", (event) => {
           if (event.target.closest("button, a, input, select, textarea, summary, details")) return;
-          const menu = row.querySelector(".mq-player-actions-menu");
-          if (!menu) return;
-          menu.open = !menu.open;
+          showActions(Number(row.dataset.lobbyPlayerMenuRow));
         });
       });
     }
@@ -544,20 +528,9 @@ export class LobbyController {
       return "";
     }
 
-    const isAway = String(player?.presence_status || "active").toLowerCase() === "away";
-    const nextStatus = isAway ? "active" : "away";
-    const presenceLabel = isAway ? "Remettre présent" : "Mettre absent";
-
     return `
-      <details class="mq-player-actions-menu">
-        <summary aria-label="Actions pour ${this.escapeAttr(player?.username || "joueur")}" title="Actions joueur">
-          <span aria-hidden="true">...</span>
-        </summary>
-        <div class="mq-player-actions mq-player-actions--menu">
-        <button type="button" class="mq-secondary mq-inline-btn" data-presence-user="${playerId}" data-presence-status="${this.escapeAttr(nextStatus)}">${this.escapeHtml(presenceLabel)}</button>
-        <button type="button" class="mq-danger mq-inline-btn" data-kick-user="${playerId}">Exclure</button>
-        </div>
-      </details>
+      <button type="button" class="mq-secondary mq-icon-button" data-player-actions="${playerId}"
+        aria-label="Actions pour ${this.escapeAttr(player?.username || "joueur")}" title="Actions joueur">⋯</button>
     `;
   }
 

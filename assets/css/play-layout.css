@@ -87,6 +87,32 @@ body:has(.mq-autoplay-page) .mq-video-overlay__content { width: 100%; min-width:
 body:has(.mq-autoplay-page) .mq-video-overlay__timer { min-width: 0; max-width: 100%; }
 body:has(.mq-autoplay-page) .mq-video-overlay__hint { max-width: 100%; }
 body #btn-game-menu { flex: 0 0 42px; width: 42px; height: 42px; min-height: 42px; padding: 0; }
+body #btn-game-menu { order: 1; margin-left: auto; }
+body:has(.mq-autoplay-page) .mq-autoplay-head .status { order: 2; }
+.mq-drawer-player { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.mq-drawer-player > div { display: grid; gap: 4px; min-width: 0; overflow-wrap: anywhere; }
+.mq-drawer-player strong { font-size: 1.1rem; }
+.mq-drawer-player span { color: var(--mq-text-soft); font-size: .85rem; }
+.mq-drawer-player .mq-avatar { width: 44px; height: 44px; flex: 0 0 44px; }
+.mq-drawer-account-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.mq-drawer-account-actions button { flex: 1; }
+.mq-track-caption { display: grid; gap: 8px; min-width: 0; }
+body .mq-track-category, body #tv-round-category { order: -1; grid-column: 1 / -1; justify-self: start; width: fit-content; max-width: 100%; margin: 0; padding: 5px 10px; color: var(--mq-text-soft); background: #24242c; border: 1px solid var(--mq-line); border-radius: 6px; font-size: .95rem; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+.mq-game-answer-card:has(#game-round-category:not([hidden])) #game-solution-category,
+.mq-track-caption:has(#autoplay-round-category:not([hidden])) #autoplay-solution-category { display: none !important; }
+body #game-round-category, body #autoplay-round-category { order: -1; }
+.mq-playback-failure { grid-column: 1 / -1; margin: 0; padding: 12px; color: var(--mq-text); border-left: 3px solid var(--mq-primary, #ffbf3b); background: #24242c; }
+.is-playback-unavailable #game-answer-shell, .is-playback-unavailable #game-answer-locked,
+.is-playback-unavailable #game-next-panel, .is-playback-unavailable #game-reveal-vote,
+.is-playback-unavailable #btn-game-suggest-correction, .is-playback-unavailable .mq-video-overlay__content { display: none !important; }
+.is-playback-unavailable .mq-video-player { opacity: 0 !important; }
+.is-playback-unavailable .mq-video-overlay { display: flex !important; }
+.is-playback-unavailable .mq-video-overlay::after { content: "Vidéo indisponible"; color: var(--mq-text); font-size: 1.4rem; text-align: center; padding: 16px; }
+#lobby-players .mq-list-row { min-width: 0; }
+#lobby-players .mq-player-line { flex: 1 1 0; min-width: 0; }
+#lobby-players .mq-player-line strong { overflow-wrap: anywhere; }
+#lobby-players [data-player-actions] { flex: 0 0 44px; width: 44px; min-height: 44px; }
+.mq-player-dialog button { min-height: 44px; }
 body:has(.mq-game-page) .mq-game-stage__head .mq-game-category { order: 1; background: none; border: 0; }
 body:has(.mq-game-page) .mq-game-stage__head .status { order: 2; }
 body:has(.mq-game-page) .mq-game-stage, body:has(.mq-game-page) .mq-game-side { max-height: calc(100dvh - 24px); }
