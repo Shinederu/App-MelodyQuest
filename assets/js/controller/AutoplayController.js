@@ -2,7 +2,7 @@ import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/Lo
 import { getActorId } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
 import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260717-compact-landscape";
 import { escapeHtml } from "../utils/ui.js?v=20260717-compact-landscape";
-import { pauseAtTrackEnd } from "../utils/PlaybackBounds.js?v=20260912-game-ui";
+import { pauseAtTrackEnd } from "../utils/PlaybackBounds.js?v=20260912-game-ui-v2";
 
 const DEFAULT_VOLUME = 70;
 const VOLUME_STORAGE_KEY = "mq_autoplay_volume";

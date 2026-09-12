@@ -1,4 +1,4 @@
-const RELEASE = "20260912-game-ui";
+const RELEASE = "20260912-game-ui-v2";
 const CACHE_PREFIX = "melodyquest-shell-";
 const CACHE_NAME = `${CACHE_PREFIX}${RELEASE}`;
 const ASSET_INDEX_URL = `/pwa-assets.json?v=${RELEASE}`;

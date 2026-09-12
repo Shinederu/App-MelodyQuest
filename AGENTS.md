@@ -95,7 +95,7 @@ Quand un JS, une vue HTML ou le CSS change, mettre a jour:
 
 Format conseille: `YYYYMMDD-sujet`.
 
-Cache-bust courant: `20260912-game-ui`.
+Cache-bust courant: `20260912-game-ui-v2`.
 
 La version `RELEASE` de `service-worker.js` et celle de `pwa-assets.json`
 doivent correspondre au cache-bust courant. Apres toute modification de la

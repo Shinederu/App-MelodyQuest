@@ -1,32 +1,32 @@
-import { HttpService } from "../utils/HttpService.js?v=20260912-game-ui";
-import { HeaderModel } from "../model/HeaderModel.js?v=20260912-game-ui";
-import { WakeLockService } from "../utils/WakeLockService.js?v=20260912-game-ui";
-import { registerPwa } from "../utils/PwaService.js?v=20260912-game-ui";
-import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260912-game-ui";
+import { HttpService } from "../utils/HttpService.js?v=20260912-game-ui-v2";
+import { HeaderModel } from "../model/HeaderModel.js?v=20260912-game-ui-v2";
+import { WakeLockService } from "../utils/WakeLockService.js?v=20260912-game-ui-v2";
+import { registerPwa } from "../utils/PwaService.js?v=20260912-game-ui-v2";
+import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260912-game-ui-v2";
 import {
   getOrCreateProvisionalGuest,
   persistPlayerIdentity,
-} from "../utils/PlayerIdentity.js?v=20260912-game-ui";
-import { PublicController } from "./PublicController.js?v=20260912-game-ui";
-import { SuggestTrackController } from "./SuggestTrackController.js?v=20260912-game-ui";
-import { MainController } from "./MainController.js?v=20260912-game-ui";
-import { AutoplaySetupController } from "./AutoplaySetupController.js?v=20260912-game-ui";
-import { AutoplayController } from "./AutoplayController.js?v=20260912-game-ui";
-import { LobbyController } from "./LobbyController.js?v=20260912-game-ui";
-import { LobbyListController } from "./LobbyListController.js?v=20260912-game-ui";
-import { GameController } from "./GameController.js?v=20260912-game-ui";
-import { ResultController } from "./ResultController.js?v=20260912-game-ui";
-import { TvController } from "./TvController.js?v=20260912-game-ui";
-import { TvLinkController } from "./TvLinkController.js?v=20260912-game-ui";
-import { ManagementController } from "./ManagementController.js?v=20260912-game-ui";
-import { ManagementCategoriesController } from "./ManagementCategoriesController.js?v=20260912-game-ui";
-import { ManagementFamiliesController } from "./ManagementFamiliesController.js?v=20260912-game-ui";
-import { ManagementTracksController } from "./ManagementTracksController.js?v=20260912-game-ui";
-import { ManagementValidationController } from "./ManagementValidationController.js?v=20260912-game-ui";
-import { ManagementSuggestionsController } from "./ManagementSuggestionsController.js?v=20260912-game-ui";
-import { ManagementAnswersController } from "./ManagementAnswersController.js?v=20260912-game-ui";
+} from "../utils/PlayerIdentity.js?v=20260912-game-ui-v2";
+import { PublicController } from "./PublicController.js?v=20260912-game-ui-v2";
+import { SuggestTrackController } from "./SuggestTrackController.js?v=20260912-game-ui-v2";
+import { MainController } from "./MainController.js?v=20260912-game-ui-v2";
+import { AutoplaySetupController } from "./AutoplaySetupController.js?v=20260912-game-ui-v2";
+import { AutoplayController } from "./AutoplayController.js?v=20260912-game-ui-v2";
+import { LobbyController } from "./LobbyController.js?v=20260912-game-ui-v2";
+import { LobbyListController } from "./LobbyListController.js?v=20260912-game-ui-v2";
+import { GameController } from "./GameController.js?v=20260912-game-ui-v2";
+import { ResultController } from "./ResultController.js?v=20260912-game-ui-v2";
+import { TvController } from "./TvController.js?v=20260912-game-ui-v2";
+import { TvLinkController } from "./TvLinkController.js?v=20260912-game-ui-v2";
+import { ManagementController } from "./ManagementController.js?v=20260912-game-ui-v2";
+import { ManagementCategoriesController } from "./ManagementCategoriesController.js?v=20260912-game-ui-v2";
+import { ManagementFamiliesController } from "./ManagementFamiliesController.js?v=20260912-game-ui-v2";
+import { ManagementTracksController } from "./ManagementTracksController.js?v=20260912-game-ui-v2";
+import { ManagementValidationController } from "./ManagementValidationController.js?v=20260912-game-ui-v2";
+import { ManagementSuggestionsController } from "./ManagementSuggestionsController.js?v=20260912-game-ui-v2";
+import { ManagementAnswersController } from "./ManagementAnswersController.js?v=20260912-game-ui-v2";
 
-const ASSET_VERSION = "20260912-game-ui";
+const ASSET_VERSION = "20260912-game-ui-v2";
 const YOUTUBE_PREWARM_ROUTES = new Set(["lobby", "game", "autoplay", "tv"]);
 const WAKE_LOCK_ROUTES = new Set(["lobby", "game", "autoplay", "result", "tv-link", "tv"]);
 

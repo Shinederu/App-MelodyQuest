@@ -1,6 +1,6 @@
 import { escapeHtml } from "../utils/ui.js?v=20260617-admin-workflow";
 import { clearPlayerIdentity } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
-import { setupGameMenu } from "../utils/GameMenu.js?v=20260912-game-ui";
+import { setupGameMenu } from "../utils/GameMenu.js?v=20260912-game-ui-v2";
 
 const PAGE_META = {
   "autoplay-setup": {
@@ -120,7 +120,7 @@ export class HeaderModel {
         </div>
         ${pageHtml}
         <div class="mq-topbar__actions">
-          ${isGuest && view === "main" ? `<button id="btn-main-guest-rename" type="button" class="mq-secondary">Changer le pseudo</button>` : ""}
+          ${isGuest && view === "main" ? `<button id="btn-main-guest-rename" type="button" class="mq-secondary mq-icon-button" aria-label="Changer le pseudo" title="Changer le pseudo">✎</button>` : ""}
           ${username && !isGuest ? `<span class="mq-topbar__role">${safeRole}</span>` : ""}
           ${buttonHtml}
           ${isAdmin && ["game", "autoplay"].includes(view) ? '<a class="mq-nav-link" href="#/management">Administration</a>' : ""}

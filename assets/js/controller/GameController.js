@@ -3,8 +3,8 @@ import { getActorId } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
 import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260616-answer-visibility";
 import { escapeAttribute, escapeHtml, formatPlayerRole, formatRank, renderAvatar } from "../utils/ui.js?v=20260616-answer-visibility";
 import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=20260616-answer-visibility";
-import { openPlayerActions } from "../utils/PlayerActions.js?v=20260912-game-ui";
-import { pauseAtTrackEnd } from "../utils/PlaybackBounds.js?v=20260912-game-ui";
+import { openPlayerActions } from "../utils/PlayerActions.js?v=20260912-game-ui-v2";
+import { pauseAtTrackEnd } from "../utils/PlaybackBounds.js?v=20260912-game-ui-v2";
 
 const PLAYER_VOLUME_STORAGE_KEY = "mq_game_volume";
 const PLAYER_ONLY_MODE_STORAGE_KEY = "mq_game_player_only_mode";

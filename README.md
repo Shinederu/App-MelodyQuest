@@ -28,7 +28,7 @@ petit changement complet.
 - API MelodyQuest: `https://api.shinederu.ch/melodyquest/`
 - API Auth: `https://api.shinederu.ch/auth/`
 - Hub Mercure: `https://mercure.shinederu.ch/.well-known/mercure`
-- Cache-bust JS/CSS courant: `20260912-game-ui`
+- Cache-bust JS/CSS courant: `20260912-game-ui-v2`
 
 Identite visuelle:
 
@@ -379,12 +379,12 @@ YYYYMMDD-sujet-court
 Cache-bust courant:
 
 ```text
-20260912-game-ui
+20260912-game-ui-v2
 ```
 
 Historique utile:
 
-- `20260912-game-ui`: accueil allege, tiroir de partie, moderation invites, TV compacte, suggestions/management, bornes d'extrait et filtre de notoriété.
+- `20260912-game-ui-v2`: accueil allege, tiroir de partie, moderation invites, TV compacte, suggestions/management, bornes d'extrait et filtre de notoriété.
 - `20260904-pwa-manifest`: installation PWA, icones d'ecran d'accueil et cache local borne aux assets du frontend.
 - `20260831-guest-mode`: entree directe sur le menu, pseudo invite temporaire, jeu sans compte et identite `actor_id`.
 - `20260828-ai-details`: note de transparence repliee par defaut pour alleger la page publique.

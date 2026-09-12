@@ -1,6 +1,8 @@
 /* Navigation and game surfaces share the same compact layout on every device. */
 .mq-nav-link { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; color: var(--mq-text); border: 1px solid var(--mq-line); border-radius: 6px; }
 .mq-main-navigation { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+body #header:has(#btn-main-guest-rename) .mq-topbar__user { white-space: normal; overflow: visible; overflow-wrap: anywhere; }
+body #btn-main-guest-rename { width: 40px; height: 40px; min-height: 40px; padding: 0; flex: 0 0 40px; font-size: 1.2rem; }
 .mq-management-nav { display: flex; gap: 6px; flex-wrap: wrap; padding: 12px 0 0; }
 .mq-management-nav a { padding: 10px 12px; color: var(--mq-text-soft); border-bottom: 2px solid transparent; }
 .mq-management-nav a[aria-current] { color: var(--mq-primary, #ffbf3b); border-color: currentColor; }

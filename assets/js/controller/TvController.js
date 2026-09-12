@@ -1,8 +1,8 @@
 import { renderQrSvg } from "../utils/qr.js?v=20260617-passive-tv-cleanup";
 import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260617-passive-tv-cleanup";
 import { getActorId } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
-import { pauseAtTrackEnd } from "../utils/PlaybackBounds.js?v=20260912-game-ui";
-import { escapeHtml, renderAvatar, formatRank, formatPlayerRole } from "../utils/ui.js?v=20260912-game-ui";
+import { pauseAtTrackEnd } from "../utils/PlaybackBounds.js?v=20260912-game-ui-v2";
+import { escapeHtml, renderAvatar, formatRank, formatPlayerRole } from "../utils/ui.js?v=20260912-game-ui-v2";
 import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=20260617-passive-tv-cleanup";
 
 const TV_TOKEN_STORAGE_KEY = "mq_tv_device_token";

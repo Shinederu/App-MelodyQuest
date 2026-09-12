@@ -1,4 +1,4 @@
-import { escapeHtml } from "./ui.js?v=20260912-game-ui";
+import { escapeHtml } from "./ui.js?v=20260912-game-ui-v2";
 
 export function openPlayerActions(player, onPresence, onKick) {
   document.getElementById("player-actions-dialog")?.remove();
