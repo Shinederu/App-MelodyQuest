@@ -1,5 +1,6 @@
 import { confirmDeletion } from "../utils/confirmDialog.js?v=20260810-history-safety";
 import { escapeHtml, normalizeSearch, slugify } from "../utils/ui.js?v=20260610-shared-utils";
+import { formatKnowledge } from "../utils/FamilyKnowledge.js?v=20260914-familiarity-review";
 
 export class ManagementFamiliesController {
   constructor() {
@@ -107,6 +108,7 @@ export class ManagementFamiliesController {
         <div class="mq-admin-item__meta">
           <span class="mq-admin-badge">${this.escapeHtml(item.category_name || "Sans catégorie")}</span>
           <span class="mq-admin-submeta">${this.escapeHtml(this.formatFamilyCounts(item))}</span>
+          ${Number(item.knowledge?.vote_count) > 0 ? `<span class="mq-admin-submeta">${formatKnowledge(item.knowledge)}</span>` : ""}
           ${Number(item.alias_count || 0) > 0 ? `<span class="mq-admin-badge">${Number(item.alias_count)} alias</span>` : ""}
           ${item.description ? `<span class="mq-muted">${this.escapeHtml(item.description)}</span>` : ""}
           ${this.renderAliasPreview(item.aliases)}

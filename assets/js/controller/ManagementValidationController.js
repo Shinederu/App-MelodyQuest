@@ -1,6 +1,8 @@
 import { confirmDeletion } from "../utils/confirmDialog.js?v=20260810-history-safety";
 import { buildYouTubeEmbedUrl, buildYouTubeWatchUrl, extractYouTubeVideoId } from "../utils/youtube.js?v=20260615-playtest-improvements";
 import { escapeAttribute, escapeHtml, formatDate, normalizeSearch } from "../utils/ui.js?v=20260615-playtest-improvements";
+import { parseTimecode, formatTimecode } from "../utils/Timecode.js?v=20260914-familiarity-review";
+import { formatKnowledge } from "../utils/FamilyKnowledge.js?v=20260914-familiarity-review";
 
 export class ManagementValidationController {
   constructor() {
@@ -11,6 +13,14 @@ export class ManagementValidationController {
     this.aliases = [];
     this.aliasesAvailable = false;
     this.aliasDirty = false;
+    this.page = 1;
+    this.pages = 1;
+    this.total = 0;
+    this.pendingTotal = 0;
+    this.refreshId = 0;
+    this.isDestroyed = false;
+    this.saving = false;
+    this.searchTimer = null;
 
     document.getElementById("btn-validation-back")?.addEventListener("click", () => window.appCtrl.changeView("management"));
     document.getElementById("btn-validation-refresh")?.addEventListener("click", () => this.refresh());
@@ -25,19 +35,30 @@ export class ManagementValidationController {
     document.getElementById("validation-family-name")?.addEventListener("input", () => this.syncAliasesFromSelectedFamily());
     document.getElementById("validation-family-name")?.addEventListener("change", () => this.syncAliasesFromSelectedFamily());
     document.getElementById("validation-alias-input")?.addEventListener("keydown", (event) => this.handleAliasInputKeydown(event));
-    document.getElementById("validation-youtube-url")?.addEventListener("input", () => this.updatePreviewFromForm());
-    document.getElementById("validation-start-offset")?.addEventListener("input", () => this.updatePreviewFromForm());
+    document.getElementById("validation-youtube-url")?.addEventListener("change", () => this.updatePreviewFromForm());
+    document.getElementById("btn-validation-preview")?.addEventListener("click", () => this.updatePreviewFromForm(true));
+    document.getElementById("validation-filter-category")?.addEventListener("change", () => { this.page = 1; this.refresh(); });
+    document.getElementById("validation-search")?.addEventListener("input", () => {
+      clearTimeout(this.searchTimer);
+      this.searchTimer = setTimeout(() => { this.page = 1; this.refresh(); }, 300);
+    });
+    document.getElementById("btn-validation-prev")?.addEventListener("click", () => { this.page--; this.refresh(); });
+    document.getElementById("btn-validation-next")?.addEventListener("click", () => { this.page++; this.refresh(); });
     document.getElementById("validation-track-title")?.addEventListener("input", () => this.updateTitleFromForm());
 
     this.refresh();
   }
 
   async refresh() {
+    const refreshId = ++this.refreshId;
     const [pendingRes, catRes, famRes] = await Promise.all([
-      window.httpClient.listPendingTracks(),
-      window.httpClient.listCategories(),
-      window.httpClient.listFamilies(),
+      window.httpClient.listPendingTracks({ page: this.page,
+        category_id: document.getElementById("validation-filter-category")?.value || "",
+        search: document.getElementById("validation-search")?.value || "" }),
+      this.categories.length ? { success: true, data: { items: this.categories } } : window.httpClient.listCategories(),
+      this.families.length ? { success: true, data: { items: this.families } } : window.httpClient.listFamilies(),
     ]);
+    if (this.isDestroyed || refreshId !== this.refreshId) return;
 
     if (!pendingRes.success) {
       this.setStatus(pendingRes.error || "Erreur", false);
@@ -45,6 +66,10 @@ export class ManagementValidationController {
     }
 
     this.items = pendingRes.data?.items ?? [];
+    this.total = Number(pendingRes.data?.total ?? this.items.length);
+    this.pendingTotal = Number(pendingRes.data?.pending_total ?? this.total);
+    this.page = Number(pendingRes.data?.page || 1);
+    this.pages = Number(pendingRes.data?.pages || 1);
     this.categories = catRes.success ? (catRes.data?.items ?? []) : [];
     this.families = famRes.success ? (famRes.data?.items ?? []) : [];
     this.aliasesAvailable = famRes.success;
@@ -65,15 +90,22 @@ export class ManagementValidationController {
   }
 
   renderCounters() {
-    const count = this.items.length;
+    const count = this.pendingTotal;
     const text = `${count} ${count > 1 ? "musiques en attente" : "musique en attente"}`;
     ["validation-count", "validation-count-inline"].forEach((id) => {
       const el = document.getElementById(id);
       if (el) el.textContent = text;
     });
+    document.getElementById("validation-pagination").textContent = `Page ${this.page} / ${this.pages} · ${this.total} résultat${this.total > 1 ? "s" : ""}`;
+    document.getElementById("btn-validation-prev").disabled = this.page <= 1;
+    document.getElementById("btn-validation-next").disabled = this.page >= this.pages;
   }
 
   renderCategoryOptions() {
+    const filter = document.getElementById("validation-filter-category");
+    const filterValue = filter.value;
+    filter.innerHTML = `<option value="">Toutes les catégories</option>${this.categories.map((item) => `<option value="${Number(item.id)}">${this.escapeHtml(item.name)}</option>`).join("")}`;
+    filter.value = filterValue;
     const select = document.getElementById("validation-category");
     if (!select) return;
 
@@ -120,8 +152,7 @@ export class ManagementValidationController {
     if (!this.items.length) {
       list.innerHTML = `
         <div class="mq-admin-empty">
-          <strong>Aucune musique en attente</strong>
-          <p class="mq-muted">Toutes les pistes actuellement en base ont déjà été validées.</p>
+          <strong>${this.pendingTotal ? "Aucun résultat" : "Toutes les musiques sont vérifiées"}</strong>
         </div>
       `;
       return;
@@ -129,13 +160,11 @@ export class ManagementValidationController {
 
     list.innerHTML = this.items.map((item) => `
       <button type="button" class="mq-admin-item ${Number(item.id) === Number(this.selectedId) ? "is-selected" : ""}" data-id="${Number(item.id)}">
-        <strong>${this.escapeHtml(item.title || "Sans titre")}</strong>
+        <strong>${this.escapeHtml(item.family_name || "Sans œuvre")}</strong>
+        <span>${this.escapeHtml(item.title || "Sans titre")}</span>
         <div class="mq-admin-item__meta">
           <span class="mq-admin-badge">${this.escapeHtml(item.category_name || "Sans catégorie")}</span>
-          <span class="mq-admin-badge">${this.escapeHtml(item.family_name || "Sans œuvre")}</span>
-          <span class="mq-admin-badge mq-admin-badge--pending">À valider</span>
-          ${item.artist ? `<span class="mq-muted">${this.escapeHtml(item.artist)}</span>` : ""}
-          <span class="mq-muted">Ajoutée le ${this.escapeHtml(this.formatDate(item.created_at))}</span>
+          <span class="mq-muted">${formatTimecode(item.start_offset_seconds)} → ${formatTimecode(item.end_offset_seconds) || "fin de vidéo"}</span>
         </div>
       </button>
     `).join("");
@@ -145,6 +174,7 @@ export class ManagementValidationController {
         this.selectedId = Number(button.dataset.id || 0);
         this.renderList();
         this.renderDetail();
+        if (window.matchMedia("(max-width: 900px)").matches) document.getElementById("validation-detail-title")?.scrollIntoView({ block: "start" });
       });
     });
   }
@@ -175,7 +205,7 @@ export class ManagementValidationController {
     this.fillForm(item);
 
     if (helper) {
-      helper.textContent = "Corrige si besoin la catégorie, l'œuvre, les alias, le libellé ou l'URL YouTube avant de valider la musique.";
+      helper.textContent = formatKnowledge(this.findFamilyById(item.family_id)?.knowledge);
     }
     if (meta) {
       meta.innerHTML = `
@@ -195,7 +225,7 @@ export class ManagementValidationController {
   }
 
   fillForm(item) {
-    document.getElementById("validation-end-offset").value = item.end_offset_seconds ?? "";
+    document.getElementById("validation-end-offset").value = formatTimecode(item.end_offset_seconds);
     document.getElementById("validation-familiarity").value = item.familiarity ?? "";
     this.setFormDisabled(false);
 
@@ -211,7 +241,7 @@ export class ManagementValidationController {
     if (title) title.value = item.title || "";
     if (artist) artist.value = item.artist || "";
     if (youtube) youtube.value = item.youtube_url || item.youtube_video_id || "";
-    if (startOffset) startOffset.value = String(Math.max(0, Number(item.start_offset_seconds || 0)));
+    if (startOffset) startOffset.value = formatTimecode(item.start_offset_seconds || 0);
 
     this.aliasDirty = false;
     this.setAliases(this.getAliasesForTrack(item), { markDirty: false });
@@ -271,20 +301,28 @@ export class ManagementValidationController {
     title.textContent = value || "Sans titre";
   }
 
-  updatePreviewFromForm() {
+  updatePreviewFromForm(play = false) {
     const frame = document.getElementById("validation-preview-frame");
     const empty = document.getElementById("validation-preview-empty");
     const url = document.getElementById("validation-track-url");
     const openYoutube = document.getElementById("btn-validation-open-youtube");
     const videoId = extractYouTubeVideoId(this.getYoutubeInput());
-    const startOffset = this.getStartOffsetSeconds();
-    const embedUrl = buildYouTubeEmbedUrl(videoId, startOffset);
+    let bounds;
+    try { bounds = this.getBounds(); } catch (error) { this.setStatus(error.message, false); return; }
+    const startOffset = bounds.start;
+    let embedUrl = buildYouTubeEmbedUrl(videoId, startOffset);
+    if (embedUrl) {
+      const parsed = new URL(embedUrl);
+      if (bounds.end !== null) parsed.searchParams.set("end", String(bounds.end));
+      if (play) parsed.searchParams.set("autoplay", "1");
+      embedUrl = parsed.toString();
+    }
     const youtubeUrl = buildYouTubeWatchUrl(videoId, startOffset);
 
     if (frame) {
       frame.hidden = !embedUrl;
       if (embedUrl) {
-        frame.src = embedUrl;
+        if (play || frame.getAttribute("src") !== embedUrl) frame.src = embedUrl;
       } else {
         frame.removeAttribute("src");
       }
@@ -309,14 +347,23 @@ export class ManagementValidationController {
 
   async validateSelected() {
     const item = this.getSelectedItem();
-    if (!item) return;
+    if (!item || this.saving) return;
 
     const payload = this.getValidationPayload(item);
     if (!payload) return;
+    const index = this.items.findIndex((entry) => Number(entry.id) === Number(item.id));
+    const nextId = this.items[index + 1]?.id ?? this.items[index - 1]?.id ?? null;
 
+    this.saving = true;
+    document.getElementById("btn-validation-approve").disabled = true;
     const res = await window.httpClient.validateTrack(payload);
+    this.saving = false;
+    if (this.isDestroyed) return;
+    document.getElementById("btn-validation-approve").disabled = false;
     this.setStatus(res.success ? "Musique validée avec corrections appliquées" : (res.error || "Erreur"), res.success);
     if (res.success) {
+      this.selectedId = nextId;
+      this.families = [];
       await this.refresh();
     }
   }
@@ -348,7 +395,8 @@ export class ManagementValidationController {
     const title = String(document.getElementById("validation-track-title")?.value || "").trim();
     const artist = String(document.getElementById("validation-track-artist")?.value || "").trim();
     const youtubeVideoId = extractYouTubeVideoId(this.getYoutubeInput());
-    const startOffset = this.getStartOffsetSeconds();
+    let bounds;
+    try { bounds = this.getBounds(); } catch (error) { this.setStatus(error.message, false); return null; }
 
     if (categoryId <= 0) {
       this.setStatus("Catégorie requise avant validation", false);
@@ -374,8 +422,8 @@ export class ManagementValidationController {
       title,
       artist,
       youtube_video_id: youtubeVideoId,
-      start_offset_seconds: startOffset,
-      end_offset_seconds: document.getElementById("validation-end-offset").value || null,
+      start_offset_seconds: bounds.start,
+      end_offset_seconds: bounds.end,
       familiarity: document.getElementById("validation-familiarity").value || null,
     };
 
@@ -518,7 +566,9 @@ export class ManagementValidationController {
   }
 
   openSelectedTrackOnYouTube() {
-    const youtubeUrl = buildYouTubeWatchUrl(extractYouTubeVideoId(this.getYoutubeInput()), this.getStartOffsetSeconds());
+    let bounds;
+    try { bounds = this.getBounds(); } catch (error) { this.setStatus(error.message, false); return; }
+    const youtubeUrl = buildYouTubeWatchUrl(extractYouTubeVideoId(this.getYoutubeInput()), bounds.start);
     if (!youtubeUrl) return;
     window.open(youtubeUrl, "_blank", "noopener,noreferrer");
   }
@@ -531,9 +581,16 @@ export class ManagementValidationController {
     return String(document.getElementById("validation-youtube-url")?.value || "").trim();
   }
 
-  getStartOffsetSeconds() {
-    const value = Number.parseInt(String(document.getElementById("validation-start-offset")?.value || "0").trim(), 10);
-    return Number.isFinite(value) ? Math.max(0, value) : 0;
+  getBounds() {
+    const start = parseTimecode(document.getElementById("validation-start-offset")?.value);
+    const end = parseTimecode(document.getElementById("validation-end-offset")?.value, true);
+    if (end !== null && end <= start) throw new Error("La fin doit être après le début de l’extrait.");
+    return { start, end };
+  }
+
+  destroy() {
+    this.isDestroyed = true;
+    clearTimeout(this.searchTimer);
   }
 
   getSelectedItem() {

@@ -14,6 +14,7 @@ test("The game presentation handles unavailable rounds before rendering answers 
   let handled = 0;
   GameController.prototype.updateRoundPresentation.call({ isDestroyed: false,
     updatePlayerOnlyModeUi() {}, roundState: { round: { id: 1 } },
+    knowledge: { update() {} },
     playbackFailure: { update() { handled++; return true; } },
     setStatus(text) { assert.equal(text, "Vidéo indisponible"); }
   });

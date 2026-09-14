@@ -2,15 +2,14 @@
   <section class="mq-card mq-card--soft">
     <div class="mq-admin-toolbar">
       <div class="mq-actions">
-        <button id="btn-fam-back" type="button" class="mq-secondary">Retour management</button>
-        <button id="btn-fam-refresh" type="button">Rafraîchir</button>
+        <button id="btn-fam-refresh" type="button" class="mq-secondary">Rafraîchir</button>
         <button id="btn-fam-add" type="button">Ajouter une œuvre</button>
       </div>
       <div class="mq-admin-toolbar__meta">
         <div class="mq-admin-toolbar__cluster">
           <span id="fam-count" class="mq-chip">0 œuvres</span>
         </div>
-        <p id="fam-status" class="status">Choisis une œuvre existante ou prépare une nouvelle entrée.</p>
+        <p id="fam-status" class="status" role="status"></p>
       </div>
     </div>
   </section>
@@ -19,11 +18,8 @@
     <section class="mq-card mq-admin-pane">
       <div class="mq-admin-pane__header">
         <div class="mq-card-heading">
-          <div class="mq-kicker">Exploration</div>
           <h2>Liste des œuvres</h2>
-          <p class="mq-card-copy">Sélectionne une œuvre pour l'éditer ou clique sur Ajouter pour repartir d'un formulaire vide.</p>
         </div>
-        <span id="fam-count-inline" class="mq-chip">0 œuvres</span>
       </div>
       <div class="mq-admin-filter-bar">
         <div class="mq-field">
@@ -43,7 +39,6 @@
 
     <section class="mq-card mq-card--accent mq-admin-pane mq-admin-pane--sticky">
       <div class="mq-card-heading">
-        <div class="mq-kicker">Édition</div>
         <h2 id="fam-form-title">Nouvelle œuvre</h2>
         <p id="fam-form-helper" class="mq-admin-helper">Choisis une catégorie, puis renseigne l'œuvre attendue et ses alias si besoin.</p>
       </div>

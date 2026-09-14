@@ -1,4 +1,18 @@
 /* Navigation and game surfaces share the same compact layout on every device. */
+.mq-knowledge { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; min-width: 0; grid-column: 1 / -1; font-size: .9rem; }
+.mq-knowledge-choices { display: inline-flex; gap: 4px; flex: 0 0 auto; }
+.mq-knowledge button { min-height: 44px; padding: 7px 14px; font-size: .9rem; }
+.mq-knowledge button[aria-pressed="true"] { border-color: var(--mq-primary, #ffbf3b); color: var(--mq-primary, #ffbf3b); background: #30291c; }
+.mq-knowledge small { overflow-wrap: anywhere; }
+.mq-autoplay-footer { gap: 8px 24px; justify-content: space-between; }
+.is-playback-unavailable .mq-knowledge { display: none !important; }
+.mq-validation-pagination { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+.mq-validation-pagination .mq-icon-button { flex: 0 0 44px; min-height: 44px; }
+.mq-validation-page .mq-admin-list-shell { margin-top: 12px; }
+.mq-validation-page #validation-detail-title { scroll-margin-top: 12px; overflow-wrap: anywhere; }
+.mq-management-app .mq-admin-filter-bar { grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); }
+.mq-management-app .mq-admin-toolbar .status:empty { display: none; }
+.mq-management-app .mq-admin-form-grid > * { min-width: 0; }
 .mq-nav-link { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; color: var(--mq-text); border: 1px solid var(--mq-line); border-radius: 6px; }
 .mq-main-navigation { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 12px; }
 .mq-main-navigation__secondary { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-left: auto; }
@@ -31,6 +45,8 @@ body #btn-main-guest-rename { width: 40px; height: 40px; min-height: 40px; paddi
 .mq-management-app .mq-admin-pane--sticky { position: static; }
 .mq-management-app .mq-admin-list-shell { max-height: 65dvh; overflow: auto; }
 .mq-management-app .mq-admin-toolbar { gap: 12px; }
+.mq-management-app .mq-admin-toolbar { flex-direction: row; flex-wrap: wrap; align-items: center; }
+.mq-management-app .mq-admin-toolbar > .mq-actions { display: flex; width: auto; flex: 0 1 auto; }
 .mq-management-app .mq-card:has(> .mq-admin-toolbar) { padding: 6px 0 14px; background: none; border: 0; }
 .mq-management-app .mq-card:has(> .mq-admin-toolbar)::before { display: none; }
 .mq-management-app .mq-suggestion-editor > .mq-admin-form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -116,7 +132,7 @@ body #game-round-category, body #autoplay-round-category { order: -1; }
 body:has(.mq-game-page) .mq-game-stage__head .mq-game-category { order: 1; background: none; border: 0; }
 body:has(.mq-game-page) .mq-game-stage__head .status { order: 2; }
 body:has(.mq-game-page) .mq-game-stage, body:has(.mq-game-page) .mq-game-side { max-height: calc(100dvh - 24px); }
-body:has(.mq-game-page) .mq-game-page.is-player-only-mode #game-next-panel { position: static; width: 100%; margin: 8px 0; padding: 12px 0; box-shadow: none; border: 0; background: none; }
+body:has(.mq-game-page) .mq-game-page.is-player-only-mode #game-next-panel { order: 0; position: static; width: 100%; margin: 8px 0; padding: 12px 0; box-shadow: none; border: 0; background: none; }
 body:has(.mq-game-page) .mq-game-page.is-player-only-mode .mq-game-answer-card { display: flex; flex-direction: column; }
 body #game-scoreboard .mq-list-row, body #tv-scoreboard .mq-list-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px; }
 body #game-scoreboard .mq-player-line, body #tv-scoreboard .mq-player-line { flex: 1 1 0; min-width: 0; }

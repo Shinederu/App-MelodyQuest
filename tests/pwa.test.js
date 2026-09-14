@@ -55,7 +55,7 @@ test("le service worker limite son cache aux fichiers du site", async () => {
   assert.match(serviceWorker, /url\.origin !== self\.location\.origin/);
   assert.doesNotMatch(serviceWorker, /api\.shinederu\.ch|youtube\.com|mercure\.shinederu\.ch/);
   assert.match(serviceWorker, /request\.mode === "navigate"/);
-  assert.equal(assetIndex.version, "20260912-playback-reports");
+  assert.equal(assetIndex.version, "20260914-familiarity-review");
   assert.ok(assetIndex.assets.includes("/assets/js/utils/PwaService.js"));
   assert.ok(assetIndex.assets.includes("/assets/views/mainView.html"));
 });
@@ -68,9 +68,9 @@ test("la page déclare le manifeste et enregistre la PWA", async () => {
 
   assert.match(index, /rel="manifest" href="\/manifest\.json"/);
   assert.match(index, /rel="apple-touch-icon"/);
-  assert.match(index, /20260912-playback-reports/);
+  assert.match(index, /20260914-familiarity-review/);
   assert.match(appController, /registerPwa\(\)/);
-  assert.match(appController, /ASSET_VERSION = "20260912-playback-reports"/);
-  assert.match(serviceWorker, /RELEASE = "20260912-playback-reports"/);
-  assert.match(assetGenerator, /RELEASE = "20260912-playback-reports"/);
+  assert.match(appController, /ASSET_VERSION = "20260914-familiarity-review"/);
+  assert.match(serviceWorker, /RELEASE = "20260914-familiarity-review"/);
+  assert.match(assetGenerator, /RELEASE = "20260914-familiarity-review"/);
 });

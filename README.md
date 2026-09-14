@@ -7,7 +7,7 @@ MelodyQuest est le frontend statique du blindtest Shinede.
 Le projet permet de jouer a un blindtest musical depuis un navigateur, avec deux modes:
 
 - mode actif: les joueurs saisissent des reponses, gagnent des points et suivent un classement;
-- mode passif: les musiques s'enchainent automatiquement, sans reponse attendue, sans score et sans vote.
+- mode passif: les musiques s'enchainent automatiquement, sans reponse attendue, sans score et sans vote de manche. Le sondage de connaissance de l'œuvre reste facultatif apres revelation.
 
 Ce depot contient uniquement le client navigateur HTML/CSS/JS. Le backend source vit dans `P:\DEV\GitHub\App-MelodyQuest-API`.
 
@@ -28,7 +28,7 @@ petit changement complet.
 - API MelodyQuest: `https://api.shinederu.ch/melodyquest/`
 - API Auth: `https://api.shinederu.ch/auth/`
 - Hub Mercure: `https://mercure.shinederu.ch/.well-known/mercure`
-- Cache-bust JS/CSS courant: `20260912-playback-reports`
+- Cache-bust JS/CSS courant: `20260914-familiarity-review`
 
 Identite visuelle:
 
@@ -56,7 +56,16 @@ statistiques de profil.
 
 Les suppressions de categories, œuvres, musiques et salons passent par une modale commune qui nomme l'element avant confirmation.
 
-Derniere livraison: [ergonomie et signalements de lecture](docs/2026-09-12-playback-reports.md).
+Derniere livraison: [connaissance des œuvres et verification du catalogue](docs/2026-09-14-familiarity-review.md).
+Le sondage facultatif « Tu connaissais cette œuvre ? » apparait une fois la
+solution accessible, en actif, mode salon et passif. Un avis par compte ou
+session invitee et par œuvre, modifiable; aucune incidence sur le score ou le
+passage a la suite. Les pourcentages s'affichent apres le vote, avec leur effectif.
+La TV collective ne vote pas. Le filtre 1..10 reste une note admin distincte.
+La verification propose recherche, categorie, pagination et timecodes en
+secondes ou `m:ss` / `h:mm:ss`, avec apercu borne et validation successive.
+
+Livraison precedente: [ergonomie et signalements de lecture](docs/2026-09-12-playback-reports.md).
 La categorie est placee sous la video; le bouton et le tiroir de partie sont a
 droite, sans acces Administration pendant le jeu. Les actions des joueurs du
 lobby utilisent un dialog natif, y compris pour les invites. Une proposition
@@ -115,6 +124,8 @@ Helpers importants:
 - `assets/js/utils/GameMenu.js`: tiroir de partie accessible (dialog natif).
 - `assets/js/utils/PlayerActions.js`: actions du createur en premier plan, comptes et invites.
 - `assets/js/utils/PlaybackBounds.js`: arret a la fin optionnelle d'un extrait, sans boucle de seek.
+- `assets/js/utils/FamilyKnowledge.js`: sondage personnel apres solution, sans polling ni evenement Mercure supplementaire.
+- `assets/js/utils/Timecode.js`: conversion stricte des timecodes de verification vers les secondes de l'API.
 
 Il n'y a plus de dossier `client/` ou `backend/` actif dans ce repo. L'API MelodyQuest est dans `App-MelodyQuest-API`.
 
@@ -388,11 +399,12 @@ YYYYMMDD-sujet-court
 Cache-bust courant:
 
 ```text
-20260912-playback-reports
+20260914-familiarity-review
 ```
 
 Historique utile:
 
+- `20260914-familiarity-review`: avis Oui/Non par œuvre, verification paginee et timecodes, correction des liens vers un autre salon et ordre des actions du mode salon. Migration API 023 requise.
 - `20260912-playback-reports`: categorie sous le lecteur, actions lobby en dialog, fiche joueur du tiroir, demandes de suppression et signalements automatiques des videos indisponibles avec transition serveur apres six secondes. Migration API 022 requise.
 - `20260912-menu-layout`: menus regroupes par usage (partie, invitations/TV, compte et sortie), navigation catalogue separee du jeu; boutons du salon et liaison TV reorganises, header mobile aligne.
 - `20260912-header-scroll`: suppression du header sticky sur PC; le header suit le defilement sur tous les formats.
@@ -476,7 +488,7 @@ Smoke test recommande:
 
 Copier uniquement le runtime public:
 
-Le frontend suppose les migrations API jusqu'a `021_melodyquest_track_preferences.sql`
+Le frontend suppose les migrations API jusqu'a `023_melodyquest_family_knowledge.sql`
 et le runtime API associe deja en production. Deployer le frontend en dernier.
 
 ```powershell

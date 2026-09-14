@@ -6,6 +6,7 @@ import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=2026061
 import { openPlayerActions } from "../utils/PlayerActions.js?v=20260912-game-ui-v2";
 import { pauseAtTrackEnd } from "../utils/PlaybackBounds.js?v=20260912-game-ui-v2";
 import { PlaybackFailure, isUnavailableRound } from "../utils/PlaybackFailure.js?v=20260912-playback-reports";
+import { FamilyKnowledge } from "../utils/FamilyKnowledge.js?v=20260914-familiarity-review";
 
 const PLAYER_VOLUME_STORAGE_KEY = "mq_game_volume";
 const PLAYER_ONLY_MODE_STORAGE_KEY = "mq_game_player_only_mode";
@@ -50,6 +51,7 @@ export class GameController {
     this.autoNextEnabled = false;
     this.resultNavigationTriggered = false;
     this.clockSync = new ClockSync("game");
+    this.knowledge = new FamilyKnowledge({ prefix: "game", getLobbyId: () => this.getLobbyId() });
     this.playbackFailure = new PlaybackFailure({ prefix: "game", getRound: () => this.roundState?.round,
       getContext: () => ({ lobby_id: this.getLobbyId() }), refresh: () => this.refreshGameState(),
       now: () => this.getNowMs() / 1000, isDestroyed: () => this.isDestroyed });
@@ -693,6 +695,7 @@ export class GameController {
     this.updatePlayerOnlyModeUi();
 
     const round = this.roundState?.round;
+    this.knowledge.update(round);
     if (this.playbackFailure.update(round, this.player)) {
       this.setStatus("Vidéo indisponible", false);
       return;
@@ -2965,6 +2968,7 @@ export class GameController {
   }
 
   destroy() {
+    this.knowledge.destroy();
     if (this.suggestionModalOpen && this.suggestionHoldRoundId > 0 && this.getLobbyId()) {
       window.httpClient.releaseSuggestionHold(this.getLobbyId(), this.suggestionHoldRoundId).catch(() => {});
     }

@@ -66,7 +66,7 @@ export class LobbyController {
   async bootstrap() {
     let code = this.getLobbyCode();
     const sharedCode = this.getSharedLobbyCode();
-    if (!code && sharedCode) {
+    if (sharedCode && sharedCode !== code) {
       const joinRes = await window.httpClient.joinLobby(sharedCode);
       if (joinRes.success && joinRes.data?.lobby) {
         this.user = window.appCtrl.adoptPlayerIdentity(joinRes.data.identity) || this.user;

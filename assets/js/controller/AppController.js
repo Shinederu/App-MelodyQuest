@@ -1,4 +1,4 @@
-import { HttpService } from "../utils/HttpService.js?v=20260912-playback-reports";
+import { HttpService } from "../utils/HttpService.js?v=20260914-familiarity-review";
 import { HeaderModel } from "../model/HeaderModel.js?v=20260912-playback-reports";
 import { WakeLockService } from "../utils/WakeLockService.js?v=20260912-game-ui-v2";
 import { registerPwa } from "../utils/PwaService.js?v=20260912-game-ui-v2";
@@ -11,22 +11,22 @@ import { PublicController } from "./PublicController.js?v=20260912-game-ui-v2";
 import { SuggestTrackController } from "./SuggestTrackController.js?v=20260912-game-ui-v2";
 import { MainController } from "./MainController.js?v=20260912-game-ui-v2";
 import { AutoplaySetupController } from "./AutoplaySetupController.js?v=20260912-game-ui-v2";
-import { AutoplayController } from "./AutoplayController.js?v=20260912-playback-reports";
-import { LobbyController } from "./LobbyController.js?v=20260912-playback-reports";
+import { AutoplayController } from "./AutoplayController.js?v=20260914-familiarity-review";
+import { LobbyController } from "./LobbyController.js?v=20260914-familiarity-review";
 import { LobbyListController } from "./LobbyListController.js?v=20260912-game-ui-v2";
-import { GameController } from "./GameController.js?v=20260912-playback-reports";
+import { GameController } from "./GameController.js?v=20260914-familiarity-review";
 import { ResultController } from "./ResultController.js?v=20260912-game-ui-v2";
 import { TvController } from "./TvController.js?v=20260912-playback-reports";
 import { TvLinkController } from "./TvLinkController.js?v=20260912-playback-reports";
-import { ManagementController } from "./ManagementController.js?v=20260912-game-ui-v2";
+import { ManagementController } from "./ManagementController.js?v=20260914-familiarity-review";
 import { ManagementCategoriesController } from "./ManagementCategoriesController.js?v=20260912-game-ui-v2";
-import { ManagementFamiliesController } from "./ManagementFamiliesController.js?v=20260912-game-ui-v2";
+import { ManagementFamiliesController } from "./ManagementFamiliesController.js?v=20260914-familiarity-review";
 import { ManagementTracksController } from "./ManagementTracksController.js?v=20260912-game-ui-v2";
-import { ManagementValidationController } from "./ManagementValidationController.js?v=20260912-game-ui-v2";
+import { ManagementValidationController } from "./ManagementValidationController.js?v=20260914-familiarity-review";
 import { ManagementSuggestionsController } from "./ManagementSuggestionsController.js?v=20260912-playback-reports";
 import { ManagementAnswersController } from "./ManagementAnswersController.js?v=20260912-game-ui-v2";
 
-const ASSET_VERSION = "20260912-playback-reports";
+const ASSET_VERSION = "20260914-familiarity-review";
 const YOUTUBE_PREWARM_ROUTES = new Set(["lobby", "game", "autoplay", "tv"]);
 const WAKE_LOCK_ROUTES = new Set(["lobby", "game", "autoplay", "result", "tv-link", "tv"]);
 
@@ -180,6 +180,7 @@ export class AppController {
       return;
     }
 
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     this.prewarmYouTubeForRoute(requested);
     this.updateWakeLockForRoute(requested);
 

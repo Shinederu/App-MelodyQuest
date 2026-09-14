@@ -2,14 +2,13 @@
   <section class="mq-card mq-card--soft">
     <div class="mq-admin-toolbar">
       <div class="mq-actions">
-        <button id="btn-cat-back" type="button" class="mq-secondary">Retour management</button>
-        <button id="btn-cat-refresh" type="button">Rafraîchir</button>
+        <button id="btn-cat-refresh" type="button" class="mq-secondary">Rafraîchir</button>
       </div>
       <div class="mq-admin-toolbar__meta">
         <div class="mq-admin-toolbar__cluster">
           <span id="cat-count" class="mq-chip">0 catégories</span>
         </div>
-        <p id="cat-status" class="status">Sélectionne une catégorie ou crée-en une nouvelle.</p>
+        <p id="cat-status" class="status" role="status"></p>
       </div>
     </div>
   </section>
@@ -18,11 +17,8 @@
     <section class="mq-card mq-admin-pane">
       <div class="mq-admin-pane__header">
         <div class="mq-card-heading">
-          <div class="mq-kicker">Exploration</div>
           <h2>Catégories disponibles</h2>
-          <p class="mq-card-copy">Sélection rapide à gauche, édition détaillée à droite.</p>
         </div>
-        <span id="cat-count-inline" class="mq-chip">0 catégories</span>
       </div>
       <div class="mq-admin-list-shell">
         <div id="cat-list" class="mq-admin-list"></div>
@@ -31,7 +27,6 @@
 
     <section class="mq-card mq-card--accent mq-admin-pane mq-admin-pane--sticky">
       <div class="mq-card-heading">
-        <div class="mq-kicker">Édition</div>
         <h2 id="cat-form-title">Nouvelle catégorie</h2>
         <p id="cat-form-helper" class="mq-admin-helper">Donne un nom clair à la nouvelle catégorie.</p>
       </div>

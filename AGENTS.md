@@ -98,7 +98,7 @@ Quand un JS, une vue HTML ou le CSS change, mettre a jour:
 
 Format conseille: `YYYYMMDD-sujet`.
 
-Cache-bust courant: `20260912-playback-reports`.
+Cache-bust courant: `20260914-familiarity-review`.
 
 La version `RELEASE` de `service-worker.js` et celle de `pwa-assets.json`
 doivent correspondre au cache-bust courant. Apres toute modification de la
@@ -116,7 +116,14 @@ Le CSS contient un profil paysage compact pour les petits ecrans autour de `800 
 
 ## Verification
 
-Derniere livraison et limites de verification: `docs/2026-09-12-game-ui.md`.
+Livraison UI precedente: `docs/2026-09-12-game-ui.md`.
+Reprise courante: `docs/2026-09-14-familiarity-review.md`. Migration API 023
+requise. Le sondage porte sur l'œuvre, jamais sur le titre musical; ne pas
+fusionner automatiquement le pourcentage communautaire et la note admin 1..10.
+Un seul GET a l'ouverture de la solution et un POST par choix; pas de polling.
+Les controles de lecture YouTube sains restent strictement inchanges.
+`listPendingTracks` renvoie une page: utiliser `pending_total` pour les badges,
+pas `items.length`. Ne pas recharger l'iframe a chaque frappe d'un timecode.
 Complement courant: `docs/2026-09-12-playback-reports.md`. La migration API 022
 doit preceder ce frontend. Pas de reprise des reglages du lecteur sain: un
 seul iframe TV, memes seuils de derive et meme prechargement qu'avant.

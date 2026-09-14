@@ -2,15 +2,14 @@
   <section class="mq-card mq-card--soft">
     <div class="mq-admin-toolbar">
       <div class="mq-actions">
-        <button id="btn-track-back" type="button" class="mq-secondary">Retour management</button>
-        <button id="btn-track-refresh" type="button">Rafraîchir</button>
+        <button id="btn-track-refresh" type="button" class="mq-secondary">Rafraîchir</button>
         <button id="btn-track-add" type="button">Ajouter une musique</button>
       </div>
       <div class="mq-admin-toolbar__meta">
         <div class="mq-admin-toolbar__cluster">
           <span id="track-count" class="mq-chip">0 musiques</span>
         </div>
-        <p id="track-status" class="status">Sélectionne une musique pour l'éditer ou ajoute une nouvelle entrée.</p>
+        <p id="track-status" class="status" role="status"></p>
       </div>
     </div>
   </section>
@@ -19,11 +18,8 @@
     <section class="mq-card mq-admin-pane">
       <div class="mq-admin-pane__header">
         <div class="mq-card-heading">
-          <div class="mq-kicker">Exploration</div>
           <h2>Liste des musiques</h2>
-          <p class="mq-card-copy">La liste sert de navigateur. L'éditeur à droite te permet de changer catégorie, œuvre attendue et piste sans passer par plusieurs écrans.</p>
         </div>
-        <span id="track-count-inline" class="mq-chip">0 musiques</span>
       </div>
       <div class="mq-admin-filter-bar">
         <div class="mq-field">
@@ -47,7 +43,6 @@
 
     <section class="mq-card mq-card--accent mq-admin-pane mq-admin-pane--sticky">
       <div class="mq-card-heading">
-        <div class="mq-kicker">Édition</div>
         <h2 id="track-form-title">Nouvelle musique</h2>
         <p id="track-form-helper" class="mq-admin-helper">Mode création actif. Si l'œuvre n'existe pas encore dans la catégorie choisie, elle sera créée automatiquement, puis la piste devra être validée.</p>
       </div>

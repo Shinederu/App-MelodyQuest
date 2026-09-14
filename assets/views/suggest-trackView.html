@@ -4,14 +4,13 @@
       <div class="mq-actions">
         <button id="btn-suggest-track-back" type="button" class="mq-secondary">Retour</button>
       </div>
-      <p id="suggest-track-status" class="status">Propose une musique à ajouter au blindtest.</p>
+      <p id="suggest-track-status" class="status" role="status"></p>
     </div>
 
     <div class="mq-two-cols--balanced">
       <div class="mq-card-heading">
-        <div class="mq-kicker">Contribution</div>
         <h1>Proposer une musique</h1>
-        <p class="mq-card-copy">Indique une piste YouTube et les infos utiles. Un admin vérifiera la proposition avant de la rendre jouable.</p>
+        <p class="mq-card-copy">Chaque proposition est vérifiée avant d’être ajoutée au jeu.</p>
       </div>
 
       <form id="suggest-track-form" class="mq-form-stack" method="post" action="#/suggest-track">
@@ -31,7 +30,7 @@
         </div>
 
         <div class="mq-field">
-          <label for="suggest-track-alias">Alias ou réponse attendue</label>
+          <label for="suggest-track-alias">Œuvre à deviner ou alias</label>
           <input id="suggest-track-alias" type="text" maxlength="160" placeholder="Ex: Genshin, Pokémon, Roi Lion..." />
         </div>
 

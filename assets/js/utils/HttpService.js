@@ -384,8 +384,8 @@ export class HttpService {
     return this.request(MELODY_BASE_URL, "GET", "listTracks", body);
   }
 
-  async listPendingTracks() {
-    return this.request(MELODY_BASE_URL, "GET", "listPendingTracks");
+  async listPendingTracks(filters = {}) {
+    return this.request(MELODY_BASE_URL, "GET", "listPendingTracks", filters);
   }
 
   async createCategory(data) {
@@ -440,6 +440,14 @@ export class HttpService {
 
   async deleteTrack(id) {
     return this.request(MELODY_BASE_URL, "DELETE", "deleteTrack", { id });
+  }
+
+  async getFamilyKnowledge(data) {
+    return this.request(MELODY_BASE_URL, "GET", "getFamilyKnowledge", data);
+  }
+
+  async voteFamilyKnowledge(data) {
+    return this.request(MELODY_BASE_URL, "POST", "voteFamilyKnowledge", data);
   }
 
   withGuestNickname(data = {}) {

@@ -1,4 +1,4 @@
-const RELEASE = "20260912-playback-reports";
+const RELEASE = "20260914-familiarity-review";
 const CACHE_PREFIX = "melodyquest-shell-";
 const CACHE_NAME = `${CACHE_PREFIX}${RELEASE}`;
 const ASSET_INDEX_URL = `/pwa-assets.json?v=${RELEASE}`;
