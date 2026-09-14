@@ -102,8 +102,23 @@ defaut, confirmation du nom de DB et du nombre attendu, refus si un salon
 joue, sauvegarde JSON exclusive hors PROD avant UPDATE et comparaison de
 toutes les metadonnees protegees dans une transaction.
 
-Precontrole live: 2 726 pistes, toutes validees, aucun salon en cours.
-Execution et sauvegarde: a renseigner apres livraison et controle final.
+Operation executee le 14 septembre 2026 a 19:37 (Europe/Zurich):
+
+- Precontrole: 2 726 pistes validees, aucune en attente, aucun salon en cours.
+- Apres transaction: 2 726 pistes en attente, aucune piste encore validee.
+- Sauvegarde: `P:\ARCHIVE\MelodyQuest\2026-09-14-before-timecode-review-193737.json`.
+  Les 2 726 lignes completes ont ete relues et verifiees. SHA-256:
+  `4d29a32194d12868acb7554ba0eacdeb8be3bbff87c6a3aa1732f140bda94b83`.
+- Comparaison independante live/backup: aucune difference hors validation et
+  date de modification. Totaux inchanges: 2 146 oeuvres, 74 salons,
+  29 propositions joueurs et 57 sessions archivees.
+- API de verification: 50 pistes sur la premiere page, 55 pages, total 2 726.
+- Migration 023 appliquee, source frontend `47ff3a4` et API `eb059c0` poussees
+  sur `origin/main`. 25 fichiers publics frontend et 4 fichiers runtime API
+  deployes, empreintes source/PROD identiques. Les fichiers non-runtime restent
+  dans DEV et aucun secret n'a ete copie.
+- Verification HTTP live: page, nouveau module et catalogue repondent;
+  agregats de connaissance presents. Aucun faux vote ou faux ajout live.
 
 **Ne pas rejouer cette operation** apres le debut de la verification manuelle.
 Elle ne fait pas partie d'un deploiement normal. Sans piste revalidee, aucune
