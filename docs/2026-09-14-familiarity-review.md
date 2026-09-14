@@ -67,7 +67,7 @@ badge global. Pagination et filtres sont calcules par l'API.
 
 ## Controles realises
 
-- 27 tests frontend, 38 tests unitaires PHP, 12 tests d'integration MySQL.
+- 27 tests frontend, 39 tests unitaires PHP, 12 tests d'integration MySQL.
 - Integration exclusivement sur `mq_ui_test`, serveur local jetable, jamais
   sur `ShinedeCore`. Vote cache avant revelation, membre non autorise,
   votes comptes/invites, modification sans doublon, anonymisation, passif,
@@ -119,6 +119,9 @@ Operation executee le 14 septembre 2026 a 19:37 (Europe/Zurich):
   dans DEV et aucun secret n'a ete copie.
 - Verification HTTP live: page, nouveau module et catalogue repondent;
   agregats de connaissance presents. Aucun faux vote ou faux ajout live.
+  Un controle sans cookie a revele une creation de session invitee inutile
+  avant le refus d'acces au salon. Les deux routes du sondage utilisent
+  maintenant une identite existante et refusent sans creer de session (401).
 
 **Ne pas rejouer cette operation** apres le debut de la verification manuelle.
 Elle ne fait pas partie d'un deploiement normal. Sans piste revalidee, aucune
