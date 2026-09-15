@@ -40,3 +40,15 @@ Sauvegarder, appliquer 025, deployer le runtime API, puis les assets frontend.
 Ne copier ni SQL, tests, documentation, outils ni secrets en PROD.
 La verification live reste en lecture seule: pas de vote artificiel ni nouvelle
 partie dans le catalogue de production.
+
+Livraison effectuee: API `76500a0`, frontend `4f6fc0e`, pushes sur main puis
+copies runtime verifiees par SHA256. HTTP 200, version PWA et APIs controles;
+GET et POST du sondage sans compte renvoient 401.
+Les 2147 œuvres de production ont une estimation de 60. Les 2726 pistes,
+75 salons et 57 historiques sont conserves; lignes de pistes et avis identiques
+avant/apres migration. Les pistes restent dans leur etat de validation precedent.
+
+Sauvegarde avant migration:
+`P:/ARCHIVE/MelodyQuest/2026-09-15-before-notoriety-60-175216.json`
+SHA256: `12f3671cdde777e59e8437098dc989caadbffd48e7216851a6054b4e3a00c706`.
+Onglet et serveurs de test locaux arretes apres verification.
