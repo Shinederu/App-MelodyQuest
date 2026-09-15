@@ -71,3 +71,18 @@ timecodes saisis depuis sont a conserver, ainsi que les votes et historiques.
 Limites: le sondage reste volontaire, non representatif et non resistant aux
 sessions invitees multiples. Le score peut evoluer entre l'ouverture des reglages
 et le tirage; l'API reste autoritaire. L'estimation ne remplace pas les avis reels.
+
+## Livraison
+
+- API `75e0100`, frontend `0da515c`, pousses sur `origin/main` avant synchronisation.
+- Migration 024 appliquee sur ShinedeCore le 15 septembre 2026. Sauvegarde locale:
+  `P:/ARCHIVE/MelodyQuest/2026-09-15-before-notoriety-172441.json`.
+  SHA256: `31284184acc6d9a4aa396824add1cc57ac8fd5b4ca8f0ed5721d1800ca27103b`.
+- Avant/apres identiques: 2726 pistes, 2147 oeuvres, 75 salons, 57 historiques.
+  Les 2726 pistes etaient encore en attente; aucune remise en attente effectuee.
+  Comparaison integrale des lignes de pistes et avis avant/apres: identiques.
+- 17 fichiers publics frontend et 4 fichiers runtime API compares par SHA256
+  entre DEV et PROD; pas de docs, tests, SQL, dependances de dev ou secrets copies.
+- Front HTTP 200 et version PWA verifies; APIs categories et familles accessibles,
+  nouveau score et estimation presents. Les essais fonctionnels ont utilise la
+  base locale jetable, pas de partie ou de fausse proposition creee en production.
