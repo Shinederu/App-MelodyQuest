@@ -21,6 +21,12 @@ petit changement complet.
 
 ## Etat courant
 
+Catalogue remis en jeu le 2026-09-15 a la demande de l'utilisateur: 2 726 pistes
+validees, corrections et timecodes conserves. La verification exhaustive du
+14 septembre est abandonnee. Details et idees de normalisation non encore
+implementees: [etat du catalogue](docs/2026-09-15-catalog-validation.md).
+Les propositions et modifications futures restent soumises a verification.
+
 - Front DEV: `P:\DEV\GitHub\App-MelodyQuest`
 - Front PROD: `P:\PROD\MelodyQuest`
 - Repo GitHub: `https://github.com/Shinederu/App-MelodyQuest.git`

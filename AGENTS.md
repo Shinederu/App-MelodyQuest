@@ -36,6 +36,11 @@ Le repo frontend ne contient pas de dossier `client/` ou `backend/` actif. Ne pa
 
 ## Etat a preserver
 
+- Le 2026-09-15, l'utilisateur a annule la verification exhaustive: les
+  2 726 pistes sont validees, sans perte des corrections deja faites. Ne pas
+  remettre le catalogue en attente. Voir `docs/2026-09-15-catalog-validation.md`;
+  les idees d'annee/libelle ne sont pas encore implementees.
+
 - MelodyQuest a deux modes: `participative` (actif) et `autoplay` (passif).
 - Le mode passif passe par un vrai salon, garde le partage et la liaison TV, puis revient au lobby en fin de partie.
 - Nouveaux salons actifs/passifs: publics, 30 manches de 20 secondes. Aucun plein ecran automatique.
