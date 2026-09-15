@@ -1,7 +1,7 @@
 export function formatKnowledge(summary) {
   const total = Number(summary?.vote_count || 0);
-  if (!total) return "Pas encore de votes";
-  return `${Number(summary.known_percent)} % connaissent · ${total} ${total > 1 ? "votes" : "vote"}`;
+  const percent = Number(summary?.notoriety_percent ?? summary?.notoriety_seed ?? 50);
+  return `Notoriété : ${percent} % · ${total ? `${total} avis` : "estimation initiale"}`;
 }
 
 export class FamilyKnowledge {

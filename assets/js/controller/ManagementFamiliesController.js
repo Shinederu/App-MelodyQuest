@@ -1,6 +1,6 @@
 import { confirmDeletion } from "../utils/confirmDialog.js?v=20260810-history-safety";
 import { escapeHtml, normalizeSearch, slugify } from "../utils/ui.js?v=20260610-shared-utils";
-import { formatKnowledge } from "../utils/FamilyKnowledge.js?v=20260914-familiarity-review";
+import { formatKnowledge } from "../utils/FamilyKnowledge.js?v=20260915-notoriety-slider";
 
 export class ManagementFamiliesController {
   constructor() {
@@ -108,7 +108,7 @@ export class ManagementFamiliesController {
         <div class="mq-admin-item__meta">
           <span class="mq-admin-badge">${this.escapeHtml(item.category_name || "Sans catégorie")}</span>
           <span class="mq-admin-submeta">${this.escapeHtml(this.formatFamilyCounts(item))}</span>
-          ${Number(item.knowledge?.vote_count) > 0 ? `<span class="mq-admin-submeta">${formatKnowledge(item.knowledge)}</span>` : ""}
+          <span class="mq-admin-submeta">${formatKnowledge(item.knowledge)}</span>
           ${Number(item.alias_count || 0) > 0 ? `<span class="mq-admin-badge">${Number(item.alias_count)} alias</span>` : ""}
           ${item.description ? `<span class="mq-muted">${this.escapeHtml(item.description)}</span>` : ""}
           ${this.renderAliasPreview(item.aliases)}
@@ -125,6 +125,7 @@ export class ManagementFamiliesController {
   }
 
   fillForm(item) {
+    document.getElementById("fam-notoriety-seed").value = String(item.notoriety_seed ?? 50);
     this.formVisible = true;
     this.selectedId = Number(item.id);
     const form = document.getElementById("fam-form");
@@ -151,6 +152,7 @@ export class ManagementFamiliesController {
   }
 
   resetForm() {
+    document.getElementById("fam-notoriety-seed").value = "50";
     this.selectedId = null;
     const form = document.getElementById("fam-form");
     const category = document.getElementById("fam-category");
@@ -192,7 +194,8 @@ export class ManagementFamiliesController {
     const description = document.getElementById("fam-description")?.value ?? "";
     const aliases = [...this.aliases];
     const slug = slugify(name);
-    const res = await window.httpClient.createFamily({ category_id, name, slug, description, aliases });
+    const notoriety_seed = Number(document.getElementById("fam-notoriety-seed").value);
+    const res = await window.httpClient.createFamily({ category_id, name, slug, description, aliases, notoriety_seed });
     this.setStatus(res.success ? "Œuvre créée" : (res.error || "Erreur"), res.success);
     if (res.success) {
       this.selectedId = null;
@@ -207,7 +210,8 @@ export class ManagementFamiliesController {
     const description = document.getElementById("fam-description")?.value ?? "";
     const aliases = [...this.aliases];
     const slug = slugify(name);
-    const res = await window.httpClient.updateFamily({ id: this.selectedId, category_id, name, slug, description, aliases });
+    const notoriety_seed = Number(document.getElementById("fam-notoriety-seed").value);
+    const res = await window.httpClient.updateFamily({ id: this.selectedId, category_id, name, slug, description, aliases, notoriety_seed });
     this.setStatus(res.success ? "Œuvre mise à jour" : (res.error || "Erreur"), res.success);
     if (res.success) await this.refresh();
   }

@@ -1,6 +1,7 @@
 import { confirmDeletion } from "../utils/confirmDialog.js?v=20260810-history-safety";
 import { extractYouTubeVideoId } from "../utils/youtube.js?v=20260615-playtest-improvements";
 import { escapeAttribute, escapeHtml, normalizeSearch } from "../utils/ui.js?v=20260615-playtest-improvements";
+import { FamilySeedField } from "../utils/Notoriety.js?v=20260915-notoriety-slider";
 
 export class ManagementTracksController {
   constructor() {
@@ -9,6 +10,7 @@ export class ManagementTracksController {
     this.categories = [];
     this.families = [];
     this.selectedId = null;
+    this.seedField = new FamilySeedField("track-notoriety-seed");
     this.draftCategoryId = incomingDraft.categoryId;
     this.draftFamilyName = incomingDraft.familyName;
     this.familySuggestions = [];
@@ -116,6 +118,8 @@ export class ManagementTracksController {
     const hint = document.getElementById("track-family-hint");
     const familyName = String(input?.value || "").trim();
     const query = this.normalizeSearch(familyName);
+    const family = this.families.find((item) => Number(item.category_id) === categoryId && this.normalizeSearch(item.name) === query);
+    this.seedField.sync(family, `${categoryId}:${query}`);
     const families = this.getFamilyNamesForCategory(categoryId);
     const exactMatch = query
       ? families.find((item) => this.normalizeSearch(item) === query)
@@ -373,7 +377,7 @@ export class ManagementTracksController {
 
   fillForm(item) {
     document.getElementById("track-end-offset").value = item.end_offset_seconds ?? "";
-    document.getElementById("track-familiarity").value = item.familiarity ?? "";
+    this.seedField.key = null;
     this.selectedId = Number(item.id);
 
     const form = document.getElementById("track-form");
@@ -415,7 +419,7 @@ export class ManagementTracksController {
 
   resetForm() {
     document.getElementById("track-end-offset").value = "";
-    document.getElementById("track-familiarity").value = "";
+    this.seedField.key = null;
     const form = document.getElementById("track-form");
     const category = document.getElementById("track-category");
     const familyName = document.getElementById("track-family-name");
@@ -507,7 +511,7 @@ export class ManagementTracksController {
       youtube_video_id,
       start_offset_seconds,
       end_offset_seconds: document.getElementById("track-end-offset").value || null,
-      familiarity: document.getElementById("track-familiarity").value || null,
+      ...this.seedField.payload(),
     });
 
     this.setStatus(res.success ? "Musique créée en attente de validation" : (res.error || "Erreur"), res.success);
@@ -544,7 +548,7 @@ export class ManagementTracksController {
       youtube_video_id,
       start_offset_seconds,
       end_offset_seconds: document.getElementById("track-end-offset").value || null,
-      familiarity: document.getElementById("track-familiarity").value || null,
+      ...this.seedField.payload(),
     });
 
     this.setStatus(res.success ? "Musique mise à jour et repassée en attente de validation" : (res.error || "Erreur"), res.success);

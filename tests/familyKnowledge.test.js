@@ -10,9 +10,9 @@ test("timecodes accept seconds and clock notation without truncating mistakes", 
   for (const input of ["1:60", "1:2", "-1", "3.5", "1e2", "86401", "2s"]) assert.throws(() => parseTimecode(input));
 });
 
-test("community summary distinguishes no data from zero percent", () => {
-  assert.equal(formatKnowledge({ vote_count: 0 }), "Pas encore de votes");
-  assert.equal(formatKnowledge({ vote_count: 2, known_percent: 0 }), "0 % connaissent · 2 votes");
+test("notoriety summary distinguishes the initial estimate from collected opinions", () => {
+  assert.equal(formatKnowledge({ vote_count: 0, notoriety_seed: 75 }), "Notoriété : 75 % · estimation initiale");
+  assert.equal(formatKnowledge({ vote_count: 2, notoriety_percent: 0 }), "Notoriété : 0 % · 2 avis");
 });
 
 function widget(client) {

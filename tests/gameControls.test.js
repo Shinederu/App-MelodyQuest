@@ -43,9 +43,9 @@ test("an optional clip end stops audio once and never starts a seek loop", () =>
   assert.equal(pauseAtTrackEnd(player, { ...round, started_at_unix: 1040 }, 1035), false);
 });
 
-test("familiarity counts match the selected lobby threshold", () => {
-  const controller = Object.assign(Object.create(LobbyController.prototype), { configDraft: { min_familiarity: 7 } });
-  assert.equal(controller.getCategoryTrackCount({ track_count: 10, track_counts_by_familiarity: { 0: 2, 5: 3, 7: 4, 10: 1 } }), 5);
+test("notoriety counts match the selected lobby threshold", () => {
+  const controller = Object.assign(Object.create(LobbyController.prototype), { configDraft: { min_notoriety: 60 } });
+  assert.equal(controller.getCategoryTrackCount({ track_count: 10, track_counts_by_notoriety: { 0: 2, 50: 3, 75: 4, 100: 1 } }), 5);
 });
 
 test("starting a finished lobby archives and resets it before replay", async () => {

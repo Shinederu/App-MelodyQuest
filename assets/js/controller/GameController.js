@@ -6,7 +6,7 @@ import { ClockSync, recordSyncDiagnostic } from "../utils/ClockSync.js?v=2026061
 import { openPlayerActions } from "../utils/PlayerActions.js?v=20260912-game-ui-v2";
 import { pauseAtTrackEnd } from "../utils/PlaybackBounds.js?v=20260912-game-ui-v2";
 import { PlaybackFailure, isUnavailableRound } from "../utils/PlaybackFailure.js?v=20260912-playback-reports";
-import { FamilyKnowledge } from "../utils/FamilyKnowledge.js?v=20260914-familiarity-review";
+import { FamilyKnowledge } from "../utils/FamilyKnowledge.js?v=20260915-notoriety-slider";
 
 const PLAYER_VOLUME_STORAGE_KEY = "mq_game_volume";
 const PLAYER_ONLY_MODE_STORAGE_KEY = "mq_game_player_only_mode";

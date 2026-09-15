@@ -1,5 +1,5 @@
 {
-  "version": "20260914-familiarity-review",
+  "version": "20260915-notoriety-slider",
   "assets": [
     "/assets/css/main.css",
     "/assets/css/play-layout.css",
@@ -34,6 +34,7 @@
     "/assets/js/utils/GameMenu.js",
     "/assets/js/utils/HttpService.js",
     "/assets/js/utils/LobbyState.js",
+    "/assets/js/utils/Notoriety.js",
     "/assets/js/utils/PlaybackBounds.js",
     "/assets/js/utils/PlaybackFailure.js",
     "/assets/js/utils/PlayerActions.js",

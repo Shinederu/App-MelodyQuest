@@ -3,6 +3,7 @@ import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/Lo
 import { getActorId } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
 import { escapeAttribute, escapeHtml, formatPlayerRole, renderAvatar } from "../utils/ui.js?v=20260617-launch-fullscreen";
 import { openPlayerActions } from "../utils/PlayerActions.js?v=20260912-game-ui-v2";
+import { notorietyStep, notorietyMinimum, NOTORIETY_LABELS, countKnownTracks } from "../utils/Notoriety.js?v=20260915-notoriety-slider";
 
 const MIN_TOTAL_ROUNDS = 1;
 const MAX_TOTAL_ROUNDS = 1000;
@@ -355,11 +356,18 @@ export class LobbyController {
 
     const editable = this.isOwner();
     const source = this.configDirty ? this.getDraftConfig(lobby) : this.getServerConfig(lobby);
-    const familiarityInput = document.getElementById("lobby-config-familiarity");
-    if (familiarityInput) {
-      familiarityInput.value = String(source.min_familiarity || 1);
-      familiarityInput.disabled = !editable;
-      familiarityInput.onchange = () => {
+    const notorietyInput = document.getElementById("lobby-config-notoriety");
+    if (notorietyInput) {
+      const step = notorietyStep(source.min_notoriety);
+      notorietyInput.value = String(step);
+      notorietyInput.setAttribute("aria-valuetext", NOTORIETY_LABELS[step]);
+      document.querySelectorAll("[data-notoriety-step]").forEach((label) => label.classList.toggle("is-selected", Number(label.dataset.notorietyStep) === step));
+      notorietyInput.disabled = !editable;
+      notorietyInput.oninput = () => {
+        this.handleConfigInput(lobby, false);
+        this.renderOwnerForm(lobby);
+      };
+      notorietyInput.onchange = () => {
         this.handleConfigInput(lobby, true);
         this.renderOwnerForm(lobby);
       };
@@ -593,7 +601,7 @@ export class LobbyController {
       game_mode: this.normalizeGameMode(lobby?.game_mode),
       total_rounds: Number.parseInt(lobby?.total_rounds ?? 30, 10),
       round_duration_seconds: Number.parseInt(lobby?.round_duration_seconds ?? 20, 10),
-      min_familiarity: Number(lobby?.min_familiarity || 1),
+      min_notoriety: Number(lobby?.min_notoriety || 0),
       reveal_duration_seconds: Number.parseInt(lobby?.reveal_duration_seconds ?? 10, 10),
       show_track_category: this.toBool(lobby?.show_track_category),
       allow_early_reveal_vote: this.toBool(lobby?.allow_early_reveal_vote ?? true),
@@ -615,7 +623,7 @@ export class LobbyController {
         this.getServerConfig(lobby).name
       ),
       visibility: document.getElementById("lobby-config-public")?.checked ? "public" : "private",
-      min_familiarity: Number(document.getElementById("lobby-config-familiarity")?.value || 1),
+      min_notoriety: notorietyMinimum(document.getElementById("lobby-config-notoriety")?.value),
       game_mode: this.normalizeGameMode(lobby?.game_mode),
       total_rounds: this.parseIntegerInput(document.getElementById("lobby-config-rounds")?.value),
       round_duration_seconds: this.parseIntegerInput(document.getElementById("lobby-config-timer")?.value),
@@ -686,7 +694,7 @@ export class LobbyController {
       game_mode: this.normalizeGameMode(draft.game_mode),
       total_rounds: Number(draft.total_rounds || 30),
       round_duration_seconds: Number(draft.round_duration_seconds || 20),
-      min_familiarity: Number(draft.min_familiarity || 1),
+      min_notoriety: Number(draft.min_notoriety || 0),
       reveal_duration_seconds: Number(draft.reveal_duration_seconds || 10),
       show_track_category: Boolean(draft.show_track_category),
       allow_early_reveal_vote: Boolean(draft.allow_early_reveal_vote),
@@ -914,7 +922,7 @@ export class LobbyController {
       visibility: config.visibility === "private" ? "private" : "public",
       game_mode: this.normalizeGameMode(config.game_mode),
       total_rounds: Number.parseInt(config.total_rounds ?? 0, 10),
-      min_familiarity: Number(config.min_familiarity || 1),
+      min_notoriety: Number(config.min_notoriety || 0),
       round_duration_seconds: Number.parseInt(config.round_duration_seconds ?? 0, 10),
       reveal_duration_seconds: Number.parseInt(config.reveal_duration_seconds ?? 0, 10),
       show_track_category: Boolean(config.show_track_category),
@@ -964,11 +972,7 @@ export class LobbyController {
   }
 
   getCategoryTrackCount(category) {
-    const min = Number(this.getDraftConfig(this.currentLobby)?.min_familiarity || 1);
-    if (min > 1 && category?.track_counts_by_familiarity) {
-      return Object.entries(category.track_counts_by_familiarity).reduce((count, [rating, amount]) => count + (Number(rating) >= min ? Number(amount) : 0), 0);
-    }
-    return Math.max(0, Number(category?.track_count || 0));
+    return countKnownTracks(category, Number(this.getDraftConfig(this.currentLobby)?.min_notoriety || 0));
   }
 
   formatMusicCount(count) {

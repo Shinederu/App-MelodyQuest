@@ -1,8 +1,9 @@
 import { confirmDeletion } from "../utils/confirmDialog.js?v=20260810-history-safety";
 import { buildYouTubeEmbedUrl, buildYouTubeWatchUrl, extractYouTubeVideoId } from "../utils/youtube.js?v=20260615-playtest-improvements";
 import { escapeAttribute, escapeHtml, formatDate, normalizeSearch } from "../utils/ui.js?v=20260615-playtest-improvements";
-import { parseTimecode, formatTimecode } from "../utils/Timecode.js?v=20260914-familiarity-review";
-import { formatKnowledge } from "../utils/FamilyKnowledge.js?v=20260914-familiarity-review";
+import { parseTimecode, formatTimecode } from "../utils/Timecode.js?v=20260915-notoriety-slider";
+import { formatKnowledge } from "../utils/FamilyKnowledge.js?v=20260915-notoriety-slider";
+import { FamilySeedField } from "../utils/Notoriety.js?v=20260915-notoriety-slider";
 
 export class ManagementValidationController {
   constructor() {
@@ -10,6 +11,7 @@ export class ManagementValidationController {
     this.categories = [];
     this.families = [];
     this.selectedId = null;
+    this.seedField = new FamilySeedField("validation-notoriety-seed");
     this.aliases = [];
     this.aliasesAvailable = false;
     this.aliasDirty = false;
@@ -226,7 +228,7 @@ export class ManagementValidationController {
 
   fillForm(item) {
     document.getElementById("validation-end-offset").value = formatTimecode(item.end_offset_seconds);
-    document.getElementById("validation-familiarity").value = item.familiarity ?? "";
+    this.seedField.sync(this.findFamilyById(item.family_id), `${Number(item.category_id)}:${this.normalizeSearch(item.family_name)}`, true);
     this.setFormDisabled(false);
 
     const category = document.getElementById("validation-category");
@@ -250,7 +252,7 @@ export class ManagementValidationController {
 
   clearForm() {
     document.getElementById("validation-end-offset").value = "";
-    document.getElementById("validation-familiarity").value = "";
+    this.seedField.sync(null, "", true);
     const category = document.getElementById("validation-category");
     const family = document.getElementById("validation-family-name");
     const title = document.getElementById("validation-track-title");
@@ -280,7 +282,7 @@ export class ManagementValidationController {
       "validation-youtube-url",
       "validation-start-offset",
       "validation-end-offset",
-      "validation-familiarity",
+      "validation-notoriety-seed",
     ].forEach((id) => {
       const el = document.getElementById(id);
       if (el) el.disabled = disabled;
@@ -424,7 +426,7 @@ export class ManagementValidationController {
       youtube_video_id: youtubeVideoId,
       start_offset_seconds: bounds.start,
       end_offset_seconds: bounds.end,
-      familiarity: document.getElementById("validation-familiarity").value || null,
+      ...this.seedField.payload(),
     };
 
     if (this.aliasesAvailable) {
@@ -505,6 +507,9 @@ export class ManagementValidationController {
   }
 
   syncAliasesFromSelectedFamily() {
+    const name = document.getElementById("validation-family-name")?.value || "";
+    const category = this.getFormCategoryId();
+    this.seedField.sync(this.findMatchingFamily(category, name), `${category}:${this.normalizeSearch(name)}`);
     if (this.aliasDirty || !this.aliasesAvailable) return;
 
     const family = this.findMatchingFamily(

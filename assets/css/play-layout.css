@@ -1,4 +1,15 @@
 /* Navigation and game surfaces share the same compact layout on every device. */
+.mq-notoriety-control { width: 100%; max-width: 480px; gap: 0; }
+.mq-notoriety-control input[type="range"] { width: 100%; min-height: 44px; margin: 0; padding: 0; accent-color: var(--mq-primary, #ffbf3b); cursor: pointer; }
+.mq-notoriety-stops { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; font-size: .9rem; color: var(--mq-muted, #a9b0bc); }
+.mq-notoriety-stops > span { min-width: 0; position: relative; padding-top: 6px; }
+.mq-notoriety-stops > span::before { content: ""; position: absolute; top: -3px; left: 4px; width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
+.mq-notoriety-stops > span:nth-child(2) { text-align: center; }
+.mq-notoriety-stops > span:nth-child(2)::before { left: calc(50% - 2px); }
+.mq-notoriety-stops > span:last-child { text-align: right; }
+.mq-notoriety-stops > span:last-child::before { left: auto; right: 4px; }
+.mq-notoriety-stops small { display: block; margin-top: 2px; font-size: .75rem; font-weight: 400; }
+.mq-notoriety-stops .is-selected { color: var(--mq-primary, #ffbf3b); font-weight: 700; }
 .mq-knowledge { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; min-width: 0; grid-column: 1 / -1; font-size: .9rem; }
 .mq-knowledge-choices { display: inline-flex; gap: 4px; flex: 0 0 auto; }
 .mq-knowledge button { min-height: 44px; padding: 7px 14px; font-size: .9rem; }
