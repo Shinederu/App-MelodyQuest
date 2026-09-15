@@ -98,7 +98,7 @@ Quand un JS, une vue HTML ou le CSS change, mettre a jour:
 
 Format conseille: `YYYYMMDD-sujet`.
 
-Cache-bust courant: `20260915-notoriety-votes`.
+Cache-bust courant: `20260915-track-aliases`.
 
 La version `RELEASE` de `service-worker.js` et celle de `pwa-assets.json`
 doivent correspondre au cache-bust courant. Apres toute modification de la
@@ -115,6 +115,12 @@ transitions continues et garder le bleu dans un composant ou un fond separe.
 Le CSS contient un profil paysage compact pour les petits ecrans autour de `800 x 480`. Toute modification de la TV, de `#/game` ou de `#/autoplay` doit conserver un viewport sans debordement horizontal a cette resolution.
 
 ## Verification
+
+`management-tracks` affiche les alias partages de l'œuvre en lecture seule:
+apercu de trois alias dans la liste, liste complete sous le champ œuvre et
+recherche par alias. Reutiliser `listFamilies` et `family_id`; ne pas creer
+d'alias par piste ni envoyer un tableau d'alias depuis ce formulaire de lecture.
+L'edition reste dans les pages œuvres et verification.
 
 Livraison UI precedente: `docs/2026-09-12-game-ui.md`.
 Reprise courante: `docs/2026-09-15-notoriety-votes.md`. Migration API 025 requise.

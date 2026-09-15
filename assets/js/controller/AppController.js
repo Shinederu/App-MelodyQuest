@@ -21,12 +21,12 @@ import { TvLinkController } from "./TvLinkController.js?v=20260912-playback-repo
 import { ManagementController } from "./ManagementController.js?v=20260915-notoriety-votes";
 import { ManagementCategoriesController } from "./ManagementCategoriesController.js?v=20260912-game-ui-v2";
 import { ManagementFamiliesController } from "./ManagementFamiliesController.js?v=20260915-notoriety-votes";
-import { ManagementTracksController } from "./ManagementTracksController.js?v=20260915-notoriety-votes";
+import { ManagementTracksController } from "./ManagementTracksController.js?v=20260915-track-aliases";
 import { ManagementValidationController } from "./ManagementValidationController.js?v=20260915-notoriety-votes";
 import { ManagementSuggestionsController } from "./ManagementSuggestionsController.js?v=20260912-playback-reports";
 import { ManagementAnswersController } from "./ManagementAnswersController.js?v=20260912-game-ui-v2";
 
-const ASSET_VERSION = "20260915-notoriety-votes";
+const ASSET_VERSION = "20260915-track-aliases";
 const YOUTUBE_PREWARM_ROUTES = new Set(["lobby", "game", "autoplay", "tv"]);
 const WAKE_LOCK_ROUTES = new Set(["lobby", "game", "autoplay", "result", "tv-link", "tv"]);
 

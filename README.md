@@ -28,7 +28,7 @@ petit changement complet.
 - API MelodyQuest: `https://api.shinederu.ch/melodyquest/`
 - API Auth: `https://api.shinederu.ch/auth/`
 - Hub Mercure: `https://mercure.shinederu.ch/.well-known/mercure`
-- Cache-bust JS/CSS courant: `20260915-notoriety-votes`
+- Cache-bust JS/CSS courant: `20260915-track-aliases`
 
 Identite visuelle:
 
@@ -56,7 +56,16 @@ statistiques de profil.
 
 Les suppressions de categories, œuvres, musiques et salons passent par une modale commune qui nomme l'element avant confirmation.
 
-Derniere livraison: [base de notoriete a 60 et vote definitif](docs/2026-09-15-notoriety-votes.md).
+Derniere correction: `management-tracks` affiche les alias de l'œuvre dans la
+fiche selectionnee et un apercu dans la liste des musiques. Le filtre œuvre
+recherche aussi les alias. Affichage en lecture seule, sans mutation API/DB;
+l'edition des alias reste disponible dans Œuvres et Verification.
+Verification de cette correction: 35 tests Node, syntaxe JS, page reelle avec
+fixtures locales en navigateur PC, 390 x 844 et 800 x 480; recherche par alias,
+changement d'œuvre et alias long sans debordement horizontal. Aucun appel
+d'ecriture catalogue pendant les essais.
+
+Livraison precedente: [base de notoriete a 60 et vote definitif](docs/2026-09-15-notoriety-votes.md).
 Le sondage facultatif « Tu connaissais cette œuvre ? » apparait une fois la
 solution accessible aux comptes connectes, en actif, mode salon et passif.
 Un seul avis definitif par compte et par œuvre; aucune incidence sur le score ou le
@@ -224,6 +233,7 @@ Redirections importantes:
   - controle du volume et pourcentage regroupes pres de la correction.
 - Administration:
   - catalogue categories/oeuvres/pistes;
+  - alias acceptes visibles dans la fiche musique et son apercu, recherche par alias d'œuvre;
   - validation des pistes en attente avec modification des champs et alias;
   - suggestions de correction ou nouvelle musique;
   - application directe des suggestions au catalogue;
@@ -403,10 +413,12 @@ YYYYMMDD-sujet-court
 Cache-bust courant:
 
 ```text
-20260915-notoriety-votes
+20260915-track-aliases
 ```
 
 Historique utile:
+
+- `20260915-track-aliases`: affichage des alias de l'œuvre dans la gestion des musiques et recherche par alias; frontend uniquement, aucune migration.
 
 - `20260914-familiarity-review`: avis Oui/Non par œuvre, verification paginee et timecodes, correction des liens vers un autre salon et ordre des actions du mode salon. Migration API 023 requise.
 - `20260915-notoriety-slider`: curseur 0/60/90, estimation partagee 50/75/100, notoriete ponderee par les avis. Migration API 024 requise; aucune remise en attente du catalogue.

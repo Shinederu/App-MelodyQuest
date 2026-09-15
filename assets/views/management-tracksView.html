@@ -27,7 +27,7 @@
           <select id="track-filter-category"></select>
         </div>
         <div class="mq-field">
-          <label for="track-filter-family">Rechercher une œuvre</label>
+          <label for="track-filter-family">Rechercher une œuvre ou un alias</label>
           <input id="track-filter-family" type="text" placeholder="Ex: Pokémon" autocomplete="off" />
         </div>
         <div class="mq-field">
@@ -69,6 +69,12 @@
               <div id="track-family-suggestions" class="mq-autocomplete__panel" hidden></div>
             </div>
           </div>
+        </div>
+
+        <div class="mq-field" role="group" aria-labelledby="track-alias-label">
+          <span id="track-alias-label" class="mq-track-alias-label">Alias acceptés de l’œuvre</span>
+          <ul id="track-alias-list" class="mq-track-alias-list" aria-labelledby="track-alias-label" hidden></ul>
+          <p id="track-alias-status" class="mq-muted" role="status">Sélectionne une œuvre pour voir ses alias.</p>
         </div>
 
         <div class="mq-admin-form-split">

@@ -2028,6 +2028,27 @@ body.mq-modal-open {
   padding: 12px;
 }
 
+.mq-track-alias-label {
+  font-weight: 700;
+}
+
+.mq-track-alias-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mq-track-alias-list .mq-admin-badge,
+.mq-track-alias-preview {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .mq-alias-item {
   display: flex;
   align-items: center;

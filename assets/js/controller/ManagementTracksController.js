@@ -9,6 +9,8 @@ export class ManagementTracksController {
     this.items = [];
     this.categories = [];
     this.families = [];
+    this.familiesById = new Map();
+    this.aliasesAvailable = false;
     this.selectedId = null;
     this.seedField = new FamilySeedField("track-notoriety-seed");
     this.draftCategoryId = incomingDraft.categoryId;
@@ -69,6 +71,8 @@ export class ManagementTracksController {
 
     this.items = trackRes.data?.items ?? [];
     this.families = famRes.success ? (famRes.data?.items ?? []) : [];
+    this.familiesById = new Map(this.families.map((family) => [Number(family.id), family]));
+    this.aliasesAvailable = Boolean(famRes.success);
     this.categories = catRes.success ? (catRes.data?.items ?? []) : [];
     this.renderCategoryOptions();
     this.renderList();
@@ -120,6 +124,7 @@ export class ManagementTracksController {
     const query = this.normalizeSearch(familyName);
     const family = this.families.find((item) => Number(item.category_id) === categoryId && this.normalizeSearch(item.name) === query);
     this.seedField.sync(family, `${categoryId}:${query}`);
+    this.renderFamilyAliases(family);
     const families = this.getFamilyNamesForCategory(categoryId);
     const exactMatch = query
       ? families.find((item) => this.normalizeSearch(item) === query)
@@ -364,6 +369,7 @@ export class ManagementTracksController {
           </span>
           ${item.artist ? `<span class="mq-muted">${this.escapeHtml(item.artist)}</span>` : ""}
         </div>
+        ${this.renderAliasPreview(item)}
       </button>
     `).join("");
 
@@ -403,6 +409,34 @@ export class ManagementTracksController {
     this.renderFamilySuggestions();
     this.renderList();
     this.updateFormState();
+  }
+
+  getTrackAliases(item) {
+    const aliases = this.familiesById.get(Number(item.family_id))?.aliases;
+    return Array.isArray(aliases) ? aliases : [];
+  }
+
+  renderAliasPreview(item) {
+    const aliases = this.getTrackAliases(item);
+    if (!aliases.length) return "";
+    const preview = aliases.slice(0, 3).map((alias) => this.escapeHtml(alias)).join(" · ");
+    const remaining = aliases.length > 3 ? ` (+${aliases.length - 3})` : "";
+    return `<span class="mq-muted mq-track-alias-preview">Alias : ${preview}${remaining}</span>`;
+  }
+
+  renderFamilyAliases(family) {
+    const list = document.getElementById("track-alias-list");
+    const status = document.getElementById("track-alias-status");
+    if (!list || !status) return;
+    const aliases = Array.isArray(family?.aliases) ? family.aliases : [];
+    list.innerHTML = aliases.map((alias) => `<li class="mq-admin-badge">${this.escapeHtml(alias)}</li>`).join("");
+    list.hidden = !aliases.length;
+    status.hidden = aliases.length > 0;
+    status.textContent = !this.aliasesAvailable
+      ? "Les alias n’ont pas pu être chargés."
+      : (!this.getFamilyName() || this.getSelectedCategoryId() <= 0)
+        ? "Sélectionne une œuvre pour voir ses alias."
+        : "Aucun alias enregistré pour cette œuvre.";
   }
 
   openCreateForm() {
@@ -664,7 +698,7 @@ export class ManagementTracksController {
       }
 
       if (familyQuery) {
-        const familyHaystack = this.normalizeSearch(`${item.family_name || ""} ${item.category_name || ""}`);
+        const familyHaystack = this.normalizeSearch(`${item.family_name || ""} ${item.category_name || ""} ${this.getTrackAliases(item).join(" ")}`);
         if (!familyHaystack.includes(familyQuery)) {
           return false;
         }
