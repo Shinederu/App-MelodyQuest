@@ -1,9 +1,9 @@
 import { confirmDeletion } from "../utils/confirmDialog.js?v=20260810-history-safety";
 import { buildYouTubeEmbedUrl, buildYouTubeWatchUrl, extractYouTubeVideoId } from "../utils/youtube.js?v=20260615-playtest-improvements";
 import { escapeAttribute, escapeHtml, formatDate, normalizeSearch } from "../utils/ui.js?v=20260615-playtest-improvements";
-import { parseTimecode, formatTimecode } from "../utils/Timecode.js?v=20260915-notoriety-slider";
-import { formatKnowledge } from "../utils/FamilyKnowledge.js?v=20260915-notoriety-slider";
-import { FamilySeedField } from "../utils/Notoriety.js?v=20260915-notoriety-slider";
+import { parseTimecode, formatTimecode } from "../utils/Timecode.js?v=20260915-notoriety-votes";
+import { formatKnowledge } from "../utils/FamilyKnowledge.js?v=20260915-notoriety-votes";
+import { FamilySeedField } from "../utils/Notoriety.js?v=20260915-notoriety-votes";
 
 export class ManagementValidationController {
   constructor() {

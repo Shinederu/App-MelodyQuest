@@ -1,4 +1,4 @@
-const RELEASE = "20260915-notoriety-slider";
+const RELEASE = "20260915-notoriety-votes";
 const CACHE_PREFIX = "melodyquest-shell-";
 const CACHE_NAME = `${CACHE_PREFIX}${RELEASE}`;
 const ASSET_INDEX_URL = `/pwa-assets.json?v=${RELEASE}`;

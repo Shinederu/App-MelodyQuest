@@ -32,7 +32,7 @@ test("editing a track preserves its work estimate unless explicitly changed", ()
     field.sync({ notoriety_seed: 100 }, "existing");
     assert.deepEqual(field.payload(), { notoriety_seed: 75 });
     field.sync(null, "new");
-    assert.equal(input.value, "50");
+    assert.equal(input.value, "60");
     assert.deepEqual(field.payload(), {});
     field.sync({ notoriety_seed: 100 }, "existing", true);
     assert.equal(input.value, "100");

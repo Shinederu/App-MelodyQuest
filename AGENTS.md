@@ -98,7 +98,7 @@ Quand un JS, une vue HTML ou le CSS change, mettre a jour:
 
 Format conseille: `YYYYMMDD-sujet`.
 
-Cache-bust courant: `20260915-notoriety-slider`.
+Cache-bust courant: `20260915-notoriety-votes`.
 
 La version `RELEASE` de `service-worker.js` et celle de `pwa-assets.json`
 doivent correspondre au cache-bust courant. Apres toute modification de la
@@ -117,9 +117,12 @@ Le CSS contient un profil paysage compact pour les petits ecrans autour de `800 
 ## Verification
 
 Livraison UI precedente: `docs/2026-09-12-game-ui.md`.
-Reprise courante: `docs/2026-09-15-notoriety-slider.md`. Migration API 024 requise.
+Reprise courante: `docs/2026-09-15-notoriety-votes.md`. Migration API 025 requise.
 Le sondage porte sur l'œuvre, jamais sur le titre musical. La notoriete combine
-desormais l'estimation initiale 50/75/100 et les avis, avec un poids initial de 10.
+desormais l'estimation initiale 60/75/100 et les avis, avec un poids initial de 10.
+Base par defaut 60. Le sondage est reserve aux comptes connectes: premier choix
+definitif par œuvre, y compris sur une autre piste ou une nouvelle partie.
+Les invites ne voient pas le sondage; ils gardent tous leurs droits de jeu.
 Le lobby utilise un range natif 0..2 traduit en minimum 0/60/90 par `Notoriety.js`.
 Les formulaires musique/validation n'envoient l'estimation partagee que si elle
 a ete explicitement modifiee (`FamilySeedField`); ne pas l'ecraser par defaut.

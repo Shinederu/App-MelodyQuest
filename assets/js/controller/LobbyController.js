@@ -3,7 +3,7 @@ import { getCurrentLobby, setCurrentLobby, clearCurrentLobby } from "../utils/Lo
 import { getActorId } from "../utils/PlayerIdentity.js?v=20260831-guest-mode";
 import { escapeAttribute, escapeHtml, formatPlayerRole, renderAvatar } from "../utils/ui.js?v=20260617-launch-fullscreen";
 import { openPlayerActions } from "../utils/PlayerActions.js?v=20260912-game-ui-v2";
-import { notorietyStep, notorietyMinimum, NOTORIETY_LABELS, countKnownTracks } from "../utils/Notoriety.js?v=20260915-notoriety-slider";
+import { notorietyStep, notorietyMinimum, NOTORIETY_LABELS, countKnownTracks } from "../utils/Notoriety.js?v=20260915-notoriety-votes";
 
 const MIN_TOTAL_ROUNDS = 1;
 const MAX_TOTAL_ROUNDS = 1000;

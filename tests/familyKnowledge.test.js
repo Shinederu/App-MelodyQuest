@@ -15,13 +15,13 @@ test("notoriety summary distinguishes the initial estimate from collected opinio
   assert.equal(formatKnowledge({ vote_count: 2, notoriety_percent: 0 }), "Notoriété : 0 % · 2 avis");
 });
 
-function widget(client) {
+function widget(client, isAccount = () => true) {
   const buttons = ["yes", "no"].map((known) => ({ dataset: { known }, addEventListener() {}, setAttribute() {} }));
   const result = {};
   const retry = { addEventListener() {} };
   const root = { querySelectorAll: () => buttons, querySelector: (selector) => selector.includes("retry") ? retry : result };
   globalThis.document = { getElementById: () => root };
-  return { vote: new FamilyKnowledge({ prefix: "game", getLobbyId: () => 1, client }), root, result };
+  return { vote: new FamilyKnowledge({ prefix: "game", getLobbyId: () => 1, client, isAccount }), root, result, buttons };
 }
 
 test("the survey never fetches a concealed work or polls while the timer ticks", async () => {
@@ -76,5 +76,38 @@ test("failed choices can be retried without adding requests while a vote is in f
   await vote.request(vote.retryChoice);
   assert.equal(calls, 2);
   assert.equal(vote.data.choice, false);
+  delete globalThis.document;
+});
+
+test("guests never see the survey or send a vote request", async () => {
+  let calls = 0;
+  const { vote, root } = widget({ getFamilyKnowledge: async () => { calls++; }, voteFamilyKnowledge: async () => { calls++; } }, () => false);
+  vote.update({ id: 1, track: { family_id: 1 } });
+  await vote.request(true);
+  assert.equal(root.hidden, true);
+  assert.equal(calls, 0);
+  delete globalThis.document;
+});
+
+test("the first recorded choice locks both buttons across subsequent rounds", async () => {
+  let calls = 0;
+  let recorded = null;
+  const { vote, buttons } = widget({
+    getFamilyKnowledge: async () => ({ success: true, data: { choice: recorded, can_vote: recorded === null } }),
+    voteFamilyKnowledge: async ({ known }) => { calls++; recorded = known; return { success: true, data: { choice: recorded, can_vote: false, vote_count: 1, notoriety_percent: 54 } }; },
+  });
+  vote.update({ id: 1, track: { family_id: 1 } });
+  assert.ok(buttons.every(button => button.disabled));
+  await new Promise(setImmediate);
+  await vote.request(false);
+  await vote.request(true);
+  assert.equal(calls, 1);
+  assert.ok(buttons.every(button => button.disabled));
+  vote.update({ id: 2, track: { family_id: 1 } });
+  await new Promise(setImmediate);
+  await vote.request(true);
+  assert.equal(calls, 1);
+  assert.equal(vote.data.choice, false);
+  assert.ok(buttons.every(button => button.disabled));
   delete globalThis.document;
 });

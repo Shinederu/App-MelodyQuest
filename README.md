@@ -28,7 +28,7 @@ petit changement complet.
 - API MelodyQuest: `https://api.shinederu.ch/melodyquest/`
 - API Auth: `https://api.shinederu.ch/auth/`
 - Hub Mercure: `https://mercure.shinederu.ch/.well-known/mercure`
-- Cache-bust JS/CSS courant: `20260915-notoriety-slider`
+- Cache-bust JS/CSS courant: `20260915-notoriety-votes`
 
 Identite visuelle:
 
@@ -56,14 +56,16 @@ statistiques de profil.
 
 Les suppressions de categories, œuvres, musiques et salons passent par une modale commune qui nomme l'element avant confirmation.
 
-Derniere livraison: [notoriete par œuvre et curseur du lobby](docs/2026-09-15-notoriety-slider.md).
+Derniere livraison: [base de notoriete a 60 et vote definitif](docs/2026-09-15-notoriety-votes.md).
 Le sondage facultatif « Tu connaissais cette œuvre ? » apparait une fois la
-solution accessible, en actif, mode salon et passif. Un avis par compte ou
-session invitee et par œuvre, modifiable; aucune incidence sur le score ou le
+solution accessible aux comptes connectes, en actif, mode salon et passif.
+Un seul avis definitif par compte et par œuvre; aucune incidence sur le score ou le
 passage a la suite. Les pourcentages s'affichent apres le vote, avec leur effectif.
 La TV collective ne vote pas. Le filtre du lobby utilise la notoriete ponderee
-de l'œuvre: estimation initiale 50/75/100 et avis Oui/Non, avec un poids initial
+de l'œuvre: estimation initiale 60/75/100 et avis Oui/Non, avec un poids initial
 de 10. Le curseur propose Tout, Connues (60 % minimum), Tres connues (90 % minimum).
+Une nouvelle œuvre commence a 60 %; un premier Non donne 54 %, un Oui 63 %.
+Les invites peuvent toujours jouer, mais ne voient pas le sondage de notoriete.
 La verification propose recherche, categorie, pagination et timecodes en
 secondes ou `m:ss` / `h:mm:ss`, avec apercu borne et validation successive.
 
@@ -226,7 +228,7 @@ Redirections importantes:
   - suggestions de correction ou nouvelle musique;
   - application directe des suggestions au catalogue;
   - correction du nom de l'oeuvre a deviner ou ajout d'un alias, sans confondre avec le libelle de la musique;
-  - debut/fin d'extrait en secondes et estimation initiale de l'œuvre (50/75/100 %), ajustable aussi pendant la validation; timestamps egalement proposables par les joueurs;
+  - debut/fin d'extrait en secondes et estimation initiale de l'œuvre (60/75/100 %), ajustable aussi pendant la validation; timestamps egalement proposables par les joueurs;
   - notifications de moderation par mail gerees par l'API;
   - analyse des reponses joueurs avec filtres resultat/categorie/periode/texte;
   - regroupement des fautes proches et ajout d'un candidat comme alias;
@@ -401,13 +403,14 @@ YYYYMMDD-sujet-court
 Cache-bust courant:
 
 ```text
-20260915-notoriety-slider
+20260915-notoriety-votes
 ```
 
 Historique utile:
 
 - `20260914-familiarity-review`: avis Oui/Non par œuvre, verification paginee et timecodes, correction des liens vers un autre salon et ordre des actions du mode salon. Migration API 023 requise.
 - `20260915-notoriety-slider`: curseur 0/60/90, estimation partagee 50/75/100, notoriete ponderee par les avis. Migration API 024 requise; aucune remise en attente du catalogue.
+- `20260915-notoriety-votes`: base 60 %, vote reserve aux comptes et premier choix definitif par œuvre. Migration API 025 avant deploiement.
 - `20260912-playback-reports`: categorie sous le lecteur, actions lobby en dialog, fiche joueur du tiroir, demandes de suppression et signalements automatiques des videos indisponibles avec transition serveur apres six secondes. Migration API 022 requise.
 - `20260912-menu-layout`: menus regroupes par usage (partie, invitations/TV, compte et sortie), navigation catalogue separee du jeu; boutons du salon et liaison TV reorganises, header mobile aligne.
 - `20260912-header-scroll`: suppression du header sticky sur PC; le header suit le defilement sur tous les formats.
@@ -491,7 +494,7 @@ Smoke test recommande:
 
 Copier uniquement le runtime public:
 
-Le frontend suppose les migrations API jusqu'a `024_melodyquest_notoriety.sql`
+Le frontend suppose les migrations API jusqu'a `025_melodyquest_notoriety_baseline.sql`
 et le runtime API associe deja en production. Deployer le frontend en dernier.
 
 ```powershell

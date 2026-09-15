@@ -1,6 +1,7 @@
 import { confirmDeletion } from "../utils/confirmDialog.js?v=20260810-history-safety";
 import { escapeHtml, normalizeSearch, slugify } from "../utils/ui.js?v=20260610-shared-utils";
-import { formatKnowledge } from "../utils/FamilyKnowledge.js?v=20260915-notoriety-slider";
+import { formatKnowledge } from "../utils/FamilyKnowledge.js?v=20260915-notoriety-votes";
+import { NOTORIETY_DEFAULT } from "../utils/Notoriety.js?v=20260915-notoriety-votes";
 
 export class ManagementFamiliesController {
   constructor() {
@@ -125,7 +126,7 @@ export class ManagementFamiliesController {
   }
 
   fillForm(item) {
-    document.getElementById("fam-notoriety-seed").value = String(item.notoriety_seed ?? 50);
+    document.getElementById("fam-notoriety-seed").value = String(item.notoriety_seed ?? NOTORIETY_DEFAULT);
     this.formVisible = true;
     this.selectedId = Number(item.id);
     const form = document.getElementById("fam-form");
@@ -152,7 +153,7 @@ export class ManagementFamiliesController {
   }
 
   resetForm() {
-    document.getElementById("fam-notoriety-seed").value = "50";
+    document.getElementById("fam-notoriety-seed").value = String(NOTORIETY_DEFAULT);
     this.selectedId = null;
     const form = document.getElementById("fam-form");
     const category = document.getElementById("fam-category");

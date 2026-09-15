@@ -4,7 +4,7 @@ import { loadYouTubeIframeApi } from "../utils/youtube.js?v=20260717-compact-lan
 import { escapeHtml } from "../utils/ui.js?v=20260717-compact-landscape";
 import { pauseAtTrackEnd } from "../utils/PlaybackBounds.js?v=20260912-game-ui-v2";
 import { PlaybackFailure, isUnavailableRound } from "../utils/PlaybackFailure.js?v=20260912-playback-reports";
-import { FamilyKnowledge } from "../utils/FamilyKnowledge.js?v=20260915-notoriety-slider";
+import { FamilyKnowledge } from "../utils/FamilyKnowledge.js?v=20260915-notoriety-votes";
 
 const DEFAULT_VOLUME = 70;
 const VOLUME_STORAGE_KEY = "mq_autoplay_volume";

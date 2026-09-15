@@ -1,14 +1,19 @@
+import { NOTORIETY_DEFAULT } from "./Notoriety.js?v=20260915-notoriety-votes";
+import { getActorId, getStoredPlayerIdentity } from "./PlayerIdentity.js?v=20260831-guest-mode";
+
 export function formatKnowledge(summary) {
   const total = Number(summary?.vote_count || 0);
-  const percent = Number(summary?.notoriety_percent ?? summary?.notoriety_seed ?? 50);
+  const percent = Number(summary?.notoriety_percent ?? summary?.notoriety_seed ?? NOTORIETY_DEFAULT);
   return `Notoriété : ${percent} % · ${total ? `${total} avis` : "estimation initiale"}`;
 }
 
 export class FamilyKnowledge {
-  constructor({ prefix, getLobbyId, client = window.httpClient }) {
+  constructor({ prefix, getLobbyId, client = window.httpClient,
+    isAccount = () => getActorId(getStoredPlayerIdentity()) > 0 }) {
     this.root = document.getElementById(`${prefix}-knowledge`);
     this.getLobbyId = getLobbyId;
     this.client = client;
+    this.isAccount = isAccount;
     this.roundId = 0;
     this.destroyed = false;
     this.busy = false;
@@ -29,6 +34,12 @@ export class FamilyKnowledge {
 
   update(round) {
     if (this.destroyed || !this.root) return;
+    if (!this.isAccount()) {
+      this.root.hidden = true;
+      this.roundId = 0;
+      this.data = null;
+      return;
+    }
     const visible = Number(round?.track?.family_id) > 0 && !round?.unavailable_skip_at_unix;
     this.root.hidden = !visible;
     if (!visible || this.roundId === Number(round.id)) return;
@@ -40,7 +51,8 @@ export class FamilyKnowledge {
   }
 
   async request(choice) {
-    if (this.destroyed || this.busy || !this.roundId) return;
+    if (this.destroyed || this.busy || !this.roundId || !this.isAccount()) return;
+    if (typeof choice === "boolean" && (!this.data || this.data.choice != null || this.data.can_vote === false)) return;
     this.busy = true;
     this.retryChoice = choice;
     const roundId = this.roundId;
@@ -64,7 +76,7 @@ export class FamilyKnowledge {
 
   render(error = "") {
     this.root.querySelectorAll("[data-known]").forEach((button) => {
-      button.disabled = this.busy;
+      button.disabled = this.busy || !this.data || this.data.choice != null || this.data.can_vote === false;
       button.setAttribute("aria-pressed", String(this.data?.choice === (button.dataset.known === "yes")));
     });
     this.root.querySelector("[data-knowledge-result]").textContent = error || (this.busy ? "…" : this.data?.choice != null ? formatKnowledge(this.data) : "");

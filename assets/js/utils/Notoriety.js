@@ -1,4 +1,5 @@
 export const NOTORIETY_STEPS = [0, 60, 90];
+export const NOTORIETY_DEFAULT = 60;
 export const NOTORIETY_LABELS = ["Tout", "Connues, au moins 60 %", "Très connues, au moins 90 %"];
 
 export function notorietyStep(minimum) {
@@ -30,7 +31,7 @@ export class FamilySeedField {
     if (!this.input || (!force && this.key === key)) return;
     this.key = key;
     this.dirty = false;
-    this.input.value = String(family?.notoriety_seed ?? 50);
+    this.input.value = String(family?.notoriety_seed ?? NOTORIETY_DEFAULT);
   }
 
   payload() {
