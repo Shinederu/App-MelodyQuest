@@ -329,6 +329,11 @@ Il n'y a pas de fallback SSE supporte dans l'API actuelle.
 
 ## Dependances inter-projets
 
+Dernier controle des versions: [audit du 25 septembre 2026](docs/2026-09-25-dependencies.md).
+Frontend sans React ni dependances npm declarees; bibliotheques navigateur
+vendorees et vendor PHP fourni par Auth a verifier separement. Aucune mise a
+jour installee pendant ce controle.
+
 - `App-MelodyQuest-API`: gameplay, catalogue, suggestions, TV, DB et Mercure.
 - `Module-Auth-API`: login/logout/session/utilisateur/avatar.
 - `Module-Auth-Core`: client auth navigateur vendore.
