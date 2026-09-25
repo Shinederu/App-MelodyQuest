@@ -101,6 +101,24 @@ deploiement runtime, modification DB ou installation effectue pendant ce control
   Le navigateur integre ne demarre pas dans cette session (erreur du sandbox);
   les controles HTTP publics ne remplacent pas un parcours connecte interactif.
 
+### Controle apres livraison
+
+Commits applicatifs pushes sur main: `App-MelodyQuest` `8ae789d`,
+`Module-Auth-API` `d15fa8b`. Sources du module Auth Core inchangees.
+Le runtime Auth filtre contient 153 fichiers; aucun test, exemple, README,
+manifeste Composer source ou secret n'y a ete copie. `.env` est inchange.
+Les huit fichiers frontend deployes correspondent exactement aux reponses
+HTTPS publiques (y compris les fichiers de cache PWA).
+
+Controles HTTP apres deploiement: Auth `me` renvoie le 401 attendu sans session;
+MelodyQuest `listCategories` et `listPublicLobbies` renvoient 200 avec succes.
+Pas de test de modification de donnees ni d'envoi SMTP reel.
+
+Copies de retour arriere locales, hors PROD et sans `.env`:
+
+- `P:\DEV\Temp\auth-vendor-before-20260925`
+- `P:\DEV\Temp\melodyquest-before-20260925-dependencies`
+
 ## Sources de versions
 
 - [Registre jsQR](https://registry.npmjs.org/jsqr/latest)
