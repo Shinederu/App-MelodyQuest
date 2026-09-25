@@ -2,6 +2,7 @@ export const DEFAULT_ENDPOINTS = {
     login: "",
     register: "",
     me: "",
+    listUsers: "",
     logout: "",
     logoutAll: "",
     requestPasswordReset: "",
@@ -13,6 +14,7 @@ export const DEFAULT_ENDPOINTS = {
     revokeEmailUpdate: "",
     updateProfile: "",
     updateAvatar: "",
+    updateUserRole: "",
     deleteAccount: "",
 };
 export const EMPTY_SESSION = {
@@ -43,11 +45,30 @@ export const defaultTransformUser = (payload) => {
     const raw = payload;
     const fromData = raw.data && typeof raw.data === "object" ? raw.data : null;
     if (raw.user && typeof raw.user === "object") {
-        return raw.user;
+        return normalizeUser(raw.user);
     }
     if (fromData?.user && typeof fromData.user === "object") {
-        return fromData.user;
+        return normalizeUser(fromData.user);
     }
     return null;
+};
+const toBool = (value) => {
+    if (value === null || value === undefined)
+        return false;
+    if (typeof value === "boolean")
+        return value;
+    if (typeof value === "number")
+        return value === 1;
+    const normalized = String(value).trim().toLowerCase();
+    return ["1", "true", "yes", "on", "admin"].includes(normalized);
+};
+const normalizeUser = (user) => {
+    const role = String(user.role ?? "").toLowerCase();
+    const isAdmin = toBool(user.is_admin) || role === "admin";
+    return {
+        ...user,
+        role: isAdmin ? "admin" : (role || "user"),
+        is_admin: isAdmin,
+    };
 };
 //# sourceMappingURL=helpers.js.map

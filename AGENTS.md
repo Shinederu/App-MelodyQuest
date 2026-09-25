@@ -70,6 +70,10 @@ Le repo frontend ne contient pas de dossier `client/` ou `backend/` actif. Ne pa
 - `assets/js/model/`: header/utilisateur.
 - `assets/js/utils/`: helpers HTTP, lobby, horloge, UI, YouTube, QR, wake lock.
 - `assets/js/vendor/`: bibliotheques vendorees navigateur.
+- Client Auth synchronise le 2026-09-25 depuis `Module-Auth-Core` (`815e6c4`,
+  build 0.1.0). Seuls les imports internes recoivent un cache-bust local.
+  A chaque nouvelle copie, conserver cette chaine d'invalidation et lancer
+  `tests/auth-client.test.js`. Aucune modification du lecteur liee a cet upgrade.
 - `tests/` et `package.json`: tests locaux, jamais deployes en runtime public.
 - `scripts/`: generation locale de l'inventaire et des sources PWA; jamais deploye.
 
@@ -103,7 +107,7 @@ Quand un JS, une vue HTML ou le CSS change, mettre a jour:
 
 Format conseille: `YYYYMMDD-sujet`.
 
-Cache-bust courant: `20260915-track-aliases`.
+Cache-bust courant: `20260925-dependencies`.
 
 La version `RELEASE` de `service-worker.js` et celle de `pwa-assets.json`
 doivent correspondre au cache-bust courant. Apres toute modification de la

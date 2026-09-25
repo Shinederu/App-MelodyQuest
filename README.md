@@ -34,7 +34,7 @@ Les propositions et modifications futures restent soumises a verification.
 - API MelodyQuest: `https://api.shinederu.ch/melodyquest/`
 - API Auth: `https://api.shinederu.ch/auth/`
 - Hub Mercure: `https://mercure.shinederu.ch/.well-known/mercure`
-- Cache-bust JS/CSS courant: `20260915-track-aliases`
+- Cache-bust JS/CSS courant: `20260925-dependencies`
 
 Identite visuelle:
 
@@ -331,8 +331,10 @@ Il n'y a pas de fallback SSE supporte dans l'API actuelle.
 
 Dernier controle des versions: [audit du 25 septembre 2026](docs/2026-09-25-dependencies.md).
 Frontend sans React ni dependances npm declarees; bibliotheques navigateur
-vendorees et vendor PHP fourni par Auth a verifier separement. Aucune mise a
-jour installee pendant ce controle.
+vendorees et vendor PHP fourni par Auth a verifier separement. Mises a jour
+autorisees puis appliquees le meme jour: client Auth synchronise sur le module
+interne `815e6c4`, PHPMailer 7.1.1, phpdotenv 5.7.0 et dependances PHP partagees.
+Voir le compte-rendu pour les versions, tests et limites.
 
 - `App-MelodyQuest-API`: gameplay, catalogue, suggestions, TV, DB et Mercure.
 - `Module-Auth-API`: login/logout/session/utilisateur/avatar.
@@ -424,11 +426,12 @@ YYYYMMDD-sujet-court
 Cache-bust courant:
 
 ```text
-20260915-track-aliases
+20260925-dependencies
 ```
 
 Historique utile:
 
+- `20260925-dependencies`: client Auth vendore a jour, tests sessions/permissions et renouvellement du cache PWA; bibliotheques PHP mises a jour dans Auth, aucune migration.
 - `20260915-track-aliases`: affichage des alias de l'œuvre dans la gestion des musiques et recherche par alias; frontend uniquement, aucune migration.
 
 - `20260914-familiarity-review`: avis Oui/Non par œuvre, verification paginee et timecodes, correction des liens vers un autre salon et ordre des actions du mode salon. Migration API 023 requise.

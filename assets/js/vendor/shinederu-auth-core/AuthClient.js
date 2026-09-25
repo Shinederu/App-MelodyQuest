@@ -1,5 +1,5 @@
-import { EMPTY_SESSION, defaultTransformUser, mergeEndpoints, toQueryString } from "./helpers.js";
-import { createBrowserStorage } from "./storage.js";
+import { EMPTY_SESSION, defaultTransformUser, mergeEndpoints, toQueryString } from "./helpers.js?v=20260925-dependencies";
+import { createBrowserStorage } from "./storage.js?v=20260925-dependencies";
 const DEFAULT_STORAGE_KEY = "shinederu_auth_session";
 const parseResponseData = async (response) => {
     if (response.status === 204)
@@ -113,6 +113,9 @@ export class AuthClient {
         }
         return { ...response, data: user };
     }
+    async listUsers() {
+        return this.invokeAction("GET", "listUsers");
+    }
     async logout() {
         const response = await this.invokeAction("POST", "logout");
         this.clearSession();
@@ -155,6 +158,9 @@ export class AuthClient {
         const fd = new FormData();
         fd.append("file", file, fileName);
         return this.invokeAction("POST", "updateAvatar", fd);
+    }
+    async updateUserRole(userId, role) {
+        return this.invokeAction("PUT", "updateUserRole", { userId, role });
     }
     async deleteAccount(password) {
         const response = await this.invokeAction("DELETE", "deleteAccount", { password });

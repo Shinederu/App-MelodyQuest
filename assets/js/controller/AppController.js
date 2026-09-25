@@ -1,4 +1,4 @@
-import { HttpService } from "../utils/HttpService.js?v=20260915-notoriety-votes";
+import { HttpService } from "../utils/HttpService.js?v=20260925-dependencies";
 import { HeaderModel } from "../model/HeaderModel.js?v=20260912-playback-reports";
 import { WakeLockService } from "../utils/WakeLockService.js?v=20260912-game-ui-v2";
 import { registerPwa } from "../utils/PwaService.js?v=20260912-game-ui-v2";
@@ -26,7 +26,7 @@ import { ManagementValidationController } from "./ManagementValidationController
 import { ManagementSuggestionsController } from "./ManagementSuggestionsController.js?v=20260912-playback-reports";
 import { ManagementAnswersController } from "./ManagementAnswersController.js?v=20260912-game-ui-v2";
 
-const ASSET_VERSION = "20260915-track-aliases";
+const ASSET_VERSION = "20260925-dependencies";
 const YOUTUBE_PREWARM_ROUTES = new Set(["lobby", "game", "autoplay", "tv"]);
 const WAKE_LOCK_ROUTES = new Set(["lobby", "game", "autoplay", "result", "tv-link", "tv"]);
 

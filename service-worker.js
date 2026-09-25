@@ -1,4 +1,4 @@
-const RELEASE = "20260915-track-aliases";
+const RELEASE = "20260925-dependencies";
 const CACHE_PREFIX = "melodyquest-shell-";
 const CACHE_NAME = `${CACHE_PREFIX}${RELEASE}`;
 const ASSET_INDEX_URL = `/pwa-assets.json?v=${RELEASE}`;

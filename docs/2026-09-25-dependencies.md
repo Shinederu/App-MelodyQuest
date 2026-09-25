@@ -2,7 +2,9 @@
 
 ## Perimetre et resultat
 
-Verification demandee par l'utilisateur, sans installation de mise a jour.
+Controle initial sans installation; puis mise a jour autorisee par l'utilisateur
+le meme jour (voir livraison ci-dessous). Les tableaux suivants decrivent
+l'etat avant intervention.
 MelodyQuest n'utilise pas React: frontend HTML/CSS/JavaScript natif, API PHP,
 Mercure et lecteur YouTube iframe. Aucun JSX/TSX ou gestionnaire de build React.
 Le `package.json` du frontend ne declare aucune dependance npm: uniquement les
@@ -70,7 +72,36 @@ synchronisation separee avec tests de sessions et permissions.
 Verification locale: 35 tests frontend valides. Aucun changement applicatif,
 deploiement runtime, modification DB ou installation effectue pendant ce controle.
 
-## Sources
+## Livraison autorisee du 25 septembre
+
+- Client Auth: rebuild de `Module-Auth-Core` au commit `815e6c4`, copie des cinq
+  JS runtime dans MelodyQuest. Ajouts disponibles: `listUsers`, `updateUserRole`
+  et normalisation de `role` / `is_admin`; permissions projet conservees.
+  Seule adaptation de distribution: imports internes versionnes, sans changer
+  le comportement du module. Pas de changement du module source.
+- Auth PHP: Medoo 2.6.0, PHPMailer 7.1.1, phpdotenv 5.7.0, result-type 1.2.0,
+  phpoption 1.10.0, polyfill-ctype/php80 1.37.0, polyfill-mbstring 1.38.2.
+  `Module-Auth-API` est proprietaire du manifeste et du nouveau `composer.lock`;
+  resolution compatible PHP 8.1 minimum. MelodyQuest consomme le meme vendor,
+  sans second manifeste ni copie des bibliotheques dans son backend.
+- jsQR reste en 1.4.0, deja a jour. Aucun changement du player YouTube/TV,
+  du gameplay, des donnees, des secrets, ni des endpoints.
+- Release frontend/PWA: `20260925-dependencies`. La chaine AppController ->
+  HttpService -> index Auth -> AuthClient -> helpers est cache-bustee.
+- Verification: 40 tests frontend, build du module Auth, 5 checks PHP isoles
+  (Dotenv, requetes Medoo, vrai SessionService, MIME de tous les modeles Auth,
+  e-mail texte moderation et rejet d'adresse invalide). Aucun mail reel envoye.
+  Composer validate et audit sans anomalie de dependance referencee. Les 42
+  tests unitaires du backend passent egalement; lint des 44 JS et 21 PHP Auth OK.
+- Deploiement: seuls les fichiers frontend modifies et le vendor runtime filtre
+  d'Auth. Docs, tests, Composer source, caches et outils restent dans DEV.
+  Une copie de retour arriere du vendor precedent est gardee hors PROD.
+- Limite: les tests MIME n'attestent pas la livraison SMTP; les scenarios de
+  modification de comptes reels ne sont pas executes pour cet upgrade.
+  Le navigateur integre ne demarre pas dans cette session (erreur du sandbox);
+  les controles HTTP publics ne remplacent pas un parcours connecte interactif.
+
+## Sources de versions
 
 - [Registre jsQR](https://registry.npmjs.org/jsqr/latest)
 - [Distribution jsQR 1.4.0](https://unpkg.com/jsqr@1.4.0/dist/jsQR.js)

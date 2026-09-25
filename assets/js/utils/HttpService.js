@@ -2,7 +2,7 @@ const API_ROOT = window.__SHINEDERU_API_ROOT__ || "https://api.shinederu.ch";
 const AUTH_BASE_URL = `${API_ROOT}/auth/`;
 const MELODY_BASE_URL = `${API_ROOT}/melodyquest/index.php`;
 
-import { createAuthClient } from "../vendor/shinederu-auth-core/index.js";
+import { createAuthClient } from "../vendor/shinederu-auth-core/index.js?v=20260925-dependencies";
 const extractMessage = (payload, fallback = "") => {
   if (!payload || typeof payload !== "object") return fallback;
 
