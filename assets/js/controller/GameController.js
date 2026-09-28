@@ -828,8 +828,8 @@ export class GameController {
       const totalMs = Math.max(1000, Number(this.currentLobby?.round_duration_seconds || 30) * 1000);
       const remainingMs = Math.max(0, this.getAnswerDeadlineMs(round) - this.getNowMs());
       const remaining = Math.max(0, Math.ceil(remainingMs / 1000));
-      title.textContent = "Vidéo cachée";
-      copy.textContent = `Réponds dans ${remaining}s.`;
+      title.textContent = "Réponse cachée";
+      copy.textContent = `Réponse dans ${remaining} s`;
       hint.textContent = "Écoute l'extrait et trouve la bonne réponse pour révéler la vidéo.";
       this.renderTimerRing(ring, 1 - (remainingMs / totalMs));
       return;
@@ -1263,7 +1263,8 @@ export class GameController {
     const category = String(track?.category_name || "").trim();
     const shouldShow = Boolean(category) && this.toBool(this.currentLobby?.show_track_category);
     host.hidden = !shouldShow;
-    host.textContent = shouldShow ? `Catégorie : ${category}` : "";
+    const text = shouldShow ? category : "";
+    if (host.textContent !== text) host.textContent = text;
   }
 
   renderSolution(track, showVideo) {

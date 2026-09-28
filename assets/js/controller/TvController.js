@@ -505,14 +505,14 @@ export class TvController {
       }
       if (overlayTitle) {
         overlayTitle.textContent = acceptingAnswers
-          ? "Vidéo cachée"
+          ? "Réponse cachée"
           : solutionVisible
             ? "Solution révélée"
             : "Révélation en cours";
       }
       if (overlayCopy) {
         overlayCopy.textContent = acceptingAnswers
-          ? "Écoute l'extrait."
+          ? ""
           : solutionVisible
             ? "Regarde la réponse."
             : "La réponse va s'afficher.";
@@ -592,11 +592,17 @@ export class TvController {
 
   renderSolution(track, visible) {
     const solution = document.getElementById("tv-solution");
+    const category = document.getElementById("tv-solution-category");
     const family = document.getElementById("tv-solution-family");
     const detail = document.getElementById("tv-solution-track");
     if (!solution || !family || !detail) return;
 
     solution.hidden = !visible || !track;
+    if (category) {
+      const name = visible && this.snapshot?.lobby?.show_track_category ? (track?.category_name || "") : "";
+      category.textContent = name;
+      category.hidden = !name;
+    }
     if (!visible || !track) return;
 
     family.textContent = track.family_name || "Réponse";
@@ -666,7 +672,7 @@ export class TvController {
       const deadline = Number(round.answer_deadline_unix || 0);
       if (!deadline) return null;
       return {
-        label: this.isPassiveMode() ? "Écoute" : "Réponses ouvertes",
+        label: "Réponse dans",
         remaining: Math.max(0, deadline - now),
         total: Math.max(1, Number(lobby.round_duration_seconds || 1)),
       };

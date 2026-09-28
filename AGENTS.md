@@ -107,7 +107,15 @@ Quand un JS, une vue HTML ou le CSS change, mettre a jour:
 
 Format conseille: `YYYYMMDD-sujet`.
 
-Cache-bust courant: `20260925-dependencies`.
+Cache-bust courant: `20260928-listening`.
+
+Ecran d'ecoute: categorie dans `.mq-listening-overlay`, jamais a cote pendant
+la video cachee. Les trois cadres video gardent un 16:9 stable via
+`play-layout.css`; borner la largeur plutot que comprimer la hauteur.
+L'animation est purement CSS/decorative, pas un etat de buffering YouTube.
+Conserver `prefers-reduced-motion`, l'option de categorie et le masque opaque.
+Test visuel local: `scripts/check-listening-layout.mjs`, fixtures source-only
+sous `tests/fixtures/`; ne jamais les deployer ni les utiliser comme API reelle.
 
 La version `RELEASE` de `service-worker.js` et celle de `pwa-assets.json`
 doivent correspondre au cache-bust courant. Apres toute modification de la

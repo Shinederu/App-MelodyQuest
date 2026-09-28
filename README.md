@@ -34,7 +34,7 @@ Les propositions et modifications futures restent soumises a verification.
 - API MelodyQuest: `https://api.shinederu.ch/melodyquest/`
 - API Auth: `https://api.shinederu.ch/auth/`
 - Hub Mercure: `https://mercure.shinederu.ch/.well-known/mercure`
-- Cache-bust JS/CSS courant: `20260925-dependencies`
+- Cache-bust JS/CSS courant: `20260928-listening`
 
 Identite visuelle:
 
@@ -227,6 +227,11 @@ Redirections importantes:
   - la TV active affiche les votes de manche suivante et les cinq derniers essais rates; aucun score ni vote en passif;
   - le son TV est actif, sans bouton d'activation manuel.
 - Ergonomie:
+  - ecran d'ecoute actif/passif/TV: animation CSS decorative, categorie au centre
+    si activee et compte a rebours « Reponse dans ». La categorie ne revient
+    sous le lecteur qu'avec la solution; pas de doublon pendant l'ecoute;
+  - cadre du lecteur toujours 16:9, taille stable entre ecoute et revelation;
+    sur ecran court sa largeur diminue, jamais sa hauteur seule;
   - style sombre;
   - layout responsive desktop/tablette/mobile;
   - installation comme application autonome sur les navigateurs compatibles;
@@ -426,11 +431,12 @@ YYYYMMDD-sujet-court
 Cache-bust courant:
 
 ```text
-20260925-dependencies
+20260928-listening
 ```
 
 Historique utile:
 
+- `20260928-listening`: categorie et animation dans l'ecran masque, libelles reponse, ratio 16:9 permanent; aucune modification des controles YouTube ou de l'API.
 - `20260925-dependencies`: client Auth vendore a jour, tests sessions/permissions et renouvellement du cache PWA; bibliotheques PHP mises a jour dans Auth, aucune migration.
 - `20260915-track-aliases`: affichage des alias de l'œuvre dans la gestion des musiques et recherche par alias; frontend uniquement, aucune migration.
 
@@ -506,6 +512,14 @@ rg -n "console\.|alert\(|debugger" P:\DEV\GitHub\App-MelodyQuest\assets
 ```
 
 Smoke test recommande:
+
+Regression visuelle isolee: `node scripts/check-listening-layout.mjs` avec
+Playwright disponible (ou `PLAYWRIGHT_MODULE_PATH` vers son package). Optionnel:
+`MQ_CHROME_PATH` pour choisir Chrome, `MQ_SCREENSHOT_DIR` pour les captures hors
+PROD. Ce test utilise les vraies vues et methodes de presentation, mais un iframe
+factice: aucun salon reel, API ou YouTube. Il couvre sept tailles, quatre modes,
+les transitions, les noms longs, la categorie desactivee et le mouvement reduit.
+Voir `docs/2026-09-28-listening.md` pour les limites et resultats.
 
 1. Racine/`#/main` sans cookie: pseudo invite, changement de pseudo, switch actif/passif, creation/rejoindre et liste publique.
 2. Deux navigateurs invites: lobby, presence, exclusion, reponses, votes et scores sans collision.

@@ -14,15 +14,19 @@
 
     <div id="autoplay-video" class="mq-video-shell mq-autoplay-video-shell is-concealed">
       <div id="autoplay-video-player" class="mq-video-player"></div>
-      <div id="autoplay-video-overlay" class="mq-video-overlay">
+      <div id="autoplay-video-overlay" class="mq-video-overlay mq-listening-overlay">
         <div class="mq-video-overlay__content">
+          <div class="mq-listening-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="mq-listening-heading">
+            <strong id="autoplay-overlay-title" class="mq-listening-title">Préparation</strong>
+            <p id="autoplay-round-category" class="mq-listening-category" hidden></p>
+          </div>
           <div class="mq-video-overlay__timer">
             <svg class="mq-timer-ring" viewBox="0 0 120 120" aria-hidden="true">
               <circle class="mq-timer-ring__track" cx="60" cy="60" r="44"></circle>
               <circle id="autoplay-ring-progress" class="mq-timer-ring__progress" cx="60" cy="60" r="44"></circle>
             </svg>
             <div class="mq-video-overlay__timer-copy">
-              <strong id="autoplay-overlay-title">Préparation</strong>
               <p id="autoplay-overlay-copy">Chargement de la prochaine musique.</p>
             </div>
           </div>
@@ -33,8 +37,8 @@
 
     <div class="mq-track-caption">
       <p id="autoplay-playback-failure" class="mq-playback-failure" role="status" hidden></p>
-      <div id="autoplay-round-category" class="mq-game-category mq-track-category" hidden></div>
       <div id="autoplay-solution" class="mq-game-solution mq-autoplay-solution" hidden>
+        <span id="autoplay-solution-category" class="mq-chip" hidden></span>
         <strong id="autoplay-solution-family"></strong>
         <span id="autoplay-solution-track"></span>
       </div>

@@ -22,30 +22,34 @@
 
         <div id="tv-video" class="mq-video-shell mq-tv-video-shell is-concealed">
           <div id="tv-video-player" class="mq-video-player"></div>
-          <div id="tv-video-overlay" class="mq-video-overlay">
+          <div id="tv-video-overlay" class="mq-video-overlay mq-listening-overlay">
             <div class="mq-video-overlay__content">
+              <div class="mq-listening-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+              <div class="mq-listening-heading">
+                <strong id="tv-video-overlay-title" class="mq-listening-title">Salon prêt</strong>
+                <p id="tv-round-category" class="mq-listening-category" hidden></p>
+              </div>
               <div class="mq-video-overlay__timer">
                 <svg class="mq-timer-ring" viewBox="0 0 120 120" aria-hidden="true">
                   <circle class="mq-timer-ring__track" cx="60" cy="60" r="44"></circle>
                   <circle id="tv-timer-ring-progress" class="mq-timer-ring__progress" cx="60" cy="60" r="44"></circle>
                 </svg>
                 <div class="mq-video-overlay__timer-copy">
-                  <strong id="tv-video-overlay-title">Salon prêt</strong>
-                  <p id="tv-video-overlay-copy">La musique apparaîtra ici.</p>
+                  <div class="mq-tv-timer-readout">
+                    <span id="tv-timer-label">En attente</span>
+                    <strong id="tv-timer-value">--</strong>
+                  </div>
                 </div>
               </div>
-              <div class="mq-tv-timer-readout">
-                <strong id="tv-timer-value">--</strong>
-                <span id="tv-timer-label">En attente</span>
-              </div>
+              <p id="tv-video-overlay-copy">La musique apparaîtra ici.</p>
             </div>
           </div>
         </div>
 
         <div class="mq-track-caption">
           <p id="tv-playback-failure" class="mq-playback-failure" role="status" hidden></p>
-          <div id="tv-round-category" class="mq-game-category mq-track-category" hidden></div>
           <div id="tv-solution" class="mq-game-solution mq-tv-solution" hidden>
+            <span id="tv-solution-category" class="mq-chip" hidden></span>
             <strong id="tv-solution-family"></strong>
             <span id="tv-solution-track"></span>
           </div>

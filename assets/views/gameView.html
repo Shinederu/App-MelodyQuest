@@ -32,16 +32,20 @@
       <div id="game-video" class="mq-video-shell">
         <div id="game-video-player" class="mq-video-player"></div>
         <div id="game-video-guard" class="mq-video-guard" hidden></div>
-        <div id="game-video-overlay" class="mq-video-overlay">
+        <div id="game-video-overlay" class="mq-video-overlay mq-listening-overlay">
           <div class="mq-video-overlay__content">
+            <div class="mq-listening-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+            <div class="mq-listening-heading">
+              <strong id="game-video-overlay-title" class="mq-listening-title">Réponse cachée</strong>
+              <p id="game-round-category" class="mq-listening-category" hidden></p>
+            </div>
             <div class="mq-video-overlay__timer">
               <svg class="mq-timer-ring" viewBox="0 0 120 120" aria-hidden="true">
                 <circle class="mq-timer-ring__track" cx="60" cy="60" r="44"></circle>
                 <circle id="game-video-ring-progress" class="mq-timer-ring__progress" cx="60" cy="60" r="44"></circle>
               </svg>
               <div class="mq-video-overlay__timer-copy">
-                <strong id="game-video-overlay-title">Vidéo cachée</strong>
-                <p id="game-video-overlay-copy">Réponds dans -- secondes.</p>
+                <p id="game-video-overlay-copy">Réponse dans -- secondes.</p>
               </div>
             </div>
             <p id="game-video-overlay-hint" class="mq-video-overlay__hint">Écoute l'extrait et trouve la bonne réponse pour révéler la vidéo.</p>
@@ -50,7 +54,6 @@
       </div>
 
       <section class="mq-card mq-game-answer-card mq-game-stage-action">
-        <div id="game-round-category" class="mq-game-category mq-track-category" hidden></div>
         <p id="game-playback-failure" class="mq-playback-failure" role="status" hidden></p>
         <div id="game-player-mode-summary" class="mq-game-player-summary" hidden></div>
 

@@ -289,8 +289,9 @@ export class AutoplayController {
     }
     const category = document.getElementById("autoplay-round-category");
     if (category) {
-      category.textContent = round?.track?.category_name || "";
-      category.hidden = !this.lobby?.show_track_category || !category.textContent;
+      const name = this.lobby?.show_track_category ? (round?.track?.category_name || "") : "";
+      if (category.textContent !== name) category.textContent = name;
+      category.hidden = !name;
     }
     if (!round) {
       this.setPhase("Préparation");
@@ -325,7 +326,7 @@ export class AutoplayController {
       const remaining = Math.max(0, Math.ceil(deadline - now));
       this.setStatus("Écoute en cours", true);
       this.setPhase("Écoute");
-      this.renderOverlay("Vidéo cachée", `Réponse dans ${remaining}s.`, this.getProgressRatio(now, Number(round.started_at_unix || 0), deadline));
+      this.renderOverlay("Réponse cachée", `Réponse dans ${remaining} s`, this.getProgressRatio(now, Number(round.started_at_unix || 0), deadline));
       return;
     }
 
@@ -373,7 +374,7 @@ export class AutoplayController {
     trackEl.innerHTML = escapeHtml(details || "Titre non renseigné");
 
     if (category) {
-      const categoryName = track.category_name || "";
+      const categoryName = this.lobby?.show_track_category ? (track.category_name || "") : "";
       category.hidden = !categoryName;
       category.textContent = categoryName;
     }
