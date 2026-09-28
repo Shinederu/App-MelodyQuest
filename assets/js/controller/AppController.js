@@ -11,12 +11,12 @@ import { PublicController } from "./PublicController.js?v=20260912-game-ui-v2";
 import { SuggestTrackController } from "./SuggestTrackController.js?v=20260912-game-ui-v2";
 import { MainController } from "./MainController.js?v=20260912-game-ui-v2";
 import { AutoplaySetupController } from "./AutoplaySetupController.js?v=20260912-game-ui-v2";
-import { AutoplayController } from "./AutoplayController.js?v=20260928-listening";
+import { AutoplayController } from "./AutoplayController.js?v=20260928-game-status";
 import { LobbyController } from "./LobbyController.js?v=20260915-notoriety-votes";
 import { LobbyListController } from "./LobbyListController.js?v=20260912-game-ui-v2";
-import { GameController } from "./GameController.js?v=20260928-listening";
+import { GameController } from "./GameController.js?v=20260928-game-status";
 import { ResultController } from "./ResultController.js?v=20260912-game-ui-v2";
-import { TvController } from "./TvController.js?v=20260928-listening";
+import { TvController } from "./TvController.js?v=20260928-game-status";
 import { TvLinkController } from "./TvLinkController.js?v=20260912-playback-reports";
 import { ManagementController } from "./ManagementController.js?v=20260915-notoriety-votes";
 import { ManagementCategoriesController } from "./ManagementCategoriesController.js?v=20260912-game-ui-v2";
@@ -26,7 +26,7 @@ import { ManagementValidationController } from "./ManagementValidationController
 import { ManagementSuggestionsController } from "./ManagementSuggestionsController.js?v=20260912-playback-reports";
 import { ManagementAnswersController } from "./ManagementAnswersController.js?v=20260912-game-ui-v2";
 
-const ASSET_VERSION = "20260928-listening";
+const ASSET_VERSION = "20260928-game-status";
 const YOUTUBE_PREWARM_ROUTES = new Set(["lobby", "game", "autoplay", "tv"]);
 const WAKE_LOCK_ROUTES = new Set(["lobby", "game", "autoplay", "result", "tv-link", "tv"]);
 

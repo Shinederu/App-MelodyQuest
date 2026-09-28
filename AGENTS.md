@@ -107,7 +107,7 @@ Quand un JS, une vue HTML ou le CSS change, mettre a jour:
 
 Format conseille: `YYYYMMDD-sujet`.
 
-Cache-bust courant: `20260928-listening`.
+Cache-bust courant: `20260928-game-status`.
 
 Ecran d'ecoute: categorie dans `.mq-listening-overlay`, jamais a cote pendant
 la video cachee. Les trois cadres video gardent un 16:9 stable via

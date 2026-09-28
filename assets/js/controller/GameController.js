@@ -394,7 +394,7 @@ export class GameController {
     }
 
     this.setAnswerFeedback("");
-    this.setStatus(roundId ? "Nouvelle manche" : "", null);
+    this.setStatus("", null);
   }
 
   startRealtime() {

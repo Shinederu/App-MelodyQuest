@@ -11,6 +11,20 @@ function documentWith(ids) {
   return nodes;
 }
 
+test("a new round clears the status without a redundant announcement", () => {
+  const nodes = documentWith(["game-status"]);
+  const controller = Object.assign(Object.create(GameController.prototype), {
+    currentRoundId: 1, scheduleAnswerFocusForRound: () => {}, setAnswerFeedback: () => {},
+  });
+  controller.setStatus("Previous feedback", true);
+  controller.trackRoundChange({ id: 2 });
+  assert.equal(nodes["game-status"].textContent, "");
+  assert.equal(nodes["game-status"].className, "status");
+  controller.setStatus("Video unavailable", false);
+  assert.equal(nodes["game-status"].textContent, "Video unavailable");
+  assert.equal(nodes["game-status"].className, "status error");
+});
+
 test("the listening countdown refers to the answer, not a loading video", () => {
   const nodes = documentWith(["game-video-overlay-title", "game-video-overlay-copy", "game-video-overlay-hint", "game-video-ring-progress"]);
   const controller = Object.assign(Object.create(GameController.prototype), {

@@ -34,7 +34,7 @@ Les propositions et modifications futures restent soumises a verification.
 - API MelodyQuest: `https://api.shinederu.ch/melodyquest/`
 - API Auth: `https://api.shinederu.ch/auth/`
 - Hub Mercure: `https://mercure.shinederu.ch/.well-known/mercure`
-- Cache-bust JS/CSS courant: `20260928-listening`
+- Cache-bust JS/CSS courant: `20260928-game-status`
 
 Identite visuelle:
 
@@ -431,11 +431,12 @@ YYYYMMDD-sujet-court
 Cache-bust courant:
 
 ```text
-20260928-listening
+20260928-game-status
 ```
 
 Historique utile:
 
+- `20260928-game-status`: suppression du libelle redondant « Nouvelle manche »; les retours d'action et erreurs restent disponibles.
 - `20260928-listening`: categorie et animation dans l'ecran masque, libelles reponse, ratio 16:9 permanent; aucune modification des controles YouTube ou de l'API.
 - `20260925-dependencies`: client Auth vendore a jour, tests sessions/permissions et renouvellement du cache PWA; bibliotheques PHP mises a jour dans Auth, aucune migration.
 - `20260915-track-aliases`: affichage des alias de l'œuvre dans la gestion des musiques et recherche par alias; frontend uniquement, aucune migration.
